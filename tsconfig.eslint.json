@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.vue",
+    "src/**/*.ts",
+    "forge.*.ts",
+    "vite.*.ts",
+    ".eslintrc.cjs"
+  ]
+}
