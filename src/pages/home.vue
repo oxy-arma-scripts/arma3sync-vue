@@ -137,17 +137,22 @@
                 </template>
 
                 <template #text>
-                  <div style="max-height: 500px; overflow-y: auto;">
-                    <v-checkbox
+                  <v-list style="max-height: 500px; overflow-y: auto;">
+                    <v-list-item
                       v-for="mod in source.mods"
-                      :key="mod.name"
-                      :model-value="mod.active"
-                      :label="mod.name"
+                      :key="mod.id"
+                      :title="mod.name"
+                      :subtitle="mod.subpath !== mod.id ? mod.subpath : undefined"
                       density="compact"
-                      hide-details
-                      @update:model-value="modStore.setModActive(mod, $event)"
-                    />
-                  </div>
+                      @click="modStore.setModActive(mod, !mod.active)"
+                    >
+                      <template #prepend>
+                        <v-list-item-action start>
+                          <v-checkbox-btn :model-value="mod.active" density="compact" readonly />
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list>
                 </template>
               </v-expansion-panel>
             </v-expansion-panels>

@@ -57,10 +57,13 @@ export const useModsStore = defineStore('mods', () => {
     return mods.value.active.map((id) => mods.value.list[id]);
   });
 
-  function setModActive(mod: { id: string }, value: boolean) {
+  function setModActive(mod: { id: string, active: boolean }, value: boolean) {
     if (!mods.value) {
       return;
     }
+
+    // eslint-disable-next-line no-param-reassign
+    mod.active = value;
 
     if (value) {
       mods.value.active.push(mod.id);
