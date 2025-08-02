@@ -61,7 +61,7 @@
                   append-icon="mdi-folder-plus"
                   variant="tonal"
                   color="green"
-                  @click="openModSourcePicker()"
+                  @click="modStore.openModSourcePicker()"
                 />
               </template>
             </v-toolbar>
@@ -121,7 +121,7 @@
                         size="small"
                         color="red"
                         class="ml-2"
-                        @click.stop="removeModSource(source)"
+                        @click.stop="modStore.removeModSource(source)"
                       />
                       <v-btn
                         v-tooltip:top="'Open folder'"
@@ -130,7 +130,7 @@
                         variant="text"
                         size="small"
                         class="ml-2"
-                        @click.stop="openModSourceFolder(source)"
+                        @click.stop="modStore.openModSourceFolder(source)"
                       />
                     </div>
                   </v-row>
@@ -145,7 +145,7 @@
                       :label="mod.name"
                       density="compact"
                       hide-details
-                      @update:model-value="setModActive(mod, $event)"
+                      @update:model-value="modStore.setModActive(mod, $event)"
                     />
                   </div>
                 </template>
@@ -159,93 +159,18 @@
 </template>
 
 <script setup lang="ts">
-import type { Mod, ModSource, ModsState } from '~/app/models/mods/types';
-
-import logger from '~/lib/logger';
-
-type DisplayMod = Omit<Mod & { active: boolean }, 'source'>;
-type ModSourceWithMods = ModSource & {
-  mods: DisplayMod[],
-  enabledCount: number,
-};
-
 const SOURCE_ICONS: Record<string, string> = {
   'Creator DLCs': 'mdi-puzzle',
   'Steam Workshop': 'mdi-steam',
 };
 
-const { settings } = storeToRefs(useSettingsStore());
+const modStore = useModsStore();
 
 const {
-  value: mods,
+  activeMods,
+  sources,
   isSynced,
   loading,
-} = useIPCBridge<ModsState>('mods');
+} = storeToRefs(modStore);
 
-const sources = computed(() => {
-  const res = new Map<string, ModSourceWithMods>(
-    settings.value?.modDirs.map((source) => [source.name, {
-      ...source,
-      mods: [],
-      enabledCount: 0,
-    }]) ?? [],
-  );
-
-  if (mods.value) {
-    const activeMods = new Set(mods.value.active);
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const { source, ...mod } of Object.values(mods.value.list)) {
-      const entry: ModSourceWithMods = {
-        mods: [],
-        enabledCount: 0,
-        ...source,
-        ...res.get(source.name),
-      };
-      const item = { ...mod, active: activeMods.has(mod.id) };
-
-      entry.mods.push(item);
-      entry.enabledCount += item.active ? 1 : 0;
-
-      res.set(source.name, entry);
-    }
-  }
-
-  return [...res.values()];
-});
-
-const activeMods = computed(() => {
-  if (!mods.value) {
-    return [];
-  }
-
-  return mods.value.active.map((id) => mods.value.list[id]);
-});
-
-function setModActive(mod: { id: string }, value: boolean) {
-  if (!mods.value) {
-    return;
-  }
-
-  if (value) {
-    mods.value.active.push(mod.id);
-    return;
-  }
-  mods.value.active = mods.value.active.filter((id) => id !== mod.id);
-}
-
-async function openModSourcePicker() {
-  await window.ipc.methods.addModSource();
-}
-
-async function removeModSource(source: ModSource) {
-  await window.ipc.methods.removeModSource(source);
-}
-
-async function openModSourceFolder(source: ModSource) {
-  const error = await window.ipc.methods.openModSourceFolder(source);
-  if (error) {
-    logger.error('Failed to source folder', { error });
-  }
-}
 </script>
