@@ -1,107 +1,160 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>
-        <v-toolbar
-          title="Mods sources"
-          color="transparent"
-        >
-          <template #append>
-            <v-slide-x-reverse-transition>
-              <div v-if="!isSynced" class="text-red mr-4">
-                Not synced
-              </div>
-            </v-slide-x-reverse-transition>
-
-            <v-btn
-              text="Add"
-              append-icon="mdi-folder-plus"
-              variant="tonal"
-              color="green"
-              @click="openModSourcePicker()"
-            />
-          </template>
-        </v-toolbar>
-
-        <v-progress-linear
-          v-if="loading"
-          color="primary"
-          indeterminate
-          rounded
-        />
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col>
-        <v-expansion-panels multiple>
-          <template v-for="source in sources">
-            <v-expansion-panel
-              v-if="source.mods.length > 0"
-              :key="source.name"
-              :value="source.name"
+      <v-col cols="4">
+        <v-row>
+          <v-col>
+            <v-card
+              :loading="loading && 'primary'"
+              title="Enabled mods"
+              prepend-icon="mdi-toy-brick-outline"
             >
-              <template #title>
-                <v-row no-gutters class="ga-3">
-                  <div class="d-flex align-center">
-                    <v-icon
-                      :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
-                      start
-                    />
-
-                    {{ source.name }}
-                  </div>
-
-                  <v-spacer />
-
-                  <div class="d-flex align-center justify-end text-caption text-disabled">
-                    <template v-if="source.enabledCount > 0">
-                      {{ source.enabledCount }} enabled -
-                    </template>
-                    {{ source.mods.length }} mods
-                  </div>
-
-                  <div class="text-end mr-2">
-                    <v-btn
-                      v-if="!source.mandatory"
-                      v-tooltip:top="'Delete source'"
-                      icon="mdi-delete"
-                      density="comfortable"
-                      variant="text"
-                      size="small"
-                      color="red"
-                      class="ml-2"
-                      @click.stop="removeModSource(source)"
-                    />
-                    <v-btn
-                      v-tooltip:top="'Open folder'"
-                      icon="mdi-folder"
-                      density="comfortable"
-                      variant="text"
-                      size="small"
-                      class="ml-2"
-                      @click.stop="openModSourceFolder(source)"
-                    />
-                  </div>
-                </v-row>
+              <template #append>
+                <span v-if="activeMods.length > 0" class="text-caption text-disabled">
+                  {{ activeMods.length }} mods
+                </span>
               </template>
 
               <template #text>
-                <div style="max-height: 500px; overflow-y: auto;">
-                  <v-checkbox
-                    v-for="mod in source.mods"
-                    :key="mod.name"
-                    :model-value="mod.active"
-                    :label="mod.name"
+                <v-empty-state
+                  v-if="activeMods.length === 0"
+                  icon="mdi-toy-brick-search"
+                  title="No mods enabled"
+                  text="Browse mod sources on the right to enable some mods !"
+                />
+
+                <v-slide-x-transition v-else tag="v-list" group>
+                  <v-list-item
+                    v-for="mod in activeMods"
+                    :key="mod.id"
+                    :title="mod.name"
+                    :subtitle="mod.source.name"
                     density="compact"
-                    hide-details
-                    @update:model-value="setModActive(mod, $event)"
                   />
-                </div>
+                </v-slide-x-transition>
               </template>
-            </v-expansion-panel>
-          </template>
-        </v-expansion-panels>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+
+      <v-col>
+        <v-row>
+          <v-col>
+            <v-toolbar
+              title="Mods sources"
+              color="transparent"
+            >
+              <template #prepend>
+                <v-icon icon="mdi-folder-outline" />
+              </template>
+
+              <template #append>
+                <v-slide-x-reverse-transition>
+                  <div v-if="!isSynced" class="text-red mr-4">
+                    Not synced
+                  </div>
+                </v-slide-x-reverse-transition>
+
+                <v-btn
+                  text="Add"
+                  append-icon="mdi-folder-plus"
+                  variant="tonal"
+                  color="green"
+                  @click="openModSourcePicker()"
+                />
+              </template>
+            </v-toolbar>
+
+            <v-progress-linear
+              v-if="loading"
+              color="primary"
+              indeterminate
+              rounded
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+
+            <v-empty-state
+              v-if="sources.length === 0"
+              icon="mdi-folder-search"
+              title="No mod sources found"
+              text="Add a source folder with the 'Add' button to start using mods !"
+            />
+
+            <v-expansion-panels v-else multiple>
+              <template v-for="source in sources">
+                <v-expansion-panel
+                  v-if="source.mods.length > 0"
+                  :key="source.name"
+                  :value="source.name"
+                >
+                  <template #title>
+                    <v-row no-gutters class="ga-3">
+                      <div class="d-flex align-center">
+                        <v-icon
+                          :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
+                          start
+                        />
+
+                        {{ source.name }}
+                      </div>
+
+                      <v-spacer />
+
+                      <div class="d-flex align-center justify-end text-caption text-disabled">
+                        <template v-if="source.enabledCount > 0">
+                          {{ source.enabledCount }} enabled -
+                        </template>
+                        {{ source.mods.length }} mods
+                      </div>
+
+                      <div class="text-end mr-2">
+                        <v-btn
+                          v-if="!source.mandatory"
+                          v-tooltip:top="'Delete source'"
+                          icon="mdi-delete"
+                          density="comfortable"
+                          variant="text"
+                          size="small"
+                          color="red"
+                          class="ml-2"
+                          @click.stop="removeModSource(source)"
+                        />
+                        <v-btn
+                          v-tooltip:top="'Open folder'"
+                          icon="mdi-folder"
+                          density="comfortable"
+                          variant="text"
+                          size="small"
+                          class="ml-2"
+                          @click.stop="openModSourceFolder(source)"
+                        />
+                      </div>
+                    </v-row>
+                  </template>
+
+                  <template #text>
+                    <div style="max-height: 500px; overflow-y: auto;">
+                      <v-checkbox
+                        v-for="mod in source.mods"
+                        :key="mod.name"
+                        :model-value="mod.active"
+                        :label="mod.name"
+                        density="compact"
+                        hide-details
+                        @update:model-value="setModActive(mod, $event)"
+                      />
+                    </div>
+                  </template>
+                </v-expansion-panel>
+              </template>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-container>
@@ -154,6 +207,14 @@ const sources = computed(() => {
   }
 
   return [...res.values()];
+});
+
+const activeMods = computed(() => {
+  if (!mods.value) {
+    return [];
+  }
+
+  return mods.value.active.map((id) => mods.value.list[id]);
 });
 
 function setModActive(mod: { id: string }, value: boolean) {
