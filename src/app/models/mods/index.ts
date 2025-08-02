@@ -72,7 +72,8 @@ const {
 
 async function getMod(source: string, f: Dirent<string>): Promise<Omit<Mod, 'source'> | null> {
   try {
-    const metaPath = join(source, f.name, 'mod.cpp');
+    const modPath = join(source, f.name);
+    const metaPath = join(modPath, 'mod.cpp');
     if (!existsSync(metaPath)) {
       return null;
     }
@@ -81,6 +82,7 @@ async function getMod(source: string, f: Dirent<string>): Promise<Omit<Mod, 'sou
 
     return ({
       id: f.name,
+      subpath: f.name,
       name: meta.name || f.name,
     });
   } catch (err) {

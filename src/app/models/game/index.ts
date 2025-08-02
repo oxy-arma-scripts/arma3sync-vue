@@ -65,7 +65,7 @@ prepareMethod(async function startGame() {
   const activeMods = active.map((id) => {
     const mod = list[id];
     if (!mod) { return undefined; }
-    return resolve(mod.source.path, mod.id);
+    return resolve(mod.source.path, mod.subpath);
   }).filter((m) => !!m);
 
   try {

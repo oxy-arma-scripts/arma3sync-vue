@@ -1,5 +1,6 @@
 export type Mod = {
   id: string;
+  subpath: string;
   name: string;
   source: ModSource;
 };

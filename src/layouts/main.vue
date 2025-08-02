@@ -55,8 +55,12 @@ type NavItem = {
   onClick?: () => void;
 };
 
-const isDark = useDark();
 const theme = useTheme();
+const isDark = useDark({
+  onChanged: (value) => {
+    theme.global.name.value = value ? 'dark' : 'light';
+  },
+});
 const { smAndDown } = useDisplay();
 
 const toggleDark = useToggle(isDark);
@@ -102,8 +106,4 @@ const footItems = computed<NavItem[]>(() => [
     to: '/about',
   },
 ]);
-
-watch(isDark, () => {
-  theme.global.name.value = isDark.value ? 'dark' : 'light';
-}, { immediate: true });
 </script>
