@@ -12,9 +12,9 @@ async function loadApp() {
 
   await loadSettings();
   setLoadingState({ ...getLoadingState(), settings: true });
-import { setMainWindow, type BrowserWindow } from './lib/window';
-import './models/counter';
 
+  await loadMods();
+  setLoadingState({ ...getLoadingState(), mods: true });
 }
 
 // eslint-disable-next-line import/prefer-default-export

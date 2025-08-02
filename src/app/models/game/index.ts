@@ -6,7 +6,7 @@ import mainLogger from '~/app/lib/logger';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 
 import { getSettings } from '~/app/models/settings';
-import { getActiveMods } from '~/app/models/mods';
+import { getMods } from '~/app/models/mods';
 
 import { isLinux } from '~/app/lib/platforms/linux';
 import type { GameState } from './types';
@@ -61,10 +61,15 @@ prepareMethod(async function startGame() {
   }
 
   // Set params from mods
-  const mods = (await getActiveMods())
-    .map((mod) => resolve(mod.source.path, mod.id));
+  const { list, active } = getMods();
+  const activeMods = active.map((id) => {
+    const mod = list[id];
+    if (!mod) { return undefined; }
+    return resolve(mod.source.path, mod.id);
+  }).filter((m) => !!m);
 
-  await launchGame(params, mods);
+  // Launch game
+  await launchGame(params, activeMods);
 
   setGameState({
     ...getGameState(),

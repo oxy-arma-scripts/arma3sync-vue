@@ -1,7 +1,8 @@
-import { app, shell } from 'electron';
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+
+import { app, shell } from 'electron';
 
 import { sendToRender, showOpenDialog } from '~/app/lib/window';
 import mainLogger from '~/app/lib/logger';
@@ -12,7 +13,7 @@ import type { Settings } from './types';
 const logger = mainLogger.scope('app.models.settings');
 const configPath = join(app.getPath('userData'), 'settings.json');
 
-let settings: Settings = {
+let state: Settings = {
   gamePath: '',
   gameParams: {},
 
@@ -23,7 +24,7 @@ async function saveSettings() {
   await mkdir(dirname(configPath), { recursive: true });
 
   try {
-    await writeFile(configPath, JSON.stringify(settings, undefined, 2));
+    await writeFile(configPath, JSON.stringify(state, undefined, 2));
     logger.info('Settings saved', { configPath });
   } catch (error) {
     logger.error('Failed to save settings', { configPath, error });
@@ -39,11 +40,11 @@ async function loadSettings() {
 
   try {
     const data = await readFile(configPath, 'utf8');
-    settings = {
-      ...settings,
+    state = {
+      ...state,
       ...JSON.parse(data),
     };
-    sendToRender('settings', settings);
+    sendToRender('bridge:settings', state);
   } catch (error) {
     logger.error('Failed to load settings', { configPath, error });
     throw error;
@@ -56,9 +57,9 @@ const {
 } = prepareBridge(
   'settings',
   logger,
-  () => settings,
+  () => state,
   (v) => {
-    settings = v;
+    state = v;
     saveSettings();
   },
 );
