@@ -7,8 +7,10 @@
           title="Settings"
           prepend-icon="mdi-cog"
         >
-          <template v-if="!isSynced" #append>
-            <span class="text-red">Not synced</span>
+          <template #append>
+            <v-slide-x-reverse-transition>
+              <span v-if="!isSynced" class="text-red">Not synced</span>
+            </v-slide-x-reverse-transition>
           </template>
 
           <template v-if="!loading" #text>

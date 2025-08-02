@@ -7,6 +7,12 @@
           color="transparent"
         >
           <template #append>
+            <v-slide-x-reverse-transition>
+              <div v-if="!isSynced" class="text-red mr-4">
+                Not synced
+              </div>
+            </v-slide-x-reverse-transition>
+
             <v-btn
               text="Add"
               append-icon="mdi-folder-plus"
@@ -16,6 +22,13 @@
             />
           </template>
         </v-toolbar>
+
+        <v-progress-linear
+          v-if="loading"
+          color="primary"
+          indeterminate
+          rounded
+        />
       </v-col>
     </v-row>
 
@@ -29,19 +42,26 @@
               :value="source.name"
             >
               <template #title>
-                <v-row no-gutters>
-                  <v-col class="d-flex align-center" cols="4">
+                <v-row no-gutters class="ga-3">
+                  <div class="d-flex align-center">
                     <v-icon
                       :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
                       start
                     />
 
                     {{ source.name }}
-                  </v-col>
+                  </div>
 
                   <v-spacer />
 
-                  <v-col class="text-end mr-2" cols="4">
+                  <div class="d-flex align-center justify-end text-caption text-disabled">
+                    <template v-if="source.enabledCount > 0">
+                      {{ source.enabledCount }} enabled -
+                    </template>
+                    {{ source.mods.length }} mods
+                  </div>
+
+                  <div class="text-end mr-2">
                     <v-btn
                       v-if="!source.mandatory"
                       v-tooltip:top="'Delete source'"
@@ -62,7 +82,7 @@
                       class="ml-2"
                       @click.stop="() => {}"
                     />
-                  </v-col>
+                  </div>
                 </v-row>
               </template>
 
@@ -91,7 +111,10 @@
 import type { Mod, ModSource, ModsState } from '~/app/models/mods/types';
 
 type DisplayMod = Omit<Mod & { active: boolean }, 'source'>;
-type ModSourceWithMods = ModSource & { mods: DisplayMod[] };
+type ModSourceWithMods = ModSource & {
+  mods: DisplayMod[],
+  enabledCount: number,
+};
 
 const SOURCE_ICONS: Record<string, string> = {
   'Creator DLCs': 'mdi-puzzle',
@@ -116,10 +139,15 @@ const sources = computed(() => {
   for (const { source, ...mod } of Object.values(mods.value.list)) {
     const entry: ModSourceWithMods = {
       mods: [],
+      enabledCount: 0,
       ...source,
       ...res.get(source.name),
     };
-    entry.mods.push({ ...mod, active: activeMods.has(mod.id) });
+    const item = { ...mod, active: activeMods.has(mod.id) };
+
+    entry.mods.push(item);
+    entry.enabledCount += item.active ? 1 : 0;
+
     res.set(source.name, entry);
   }
 
