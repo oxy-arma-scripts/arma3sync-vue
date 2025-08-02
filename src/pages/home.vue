@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="4">
+      <v-col cols="12" md="4" order="3" order-md="1">
         <v-row>
           <v-col>
             <v-card
@@ -38,7 +38,7 @@
         </v-row>
       </v-col>
 
-      <v-col>
+      <v-col order="2">
         <v-row>
           <v-col>
             <v-toolbar
@@ -86,72 +86,70 @@
             />
 
             <v-expansion-panels v-else multiple>
-              <template v-for="source in sources">
-                <v-expansion-panel
-                  v-if="source.mods.length > 0"
-                  :key="source.name"
-                  :value="source.name"
-                >
-                  <template #title>
-                    <v-row no-gutters class="ga-3">
-                      <div class="d-flex align-center">
-                        <v-icon
-                          :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
-                          start
-                        />
+              <v-expansion-panel
+                v-for="source in sources"
+                :key="source.name"
+                :value="source.name"
+              >
+                <template #title>
+                  <v-row no-gutters class="ga-3">
+                    <div class="d-flex align-center">
+                      <v-icon
+                        :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
+                        start
+                      />
 
-                        {{ source.name }}
-                      </div>
+                      {{ source.name }}
+                    </div>
 
-                      <v-spacer />
+                    <v-spacer />
 
-                      <div class="d-flex align-center justify-end text-caption text-disabled">
-                        <template v-if="source.enabledCount > 0">
-                          {{ source.enabledCount }} enabled -
-                        </template>
-                        {{ source.mods.length }} mods
-                      </div>
+                    <div class="d-flex align-center justify-end text-caption text-disabled">
+                      <template v-if="source.enabledCount > 0">
+                        {{ source.enabledCount }} enabled -
+                      </template>
+                      {{ source.mods.length }} mods
+                    </div>
 
-                      <div class="text-end mr-2">
-                        <v-btn
-                          v-if="!source.mandatory"
-                          v-tooltip:top="'Delete source'"
-                          icon="mdi-delete"
-                          density="comfortable"
-                          variant="text"
-                          size="small"
-                          color="red"
-                          class="ml-2"
-                          @click.stop="removeModSource(source)"
-                        />
-                        <v-btn
-                          v-tooltip:top="'Open folder'"
-                          icon="mdi-folder"
-                          density="comfortable"
-                          variant="text"
-                          size="small"
-                          class="ml-2"
-                          @click.stop="openModSourceFolder(source)"
-                        />
-                      </div>
-                    </v-row>
-                  </template>
-
-                  <template #text>
-                    <div style="max-height: 500px; overflow-y: auto;">
-                      <v-checkbox
-                        v-for="mod in source.mods"
-                        :key="mod.name"
-                        :model-value="mod.active"
-                        :label="mod.name"
-                        density="compact"
-                        hide-details
-                        @update:model-value="setModActive(mod, $event)"
+                    <div class="text-end mr-2">
+                      <v-btn
+                        v-if="!source.mandatory"
+                        v-tooltip:top="'Delete source'"
+                        icon="mdi-delete"
+                        density="comfortable"
+                        variant="text"
+                        size="small"
+                        color="red"
+                        class="ml-2"
+                        @click.stop="removeModSource(source)"
+                      />
+                      <v-btn
+                        v-tooltip:top="'Open folder'"
+                        icon="mdi-folder"
+                        density="comfortable"
+                        variant="text"
+                        size="small"
+                        class="ml-2"
+                        @click.stop="openModSourceFolder(source)"
                       />
                     </div>
-                  </template>
-                </v-expansion-panel>
-              </template>
+                  </v-row>
+                </template>
+
+                <template #text>
+                  <div style="max-height: 500px; overflow-y: auto;">
+                    <v-checkbox
+                      v-for="mod in source.mods"
+                      :key="mod.name"
+                      :model-value="mod.active"
+                      :label="mod.name"
+                      density="compact"
+                      hide-details
+                      @update:model-value="setModActive(mod, $event)"
+                    />
+                  </div>
+                </template>
+              </v-expansion-panel>
             </v-expansion-panels>
           </v-col>
         </v-row>
@@ -176,6 +174,8 @@ const SOURCE_ICONS: Record<string, string> = {
   'Steam Workshop': 'mdi-steam',
 };
 
+const { settings } = storeToRefs(useSettingsStore());
+
 const {
   value: mods,
   isSynced,
@@ -183,27 +183,32 @@ const {
 } = useIPCBridge<ModsState>('mods');
 
 const sources = computed(() => {
-  if (!mods.value) {
-    return [];
-  }
-
-  const activeMods = new Set(mods.value.active);
-  const res = new Map<string, ModSourceWithMods>();
-
-  // eslint-disable-next-line no-restricted-syntax
-  for (const { source, ...mod } of Object.values(mods.value.list)) {
-    const entry: ModSourceWithMods = {
+  const res = new Map<string, ModSourceWithMods>(
+    settings.value?.modDirs.map((source) => [source.name, {
+      ...source,
       mods: [],
       enabledCount: 0,
-      ...source,
-      ...res.get(source.name),
-    };
-    const item = { ...mod, active: activeMods.has(mod.id) };
+    }]) ?? [],
+  );
 
-    entry.mods.push(item);
-    entry.enabledCount += item.active ? 1 : 0;
+  if (mods.value) {
+    const activeMods = new Set(mods.value.active);
 
-    res.set(source.name, entry);
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { source, ...mod } of Object.values(mods.value.list)) {
+      const entry: ModSourceWithMods = {
+        mods: [],
+        enabledCount: 0,
+        ...source,
+        ...res.get(source.name),
+      };
+      const item = { ...mod, active: activeMods.has(mod.id) };
+
+      entry.mods.push(item);
+      entry.enabledCount += item.active ? 1 : 0;
+
+      res.set(source.name, entry);
+    }
   }
 
   return [...res.values()];
