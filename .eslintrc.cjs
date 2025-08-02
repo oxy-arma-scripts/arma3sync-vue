@@ -25,6 +25,12 @@ module.exports = {
         'import/prefer-default-export': 'off',
       },
     },
+    {
+      files: ['src/layouts/*.vue', 'src/pages/*.vue'],
+      rules: {
+        'vue/multi-word-component-names': 'off',
+      },
+    },
   ],
   parserOptions: {
     project: ['./tsconfig.eslint.json'],

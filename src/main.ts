@@ -1,6 +1,9 @@
 import { app, BrowserWindow } from 'electron';
-import path from 'path';
-import { init } from './app';
+import path from 'node:path';
+
+import { init } from '~/app';
+import appLogger from '~/app/lib/logger';
+import { isWayland } from '~/app/lib/platforms/linux';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
@@ -9,6 +12,16 @@ declare const MAIN_WINDOW_VITE_NAME: string;
 // eslint-disable-next-line global-require
 if (require('electron-squirrel-startup')) {
   app.quit();
+}
+
+if (process.platform !== 'win32' && process.platform !== 'darwin') {
+  // Linux specific code
+  if (isWayland) {
+    // TODO: Still use XWayland
+    appLogger.info('Wayland detected, setting ozone platform');
+    app.commandLine.appendSwitch('ozone-platform-hint', 'wayland');
+    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform,WaylandWindowDecorations');
+  }
 }
 
 const createWindow = () => {

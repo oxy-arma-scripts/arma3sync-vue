@@ -15,15 +15,18 @@
     "start:wayland": "electron-forge start -- -enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto"
   },
   "dependencies": {
-    "@rushstack/eslint-patch": "^1.10.4",
-    "@vue/eslint-config-airbnb-with-typescript": "^8.0.0",
+    "@mdi/font": "^7.4.47",
     "@vueuse/core": "^11.1.0",
     "electron-log": "^5.2.0",
     "electron-squirrel-startup": "^1.0.1",
+    "find-process": "^1.4.10",
+    "object-hash": "^3.0.0",
     "pinia": "^2.2.4",
     "sort-package-json": "^2.10.1",
     "vue": "^3.5.12",
-    "vuetify": "^3.7.3"
+    "vue-router": "^4.5.1",
+    "vuetify": "^3.7.3",
+    "xdg-basedir": "^5.1.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",
@@ -35,8 +38,12 @@
     "@electron-forge/plugin-fuses": "^7.5.0",
     "@electron-forge/plugin-vite": "^7.5.0",
     "@electron/fuses": "^1.8.0",
+    "@rushstack/eslint-patch": "^1.10.4",
+    "@types/node": "^22.15.24",
+    "@types/object-hash": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "@vue/eslint-config-airbnb-with-typescript": "^8.0.0",
     "electron": "33.0.2",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.31.0",
