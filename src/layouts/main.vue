@@ -58,7 +58,7 @@ type NavItem = {
 const theme = useTheme();
 const isDark = useDark({
   onChanged: (value) => {
-    theme.global.name.value = value ? 'dark' : 'light';
+    theme.change(value ? 'dark' : 'light');
   },
 });
 const { smAndDown } = useDisplay();
