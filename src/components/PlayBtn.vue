@@ -3,7 +3,7 @@
     :disabled="disabled"
     text="Play"
     prepend-icon="mdi-play"
-    color="success"
+    :color="disabled ? 'grey' : 'success'"
     size="x-large"
     variant="flat"
     @click="gameStore.startGame()"

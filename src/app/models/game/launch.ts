@@ -2,6 +2,7 @@ import { xdgData } from 'xdg-basedir';
 
 import path from 'node:path';
 import { existsSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 
 import { APP_ID } from '~/app/lib/a3';
 import { isMacOs } from '~/app/lib/platforms/macos';
@@ -50,7 +51,7 @@ export default async function launchGame(
   params: string[],
   mods: string[],
 ) {
-  // TODO: locate steam
+  // TODO: locate steam, and what if no steam ?
 
   let steamCmd = 'steam.exe';
   if (!isWindows) {
@@ -62,11 +63,21 @@ export default async function launchGame(
     }
   }
 
-  let cmd = `${steamCmd} -applaunch ${APP_ID} ${params.join(' ')}`;
+  const cmd = `${steamCmd}`;
+  const args = ['-applaunch', `${APP_ID}`, ...params];
   if (mods.length > 0) {
-    cmd += ` -mod="${getModParam(mods)}"`;
+    args.push(`-mod="${getModParam(mods)}"`);
   }
 
-  // TODO: execute
-  console.log(cmd);
+  const process = spawn(cmd, args, {
+    detached: true,
+    stdio: 'ignore',
+  });
+  process.unref();
+
+  return {
+    cmd,
+    args,
+    process,
+  };
 }

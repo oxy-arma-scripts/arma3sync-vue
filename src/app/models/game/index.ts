@@ -60,7 +60,7 @@ prepareMethod(async function startGame() {
     }
   }
 
-  // Set params from mods
+  // Resolving active mods
   const { list, active } = getMods();
   const activeMods = active.map((id) => {
     const mod = list[id];
@@ -68,13 +68,37 @@ prepareMethod(async function startGame() {
     return resolve(mod.source.path, mod.id);
   }).filter((m) => !!m);
 
-  // Launch game
-  await launchGame(params, activeMods);
+  try {
+    setGameState({
+      ...getGameState(),
+      isRunning: true,
+    });
 
-  setGameState({
-    ...getGameState(),
-    isRunning: true,
-  });
+    // Launch game
+    const { cmd, args, process } = await launchGame(params, activeMods);
+    logger.debug('Starting game...', { cmd, args });
+
+    // Add logs on spawned process
+    process.on('close', (code) => {
+      logger.info('Game started', { code });
+      // steam exits with 0 when it successfully started the game
+      if (code !== 0) {
+        setGameState({
+          ...getGameState(),
+          isRunning: false,
+        });
+      }
+    });
+    process.on('error', (err) => {
+      logger.error('Failed to launch game', { err });
+      setGameState({
+        ...getGameState(),
+        isRunning: false,
+      });
+    });
+  } catch (err) {
+    logger.error('Error while launching game', { err });
+  }
 });
 
 async function updateIsRunning() {
