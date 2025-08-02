@@ -18,7 +18,7 @@
               append-icon="mdi-folder-plus"
               variant="tonal"
               color="green"
-              @click="() => {}"
+              @click="openModSourcePicker()"
             />
           </template>
         </v-toolbar>
@@ -71,7 +71,7 @@
                       size="small"
                       color="red"
                       class="ml-2"
-                      @click.stop="() => {}"
+                      @click.stop="removeModSource(source)"
                     />
                     <v-btn
                       v-tooltip:top="'Open folder'"
@@ -80,7 +80,7 @@
                       variant="text"
                       size="small"
                       class="ml-2"
-                      @click.stop="() => {}"
+                      @click.stop="openModSourceFolder(source)"
                     />
                   </div>
                 </v-row>
@@ -109,6 +109,8 @@
 
 <script setup lang="ts">
 import type { Mod, ModSource, ModsState } from '~/app/models/mods/types';
+
+import logger from '~/lib/logger';
 
 type DisplayMod = Omit<Mod & { active: boolean }, 'source'>;
 type ModSourceWithMods = ModSource & {
@@ -164,5 +166,20 @@ function setModActive(mod: { id: string }, value: boolean) {
     return;
   }
   mods.value.active = mods.value.active.filter((id) => id !== mod.id);
+}
+
+async function openModSourcePicker() {
+  await window.ipc.methods.addModSource();
+}
+
+async function removeModSource(source: ModSource) {
+  await window.ipc.methods.removeModSource(source);
+}
+
+async function openModSourceFolder(source: ModSource) {
+  const error = await window.ipc.methods.openModSourceFolder(source);
+  if (error) {
+    logger.error('Failed to source folder', { error });
+  }
 }
 </script>

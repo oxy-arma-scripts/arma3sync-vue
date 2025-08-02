@@ -65,7 +65,7 @@ const {
 );
 
 // eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function openGameFolderDialog() {
+prepareMethod(async function openGameFolderPicker() {
   const result = await showOpenDialog({
     title: 'Select game folder',
     properties: ['openDirectory', 'dontAddToRecent'],
@@ -80,7 +80,6 @@ prepareMethod(async function openGameFolderDialog() {
   }
 });
 
-// eslint-disable-next-line prefer-arrow-callback
 prepareMethod(() => shell.openPath(getSettings().gamePath), 'openGameFolder');
 
 export {

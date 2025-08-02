@@ -1,16 +1,22 @@
 import fsp from 'node:fs/promises';
 import { existsSync, type Dirent } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import {
+  basename,
+  dirname,
+  join,
+  resolve,
+} from 'node:path';
 
-import { app } from 'electron';
+import { app, shell } from 'electron';
 
 import mainLogger from '~/app/lib/logger';
-import { prepareBridge } from '~/app/lib/bridge';
+import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
+import { sendToRender, showOpenDialog } from '~/app/lib/window';
 import { APP_ID } from '~/app/lib/a3';
-
-import { getSettings } from '~/app/models/settings';
-
 import { parseModMeta } from '~/app/lib/a3/modmeta';
+
+import { getSettings, setSettings } from '~/app/models/settings';
+
 import type { ModsState, Mod, ModSource } from './types';
 
 const logger = mainLogger.scope('app.models.mods');
@@ -167,7 +173,7 @@ async function loadMods() {
 
   const settings = getSettings();
   const sources = [...settings.modDirs];
-  const modList = [];
+  const modList: Mod[] = [];
 
   if (settings.gamePath) {
     const cdlcSource: ModSource = {
@@ -213,6 +219,74 @@ async function loadMods() {
 
   logger.info('Mods loaded', { sources });
 }
+
+prepareMethod((source: ModSource) => shell.openPath(source.path), 'openModSourceFolder');
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function addModSource() {
+  const result = await showOpenDialog({
+    title: 'Select source folder(s)',
+    properties: ['openDirectory', 'dontAddToRecent'],
+  });
+
+  const sources: ModSource[] = result.filePaths
+    .filter((d) => !!d)
+    .map((path) => ({
+      path,
+      name: basename(path),
+    }));
+
+  // Updating settings
+  const settings = getSettings();
+  const existingPaths = new Set(settings.modDirs.map((d) => d.path));
+  setSettings({
+    ...settings,
+    modDirs: [
+      ...settings.modDirs,
+      ...sources.filter(({ path }) => !existingPaths.has(path)),
+    ],
+  });
+
+  // Loading mods from new sources
+  const modList: Mod[] = [];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const source of sources) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const mods = await listModsFromSource(source);
+      modList.push(...mods);
+    } catch (error) {
+      logger.error('Failed to list mods from source', { source, error });
+    }
+  }
+
+  // Saving mod list
+  state.list = {
+    ...state.list,
+    ...Object.fromEntries(modList.map((m): [string, Mod] => [m.id, m])),
+  };
+  sendToRender('bridge:mods', state);
+
+  return sources;
+});
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function removeModSource(source: ModSource) {
+  // Updating settings
+  const settings = getSettings();
+  setSettings({
+    ...settings,
+    modDirs: settings.modDirs.filter(({ path }) => path !== source.path),
+  });
+
+  // Saving mod list
+  const modList = Object.entries(state.list).filter(([, m]) => m.source.path !== source.path);
+
+  state.list = Object.fromEntries(modList);
+  // Ensuring active mods exists
+  state.active = state.active.filter((id) => modList.some(([, m]) => m.id === id));
+  sendToRender('bridge:mods', state);
+});
 
 export {
   getMods,

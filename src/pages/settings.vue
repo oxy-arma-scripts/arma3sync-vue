@@ -42,7 +42,7 @@
                         text="Select"
                         color="primary"
                         density="comfortable"
-                        @click="settingsStore.openGameFolderDialog()"
+                        @click="settingsStore.openGameFolderPicker()"
                       />
                     </template>
                   </v-text-field>

@@ -1,5 +1,7 @@
 import type { Settings } from '~/app/models/settings/types';
 
+import logger from '~/lib/logger';
+
 export const useSettingsStore = defineStore('settings', () => {
   const {
     value: settings,
@@ -9,13 +11,15 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const isValid = ref(false);
 
-  function openGameFolderDialog() {
-    window.ipc.methods.openGameFolderDialog();
+  function openGameFolderPicker() {
+    window.ipc.methods.openGameFolderPicker();
   }
 
   async function openGameFolder() {
     const error = await window.ipc.methods.openGameFolder();
-    console.log(error);
+    if (error) {
+      logger.error('Failed to open game folder', { error });
+    }
   }
 
   return {
@@ -23,7 +27,7 @@ export const useSettingsStore = defineStore('settings', () => {
     isSynced,
     loading,
     isValid,
-    openGameFolderDialog,
+    openGameFolderPicker,
     openGameFolder,
   };
 });

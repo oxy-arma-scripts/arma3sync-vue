@@ -8,7 +8,7 @@ const invokeLogger = renderLogger.scope('renderer.methods');
 export const registerIPCMethod = <R = void, P extends unknown[] = []>(
   name: string,
 ) => (...args: P): Promise<R> => {
-    invokeLogger.debug('Invoking method', { name });
+    invokeLogger.debug('Invoking method', { name, args });
 
     return ipcRenderer.invoke(`method:${name}`, ...args) as Promise<R>;
   };

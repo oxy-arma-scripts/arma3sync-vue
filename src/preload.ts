@@ -7,7 +7,7 @@ import { registerBridge, registerReadonlyBridge, registerIPCMethod } from '~/lib
 import type { Settings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
-import type { ModsState } from '~/app/models/mods/types';
+import type { ModSource, ModsState } from '~/app/models/mods/types';
 
 const ipc = {
   bridges: {
@@ -17,9 +17,14 @@ const ipc = {
     game: registerReadonlyBridge<GameState>('game'),
   },
   methods: {
+    // Game methods
     startGame: registerIPCMethod('startGame'),
-    openGameFolderDialog: registerIPCMethod('openGameFolderDialog'),
+    openGameFolderPicker: registerIPCMethod('openGameFolderPicker'),
     openGameFolder: registerIPCMethod<string>('openGameFolder'),
+    // Mod sources methods
+    openModSourceFolder: registerIPCMethod<string, [ModSource]>('openModSourceFolder'),
+    addModSource: registerIPCMethod<ModSource[]>('addModSource'),
+    removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
   },
 };
 
