@@ -1,4 +1,9 @@
-import { ipcMain, type BrowserWindow } from 'electron';
+import {
+  dialog,
+  ipcMain,
+  type OpenDialogOptions,
+  type BrowserWindow,
+} from 'electron';
 
 let mainWindow: BrowserWindow;
 
@@ -14,7 +19,9 @@ export function sendToRender(event: string, ...args: any[]) {
 }
 
 export function listenToRender(event: string, callback: (...args: any[]) => void) {
-  ipcMain.handle(event, callback)
+  ipcMain.handle(event, callback);
 }
+
+export const showOpenDialog = (opts: OpenDialogOptions) => dialog.showOpenDialog(mainWindow, opts);
 
 export { type BrowserWindow };
