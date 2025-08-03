@@ -64,7 +64,7 @@ const {
   },
 );
 
-function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[number]): SyncSource {
+function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[number]): Omit<SyncSource, 'destination'> {
   const config = autoConfig.protocole;
 
   // TODO: what if url have protocol ? what if ftps ?
@@ -74,6 +74,7 @@ function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[numb
   url.port = `${config.port}`;
 
   return {
+    name: autoConfig.repositoryName,
     url: url.toString(),
     options: {
       timeout: config.connectionTimeOut,
@@ -82,7 +83,7 @@ function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[numb
 }
 
 // eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function importSyncSource(publicUrl: string): Promise<SyncSource> {
+prepareMethod(async function importSyncSource(publicUrl: string): Promise<Omit<SyncSource, 'destination'>> {
   const url = new URL(publicUrl);
   const client = await a3sync.getClient(url);
   const [autoConfig] = await a3sync.getAutoConfig(client, url.pathname);

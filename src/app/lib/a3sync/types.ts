@@ -30,6 +30,7 @@ export const AutoConfig = z.array(
       port: z.coerce.number(),
     }).catchall(z.unknown()),
 
+    repositoryName: z.string(),
   }).catchall(z.unknown()).optional(),
 );
 
