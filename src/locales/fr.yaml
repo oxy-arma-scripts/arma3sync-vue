@@ -33,6 +33,7 @@ settings:
 
   errors:
     noSettings: Échec du chargement des paramètres
+    missingGamePath: Le chemin du jeu est requis
 
   game:
     path: Chemin du jeu

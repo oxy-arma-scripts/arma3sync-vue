@@ -37,8 +37,8 @@ async function getClient(url: URL, timeout?: number) {
   await client.access({
     host: url.hostname,
     port: Number.parseInt(url.port, 10) || 21,
-    user: url.username,
-    password: url.password,
+    user: url.username || undefined,
+    password: url.password || undefined,
   });
 
   return client;

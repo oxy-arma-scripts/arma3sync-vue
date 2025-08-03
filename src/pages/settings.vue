@@ -586,7 +586,7 @@ const LANG_FLAGS: Record<string, string> = {
   en: 'gb',
 };
 
-const { availableLocales } = useI18n();
+const { t, availableLocales } = useI18n();
 const settingsStore = useSettingsStore();
 
 const {
@@ -598,7 +598,7 @@ const {
 
 const rules = computed(() => ({
   game: {
-    path: [(v: string) => !!v || 'Game path is required'],
+    path: [(v: string) => !!v || t('settings.errors.missingGamePath')],
   },
 }));
 </script>

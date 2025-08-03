@@ -28,11 +28,33 @@ mod-sources:
       title: No mod sources found
       text: Add a source folder with the {'"'}@:add{'"'} button to start using mods !
 
+repositories:
+  title: Repositories
+
+  errors:
+    noRepositories:
+      title: No repositories found
+      text: Add a repository with the {'"'}@:add{'"'} button to sync from a remote !
+
+  name: Name
+
+  new:
+    title: New repository
+    steps:
+      autoImport:
+        title: Auto import
+        url: URL to auto import repository
+      connection:
+        title: Connection
+      source:
+        title: Mod Source
+
 settings:
   title: Settings
 
   errors:
     noSettings: Failed to load settings
+    missingGamePath: Game path is required
 
   game:
     path: Game path
@@ -191,3 +213,4 @@ add: Add
 delete: Delete
 edit: Edit
 play: Play
+import: Import

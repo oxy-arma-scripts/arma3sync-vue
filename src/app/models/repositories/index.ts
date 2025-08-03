@@ -85,8 +85,21 @@ function getRepositoryFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[numb
 // eslint-disable-next-line prefer-arrow-callback
 prepareMethod(async function importRepository(publicUrl: string): Promise<Omit<Repository, 'destination'>> {
   const url = new URL(publicUrl);
-  const client = await a3sync.getClient(url);
-  const [autoConfig] = await a3sync.getAutoConfig(client, url.pathname);
+
+  let client;
+  try {
+    client = await a3sync.getClient(url);
+  } catch (e) {
+    throw new Error('Failed to connect to server', { cause: e });
+  }
+
+  let autoConfig;
+  try {
+    ([autoConfig] = await a3sync.getAutoConfig(client, url.pathname));
+  } catch (e) {
+    throw new Error('Failed to get autoconfig', { cause: e });
+  }
+
   if (!autoConfig) {
     throw new Error('No config found on server');
   }

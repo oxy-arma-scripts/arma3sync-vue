@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <v-toolbar
-          :title="$t('sync.title')"
+          :title="$t('repositories.title')"
           color="transparent"
         >
           <template #prepend>
@@ -35,6 +35,16 @@
         />
       </v-col>
     </v-row>
+
+    <RepositoryEditDialog
+      v-if="editedRepository"
+      v-model="showForm"
+      :repository="editedRepository"
+    />
+    <RepositoryNewDialog
+      v-else
+      v-model="showForm"
+    />
   </v-container>
 </template>
 
