@@ -169,6 +169,20 @@ settings:
       en: English
       fr: Français
 
+about:
+  title: À propos
+  author: '{project} par {author}'
+  copyright:
+    title: Avertissement de copyright
+    arma: 2025 BOHEMIA INTERACTIVE a.s. ARMA® et BOHEMIA INTERACTIVE® sont des marques déposées de BOHEMIA INTERACTIVE a.s. Tous droits réservés.
+    a3s: '...'
+    notAffiliated: Ce logiciel et Arma3Sync ne sont pas affiliés à BOHEMIA INTERACTIVE a.s.
+  thanks: Remerciements
+  privacy:
+    title: Politique de confidentialité
+    text: Ce logiciel utilise presque rien, ne collecte pas d'informations et ne stocke que les chemins de votre jeu et de vos mods sur votre machine locale.
+  github: Voir sur GitHub
+
 notSynced: Pas synchronisé
 browse: Parcourir
 pick: Choisir
