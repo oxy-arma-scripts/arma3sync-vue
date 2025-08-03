@@ -17,16 +17,19 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@vueuse/core": "^13.6.0",
+    "basic-ftp": "^5.0.5",
     "electron-log": "^5.4.2",
     "electron-squirrel-startup": "^1.0.1",
     "find-process": "^2.0.0",
+    "java-deserialization": "^0.1.0",
     "object-hash": "^3.0.0",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
     "vue-i18n": "^11.1.11",
     "vue-router": "^4.5.1",
     "vuetify": "^3.9.3",
-    "xdg-basedir": "^5.1.0"
+    "xdg-basedir": "^5.1.0",
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.8.2",
