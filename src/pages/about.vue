@@ -29,7 +29,7 @@
           <h2>{{ $t('about.thanks') }}</h2>
 
           <ul class="ml-5">
-            <li><a href="..." target="_blank" rel="noopener noreferrer">Arma3Sync</a></li>
+            <li>S.o.E Team</li>
             <li><a href="https://grecedecanards.fr/online/" target="_blank" rel="noopener noreferrer">Grèce de Canards</a></li>
             <li><a href="https://flagpedia.net/download/api" target="_blank" rel="noopener noreferrer">Flagpedia</a></li>
           </ul>
