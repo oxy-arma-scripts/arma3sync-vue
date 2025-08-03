@@ -7,14 +7,16 @@ import { registerBridge, registerReadonlyBridge, registerIPCMethod } from '~/lib
 import type { Settings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
-import type { ModSource, ModsState } from '~/app/models/mods/types';
+import type { ModsState, ModSource } from '~/app/models/mods/types';
+import type { SyncState, SyncSource } from './app/models/sync/types';
 
 const ipc = {
   bridges: {
-    settings: registerBridge<Settings>('settings'),
-    mods: registerBridge<ModsState>('mods'),
     loadingState: registerReadonlyBridge<LoadingState>('loading-state'),
+    settings: registerBridge<Settings>('settings'),
     game: registerReadonlyBridge<GameState>('game'),
+    mods: registerBridge<ModsState>('mods'),
+    sync: registerBridge<SyncState>('sync'),
   },
   methods: {
     // Game methods
@@ -25,6 +27,8 @@ const ipc = {
     openModSourceFolder: registerIPCMethod<string, [ModSource]>('openModSourceFolder'),
     addModSource: registerIPCMethod<ModSource[]>('addModSource'),
     removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
+    // Sync methods
+    importSyncSource: registerIPCMethod<SyncSource, [string]>('importSyncSource'),
   },
 };
 

@@ -29,7 +29,7 @@ let state: Settings = {
   },
 };
 
-async function saveSettings() {
+async function saveState() {
   await mkdir(dirname(configPath), { recursive: true });
 
   try {
@@ -41,9 +41,9 @@ async function saveSettings() {
   }
 }
 
-async function loadSettings() {
+async function loadState() {
   if (!existsSync(configPath)) {
-    await saveSettings();
+    await saveState();
     return;
   }
 
@@ -69,7 +69,7 @@ const {
   () => state,
   (v) => {
     state = v;
-    saveSettings();
+    saveState();
   },
 );
 
@@ -98,6 +98,6 @@ prepareMethod(() => shell.openPath(getSettings().game.path), 'openGameFolder');
 export {
   getSettings,
   setSettings,
-  saveSettings,
-  loadSettings,
+  saveState as saveSettings,
+  loadState as loadSettings,
 };
