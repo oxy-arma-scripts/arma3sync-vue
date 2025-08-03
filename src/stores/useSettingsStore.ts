@@ -16,7 +16,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const vuetifyTheme = useTheme();
   const { locale } = useI18n();
 
-  const isValid = ref(false);
+  const isValid = ref(true);
 
   function openGameFolderPicker() {
     window.ipc.methods.openGameFolderPicker();
