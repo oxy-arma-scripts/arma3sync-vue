@@ -6,7 +6,7 @@
     class="align-center justify-center"
   >
     <v-alert
-      :title="`Loading ${loadingStore.current || 'unknown'} (${percent})`"
+      :title="`${$t(`loading.${loadingStore.current || 'unknown'}`)} (${percent})`"
       color="primary"
     >
       <template #prepend>

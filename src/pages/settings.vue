@@ -4,48 +4,128 @@
       <v-col>
         <v-card
           :loading="loading && 'primary'"
-          title="Settings"
+          :title="$t('settings.title')"
           prepend-icon="mdi-cog"
         >
           <template #append>
             <v-slide-x-reverse-transition>
-              <span v-if="!isSynced" class="text-red">Not synced</span>
+              <span v-if="!isSynced" class="text-red">{{ $t('notSynced') }}</span>
             </v-slide-x-reverse-transition>
           </template>
 
           <template v-if="!loading" #text>
             <v-alert
               v-if="!settings"
-              title="Failed to load settings"
+              :title="$t('settings.errors.noSettings')"
               type="error"
             />
             <v-form v-else v-model="isValid">
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                    v-model="settings.gamePath"
-                    :rules="rules.gamePath"
-                    label="Game path"
+                    v-model="settings.game.path"
+                    :rules="rules.game.path"
+                    :label="$t('settings.game.path')"
                     prepend-icon="mdi-folder"
                     variant="underlined"
                   >
                     <template #append>
                       <v-btn
-                        v-if="settings.gamePath"
-                        text="Browse"
+                        v-if="settings.game.path"
+                        :text="$t('browse')"
                         color="secondary"
                         density="comfortable"
                         class="mr-2"
                         @click="settingsStore.openGameFolder()"
                       />
                       <v-btn
-                        text="Select"
+                        :text="$t('pick')"
                         color="primary"
                         density="comfortable"
                         @click="settingsStore.openGameFolderPicker()"
                       />
                     </template>
                   </v-text-field>
+                </v-col>
+              </v-row>
+            </v-form>
+          </template>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <v-row>
+      <v-col>
+        <v-card
+          :loading="loading && 'primary'"
+          :title="$t('settings.display.title')"
+          prepend-icon="mdi-brush-variant"
+        >
+          <template #append>
+            <v-slide-x-reverse-transition>
+              <span v-if="!isSynced" class="text-red">{{ $t('notSynced') }}</span>
+            </v-slide-x-reverse-transition>
+          </template>
+
+          <template v-if="!loading" #text>
+            <v-form v-if="settings" v-model="isValid">
+              <v-row>
+                <v-col cols="6">
+                  <div class="d-flex flex-column">
+                    <v-label :text="$t('settings.display.theme')" />
+                    <v-btn-toggle
+                      v-model="settings.display.theme"
+                      color="primary"
+                      mandatory
+                    >
+                      <v-btn
+                        v-tooltip:top="$t('settings.display.themes.dark')"
+                        value="dark"
+                        icon="mdi-brightness-4"
+                      />
+
+                      <v-btn
+                        v-tooltip:top="$t('settings.display.themes.light')"
+                        value="light"
+                        icon="mdi-brightness-6"
+                      />
+
+                      <v-btn
+                        v-tooltip:top="$t('settings.display.themes.auto')"
+                        value="auto"
+                        icon="mdi-theme-light-dark"
+                      />
+                    </v-btn-toggle>
+                  </div>
+                </v-col>
+                <v-col cols="6">
+                  <v-select
+                    v-model="settings.display.language"
+                    :items="availableLocales"
+                    :label="$t('settings.display.language')"
+                    prepend-icon="mdi-translate"
+                    variant="underlined"
+                    hide-details
+                  >
+                    <template #selection="{ item }">
+                      {{ $t(`settings.display.languages.${item.value}`) }}
+                    </template>
+
+                    <template #item="{ item, props }">
+                      <v-list-item
+                        v-bind="props"
+                        :title="$t(`settings.display.languages.${item.value}`)"
+                      >
+                        <template #prepend>
+                          <v-img
+                            :src="`https://flagcdn.com/${LANG_FLAGS[item.value] || item.value}.svg`"
+                            width="32"
+                            class="mr-2"
+                          />
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                 </v-col>
               </v-row>
             </v-form>
@@ -66,7 +146,7 @@
                     start
                   />
 
-                  Game arguments
+                  {{ $t('settings.game.arguments.title') }}
                 </v-col>
               </v-row>
             </template>
@@ -75,7 +155,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Game Loading Speedup"
+                    :title="$t('settings.game.arguments.loadingSpeedup.title')"
                     prepend-icon="mdi-speedometer"
                     variant="outlined"
                   >
@@ -83,30 +163,30 @@
                       <v-row>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noSplash"
-                            label="No splash screens"
-                            hint="Tells the engine to bypass the splash screens on startup of the game"
+                            v-model="settings.game.params.noSplash"
+                            :label="$t('settings.game.arguments.loadingSpeedup.noSplash.label')"
+                            :hint="$t('settings.game.arguments.loadingSpeedup.noSplash.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.skipIntro"
-                            label="Skip intro"
-                            hint="Disables world intros in the main menu permanently"
+                            v-model="settings.game.params.skipIntro"
+                            :label="$t('settings.game.arguments.loadingSpeedup.skipIntro.label')"
+                            :hint="$t('settings.game.arguments.loadingSpeedup.skipIntro.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            :model-value="settings.gameParams.world === 'empty'"
-                            label="Load empty world"
-                            hint="No default world loaded and world intro in the main menu"
+                            :model-value="settings.game.params.world === 'empty'"
+                            :label="$t('settings.game.arguments.loadingSpeedup.loadEmptyWorld.label')"
+                            :hint="$t('settings.game.arguments.loadingSpeedup.loadEmptyWorld.hint')"
                             density="comfortable"
                             persistent-hint
-                            @update:model-value="settings.gameParams.world = 'empty'"
+                            @update:model-value="settings.game.params.world = 'empty'"
                           />
                         </v-col>
                       </v-row>
@@ -118,7 +198,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Profile Options"
+                    :title="$t('settings.game.arguments.profileOptions.title')"
                     prepend-icon="mdi-account"
                     variant="outlined"
                   >
@@ -127,9 +207,9 @@
                         <v-col cols="12">
                           <!-- TODO: Folder picker -->
                           <v-text-field
-                            v-model="settings.gameParams.profiles"
-                            label="Profiles locations"
-                            hint="Location of user-profile folder"
+                            v-model="settings.game.params.profiles"
+                            :label="$t('settings.game.arguments.profileOptions.profiles.label')"
+                            :hint="$t('settings.game.arguments.profileOptions.profiles.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -138,9 +218,9 @@
                         <v-col cols="12">
                           <!-- TODO: Autocomplete -->
                           <v-text-field
-                            v-model="settings.gameParams.name"
-                            label="Profile"
-                            hint="Sets the profile name"
+                            v-model="settings.game.params.name"
+                            :label="$t('settings.game.arguments.profileOptions.name.label')"
+                            :hint="$t('settings.game.arguments.profileOptions.name.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -148,9 +228,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.unit"
-                            label="Unit"
-                            hint="Parameter passes a unit's ID number to the binary"
+                            v-model="settings.game.params.unit"
+                            :label="$t('settings.game.arguments.profileOptions.unit.label')"
+                            :hint="$t('settings.game.arguments.profileOptions.unit.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -167,7 +247,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Performance"
+                    :title="$t('settings.game.arguments.performance.title')"
                     prepend-icon="mdi-lightning-bolt"
                     variant="outlined"
                   >
@@ -175,38 +255,37 @@
                       <v-row>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.enableHT"
-                            :disabled="!!settings.gameParams.cpuCount
-                              || !!settings.gameParams.cpuAffinity"
-                            label="Enable HyperThreading"
-                            hint="Enables the use of all logical CPU cores for parallel tasks processing. If the CPU does not support Hyper-Threading or similar technology, this parameter is ignored. When disabled, only physical cores are used"
+                            v-model="settings.game.params.enableHT"
+                            :disabled="!!settings.game.params.cpuCount || !!settings.game.params.cpuAffinity"
+                            :label="$t('settings.game.arguments.performance.enableHT.label')"
+                            :hint="$t('settings.game.arguments.performance.enableHT.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.hugePages"
-                            label="Enable huge pages"
-                            hint="Enables hugepages with the default memory allocator for both client and server)"
+                            v-model="settings.game.params.hugePages"
+                            :label="$t('settings.game.arguments.performance.hugePages.label')"
+                            :hint="$t('settings.game.arguments.performance.hugePages.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.setThreadCharacteristics"
-                            label="Register as Game"
-                            hint="Registers the game's executable as 'Game' in Windows for performance improvements"
+                            v-model="settings.game.params.setThreadCharacteristics"
+                            :label="$t('settings.game.arguments.performance.setThreadCharacteristics.label')"
+                            :hint="$t('settings.game.arguments.performance.setThreadCharacteristics.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.maxMem"
-                            label="Maximum Memory"
-                            hint="Overrides memory allocation limit to a certain amount (in megabytes)"
+                            v-model="settings.game.params.maxMem"
+                            :label="$t('settings.game.arguments.performance.maxMem.label')"
+                            :hint="$t('settings.game.arguments.performance.maxMem.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -223,7 +302,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Developer Options"
+                    :title="$t('settings.game.arguments.developerOptions.title')"
                     prepend-icon="mdi-code-tags"
                     variant="outlined"
                   >
@@ -231,46 +310,46 @@
                       <v-row>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noPause"
-                            label="No pause"
-                            hint="Allow the game running even when its window does not have focus (i.e. running in the background)"
+                            v-model="settings.game.params.noPause"
+                            :label="$t('settings.game.arguments.developerOptions.noPause.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.noPause.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noPauseAudio"
-                            :disabled="!settings.gameParams.noPause"
-                            label="No audio pause"
-                            hint="Keeps audio running in background while tabbed out. Should be used together with -noPause to work correctly"
+                            v-model="settings.game.params.noPauseAudio"
+                            :disabled="!settings.game.params.noPause"
+                            :label="$t('settings.game.arguments.developerOptions.noPauseAudio.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.noPauseAudio.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.showScriptErrors"
-                            label="Show script errors"
-                            hint="Introduced to show errors in scripts on-screen. In Eden Editor, script errors are always shown, even when this parameter is not used"
+                            v-model="settings.game.params.showScriptErrors"
+                            :label="$t('settings.game.arguments.developerOptions.showScriptErrors.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.showScriptErrors.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.debug"
-                            label="Debug mode"
-                            hint="Enables more verbose error logging"
+                            v-model="settings.game.params.debug"
+                            :label="$t('settings.game.arguments.developerOptions.debug.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.debug.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noLogs"
-                            label="No logs"
-                            hint="Be aware this means none errors saved to RPT file (report log). Yet in case of crash the fault address block info is saved"
+                            v-model="settings.game.params.noLogs"
+                            :label="$t('settings.game.arguments.developerOptions.noLogs.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.noLogs.hint')"
                             density="comfortable"
                             persistent-hint
                           />
@@ -278,9 +357,9 @@
                         <v-col cols="12">
                           <!-- TODO: select -->
                           <v-text-field
-                            v-model="settings.gameParams.language"
-                            label="Language"
-                            hint="Starts client with preferred language"
+                            v-model="settings.game.params.language"
+                            :label="$t('settings.game.arguments.developerOptions.language.label')"
+                            :hint="$t('settings.game.arguments.developerOptions.language.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -295,7 +374,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Performance - Advanced"
+                    :title="$t('settings.game.arguments.performanceAdvanced.title')"
                     prepend-icon="mdi-lightning-bolt"
                     variant="outlined"
                   >
@@ -303,9 +382,9 @@
                       <v-row>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.maxVram"
-                            label="Maximum Video Memory"
-                            hint="Defines video memory allocation limit to number (in megabytes)"
+                            v-model="settings.game.params.maxVram"
+                            :label="$t('settings.game.arguments.performanceAdvanced.maxVram.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.maxVram.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -315,9 +394,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.maxFileCacheSize"
-                            label="Maximum Filecache Size"
-                            hint="Sets the default filecache size (when files are loaded from disk, they are cached in RAM. If the cache is full, the oldest file is thrown out)"
+                            v-model="settings.game.params.maxFileCacheSize"
+                            :label="$t('settings.game.arguments.performanceAdvanced.maxFileCacheSize.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.maxFileCacheSize.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -327,18 +406,18 @@
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noCB"
-                            label="No multicore use"
-                            hint="Turns off multicore use. It slows down rendering but may resolve visual glitches"
+                            v-model="settings.game.params.noCB"
+                            :label="$t('settings.game.arguments.performanceAdvanced.noCB.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.noCB.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.cpuCount"
-                            label="CPU Count"
-                            hint="Change to a number less or equal than numbers of available cores. This will override auto detection (which equate to native cores)"
+                            v-model="settings.game.params.cpuCount"
+                            :label="$t('settings.game.arguments.performanceAdvanced.cpuCount.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuCount.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -348,9 +427,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.cpuAffinity"
-                            label="CPU Affinity"
-                            hint="Set the game's CPU affinity mask"
+                            v-model="settings.game.params.cpuAffinity"
+                            :label="$t('settings.game.arguments.performanceAdvanced.cpuAffinity.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuAffinity.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -358,9 +437,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.cpuMainThreadAffinity"
-                            label="CPU Affinity for main thread"
-                            hint="Set the main thread's CPU affinity mask"
+                            v-model="settings.game.params.cpuMainThreadAffinity"
+                            :label="$t('settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -368,9 +447,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.malloc"
-                            label="Memory Allocator"
-                            hint="Sets the particular memory allocator to be used. Significantly affects both performance and stability of the game"
+                            v-model="settings.game.params.malloc"
+                            :label="$t('settings.game.arguments.performanceAdvanced.malloc.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.malloc.hint')"
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -378,9 +457,9 @@
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.exThreads"
-                            label="Extra threads count"
-                            hint="Change to a number 0,1,3,5,7. This will override auto detection (which use 3 for dualcore and 7 for quadcore)"
+                            v-model="settings.game.params.exThreads"
+                            :label="$t('settings.game.arguments.performanceAdvanced.exThreads.label')"
+                            :hint="$t('settings.game.arguments.performanceAdvanced.exThreads.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -397,7 +476,7 @@
               <v-row>
                 <v-col>
                   <v-card
-                    title="Developer Options - Advanced"
+                    :title="$t('settings.game.arguments.developerOptionsAdvanced.title')"
                     prepend-icon="mdi-code-tags"
                     variant="outlined"
                   >
@@ -405,83 +484,83 @@
                       <v-row>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.noFreezeCheck"
-                            label="No freeze check"
-                            hint="Disables the freeze check. It creates otherwise max 4 dumps per game run in total - 2 per distinct freeze. Similar to Crash Files"
+                            v-model="settings.game.params.noFreezeCheck"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.filePatching"
-                            label="Allow unpacked data"
-                            hint="Allows the game to load unpacked data"
+                            v-model="settings.game.params.filePatching"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.filePatching.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.filePatching.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.checkSignatures"
-                            :disabled="!!settings.gameParams.checkSignaturesFull"
-                            label="Check signatures"
-                            hint="Provide a thorough test of all signatures of all loaded banks (PBOs) at the start of the game. Only the stored sha1 values are verified with signatures/keys. Output is in .rpt file"
+                            v-model="settings.game.params.checkSignatures"
+                            :disabled="!!settings.game.params.checkSignaturesFull"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.checkSignatures.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.checkSignatures.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.checkSignaturesFull"
-                            :disabled="!!settings.gameParams.checkSignatures"
-                            label="Check signatures and integrity"
-                            hint="Same as above, but checks every byte of the file content, and therefore not only verifies signatures, but also verifies file integrity"
+                            v-model="settings.game.params.checkSignaturesFull"
+                            :disabled="!!settings.game.params.checkSignatures"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.d3dNoLock"
-                            label="No D3D lock"
-                            hint="Doesn't lock the VRAM"
+                            v-model="settings.game.params.d3dNoLock"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoLock.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoLock.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.d3dNoMultiCB"
-                            label="No D3D multi buffer"
-                            hint="D3D uses Single Constant Buffers instead of Multiple Constant Buffers"
+                            v-model="settings.game.params.d3dNoMultiCB"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.debugCallExtension"
-                            label="Logs extension calls"
-                            hint="Logs extension calls in the rpt log"
+                            v-model="settings.game.params.debugCallExtension"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.debugCallExtension.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.debugCallExtension.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.gameParams.dumpAddonDependencyGraph"
-                            label="Graph of addon dependencies"
-                            hint="dumps Graphviz text file into the RPT directory with a graph of all addon dependencies (requiredAddons)"
+                            v-model="settings.game.params.dumpAddonDependencyGraph"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.hint')"
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-text-field
-                            v-model="settings.gameParams.networkDiagInterval"
-                            label="Polls bandwidth"
-                            hint="Polls the status of bandwidth, traffic and similar data every X seconds. It also logs size and count of public variables when using the Profiling binary"
+                            v-model="settings.game.params.networkDiagInterval"
+                            :label="$t('settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.label')"
+                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.hint')"
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -494,7 +573,6 @@
                   </v-card>
                 </v-col>
               </v-row>
-
             </template>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -504,6 +582,11 @@
 </template>
 
 <script setup lang="ts">
+const LANG_FLAGS: Record<string, string> = {
+  en: 'gb',
+};
+
+const { availableLocales } = useI18n();
 const settingsStore = useSettingsStore();
 
 const {
@@ -514,6 +597,8 @@ const {
 } = storeToRefs(settingsStore);
 
 const rules = computed(() => ({
-  gamePath: [(v: string) => !!v || 'Game path is required'],
+  game: {
+    path: [(v: string) => !!v || 'Game path is required'],
+  },
 }));
 </script>

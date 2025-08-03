@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme, useDisplay } from 'vuetify';
+import { useDisplay } from 'vuetify';
 
 type NavItem = {
   title: string;
@@ -55,15 +55,8 @@ type NavItem = {
   onClick?: () => void;
 };
 
-const theme = useTheme();
-const isDark = useDark({
-  onChanged: (value) => {
-    theme.change(value ? 'dark' : 'light');
-  },
-});
 const { smAndDown } = useDisplay();
 
-const toggleDark = useToggle(isDark);
 const [showNav, toggleNav] = useToggle(false);
 
 const { isValid } = storeToRefs(useSettingsStore());
@@ -90,10 +83,6 @@ const navItems = computed<NavItem[]>(() => [
 ]);
 
 const footItems = computed<NavItem[]>(() => [
-  {
-    ...isDark.value ? { prependIcon: 'mdi-brightness-4', title: 'Dark mode' } : { prependIcon: 'mdi-brightness-6', title: 'Light mode' },
-    onClick: () => toggleDark(),
-  },
   {
     title: 'Settings',
     prependIcon: 'mdi-cog',

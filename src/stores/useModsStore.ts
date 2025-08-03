@@ -19,7 +19,7 @@ export const useModsStore = defineStore('mods', () => {
 
   const sources = computed(() => {
     const res = new Map<string, DisplayModSource>(
-      settings.value?.modDirs.map((source) => [source.name, {
+      settings.value?.mods.sources.map((source) => [source.name, {
         ...source,
         mods: [] as DisplayMod[],
         enabledCount: 0,

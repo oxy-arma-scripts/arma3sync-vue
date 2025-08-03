@@ -1,9 +1,9 @@
 <template>
   <v-btn
+    :text="$t('play')"
     :disabled="disabled"
-    text="Play"
-    prepend-icon="mdi-play"
     :color="disabled ? 'grey' : 'success'"
+    prepend-icon="mdi-play"
     size="x-large"
     variant="flat"
     @click="gameStore.startGame()"
@@ -17,7 +17,7 @@ const { settings, isSynced } = storeToRefs(useSettingsStore());
 const { gameState } = storeToRefs(gameStore);
 
 const disabled = computed(
-  () => !settings.value?.gamePath
+  () => !settings.value?.game.path
         || gameState.value?.isRunning
         || !isSynced.value,
 );

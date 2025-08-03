@@ -14,10 +14,19 @@ const logger = mainLogger.scope('app.models.settings');
 const configPath = join(app.getPath('userData'), 'settings.json');
 
 let state: Settings = {
-  gamePath: '',
-  gameParams: {},
+  game: {
+    path: '',
+    params: {},
+  },
 
-  modDirs: [],
+  display: {
+    theme: 'auto',
+    language: null, // let browser decide
+  },
+
+  mods: {
+    sources: [],
+  },
 };
 
 async function saveSettings() {
@@ -73,14 +82,18 @@ prepareMethod(async function openGameFolderPicker() {
 
   const [gamePath] = result.filePaths;
   if (gamePath) {
+    const current = getSettings();
     setSettings({
-      ...getSettings(),
-      gamePath,
+      ...current,
+      game: {
+        ...current.game,
+        path: gamePath,
+      },
     });
   }
 });
 
-prepareMethod(() => shell.openPath(getSettings().gamePath), 'openGameFolder');
+prepareMethod(() => shell.openPath(getSettings().game.path), 'openGameFolder');
 
 export {
   getSettings,

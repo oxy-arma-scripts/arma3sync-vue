@@ -174,20 +174,20 @@ async function loadMods() {
   }
 
   const settings = getSettings();
-  const sources = [...settings.modDirs];
+  const sources = [...settings.mods.sources];
   const modList: Mod[] = [];
 
-  if (settings.gamePath) {
+  if (settings.game.path) {
     const cdlcSource: ModSource = {
-      name: 'Creator DLCs',
+      name: '!cdlc',
       mandatory: true,
-      path: settings.gamePath,
+      path: settings.game.path,
     };
 
     const workshopSource: ModSource = {
-      name: 'Steam Workshop',
+      name: '!workshop',
       mandatory: true,
-      path: resolve(settings.gamePath, `../../workshop/content/${APP_ID}`),
+      path: resolve(settings.game.path, `../../workshop/content/${APP_ID}`),
     };
 
     // Load CDLCs
@@ -240,13 +240,16 @@ prepareMethod(async function addModSource() {
 
   // Updating settings
   const settings = getSettings();
-  const existingPaths = new Set(settings.modDirs.map((d) => d.path));
+  const existingPaths = new Set(settings.mods.sources.map((d) => d.path));
   setSettings({
     ...settings,
-    modDirs: [
-      ...settings.modDirs,
-      ...sources.filter(({ path }) => !existingPaths.has(path)),
-    ],
+    mods: {
+      ...settings.mods,
+      sources: [
+        ...settings.mods.sources,
+        ...sources.filter(({ path }) => !existingPaths.has(path)),
+      ],
+    },
   });
 
   // Loading mods from new sources
@@ -278,7 +281,10 @@ prepareMethod(async function removeModSource(source: ModSource) {
   const settings = getSettings();
   setSettings({
     ...settings,
-    modDirs: settings.modDirs.filter(({ path }) => path !== source.path),
+    mods: {
+      ...settings.mods,
+      sources: settings.mods.sources.filter(({ path }) => path !== source.path),
+    },
   });
 
   // Saving mod list

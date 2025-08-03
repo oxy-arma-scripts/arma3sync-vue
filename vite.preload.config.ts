@@ -8,4 +8,10 @@ export default defineConfig({
       { find: '~', replacement: resolve(__dirname, 'src') },
     ],
   },
+
+  server: {
+    watch: {
+      ignored: [resolve(__dirname, 'data/**')],
+    },
+  },
 });

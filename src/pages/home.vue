@@ -6,12 +6,12 @@
           <v-col>
             <v-card
               :loading="loading && 'primary'"
-              title="Enabled mods"
+              :title="$t('mods.enabled.title')"
               prepend-icon="mdi-toy-brick-outline"
             >
               <template #append>
                 <span v-if="activeMods.length > 0" class="text-caption text-disabled">
-                  {{ activeMods.length }} mods
+                  {{ $t('mods.enabled.count', activeMods.length) }}
                 </span>
               </template>
 
@@ -19,8 +19,8 @@
                 <v-empty-state
                   v-if="activeMods.length === 0"
                   icon="mdi-toy-brick-search"
-                  title="No mods enabled"
-                  text="Browse mod sources on the right to enable some mods !"
+                  :title="$t('mods.enabled.errors.noMods.title')"
+                  :text="$t('mods.enabled.errors.noMods.text')"
                 />
 
                 <v-slide-x-transition v-else tag="v-list" group>
@@ -42,7 +42,7 @@
         <v-row>
           <v-col>
             <v-toolbar
-              title="Mods sources"
+              :title="$t('mod-sources.title')"
               color="transparent"
             >
               <template #prepend>
@@ -52,12 +52,12 @@
               <template #append>
                 <v-slide-x-reverse-transition>
                   <div v-if="!isSynced" class="text-red mr-4">
-                    Not synced
+                    {{ $t('notSynced') }}
                   </div>
                 </v-slide-x-reverse-transition>
 
                 <v-btn
-                  text="Add"
+                  :text="$t('add')"
                   append-icon="mdi-folder-plus"
                   variant="tonal"
                   color="green"
@@ -80,9 +80,9 @@
 
             <v-empty-state
               v-if="sources.length === 0"
+              :title="$t('mod-sources.errors.noSources.title')"
+              :text="$t('mod-sources.errors.noSources.text')"
               icon="mdi-folder-search"
-              title="No mod sources found"
-              text="Add a source folder with the 'Add' button to start using mods !"
             />
 
             <v-expansion-panels v-else multiple>
@@ -95,26 +95,26 @@
                   <v-row no-gutters class="ga-3">
                     <div class="d-flex align-center">
                       <v-icon
-                        :icon="SOURCE_ICONS[source.name] || 'mdi-folder'"
+                        :icon="specialSources[source.name]?.icon || 'mdi-folder'"
                         start
                       />
 
-                      {{ source.name }}
+                      {{ specialSources[source.name]?.title || source.name }}
                     </div>
 
                     <v-spacer />
 
                     <div class="d-flex align-center justify-end text-caption text-disabled">
                       <template v-if="source.enabledCount > 0">
-                        {{ source.enabledCount }} enabled -
+                        {{ $t('mods.enabled.count', source.enabledCount) }} -
                       </template>
-                      {{ source.mods.length }} mods
+                      {{ $t('mods.count', source.mods.length) }}
                     </div>
 
                     <div class="text-end mr-2">
                       <v-btn
                         v-if="!source.mandatory"
-                        v-tooltip:top="'Delete source'"
+                        v-tooltip:top="$t('delete')"
                         icon="mdi-delete"
                         density="comfortable"
                         variant="text"
@@ -124,7 +124,7 @@
                         @click.stop="modStore.removeModSource(source)"
                       />
                       <v-btn
-                        v-tooltip:top="'Open folder'"
+                        v-tooltip:top="$t('browse')"
                         icon="mdi-folder"
                         density="comfortable"
                         variant="text"
@@ -164,11 +164,7 @@
 </template>
 
 <script setup lang="ts">
-const SOURCE_ICONS: Record<string, string> = {
-  'Creator DLCs': 'mdi-puzzle',
-  'Steam Workshop': 'mdi-steam',
-};
-
+const { t } = useI18n();
 const modStore = useModsStore();
 
 const {
@@ -178,4 +174,14 @@ const {
   loading,
 } = storeToRefs(modStore);
 
+const specialSources = computed<Record<string, { title: string, icon: string }>>(() => ({
+  '!cdlc': {
+    title: t('mod-sources.specials.cdlc'),
+    icon: 'mdi-puzzle',
+  },
+  '!workshop': {
+    title: t('mod-sources.specials.workshop'),
+    icon: 'mdi-steam',
+  },
+}));
 </script>

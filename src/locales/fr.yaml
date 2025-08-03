@@ -1,0 +1,178 @@
+loading:
+  unknown: Chargement des derniers éléments...
+  settings: Chargement des paramètres
+  mods: Chargement des mods
+
+mods:
+  count: '1 mod | {n} mods'
+
+  enabled:
+    title: Mods actifs
+    count: '1 actif | {n} actifs'
+
+    errors:
+      noMods:
+        title: Aucun mod actif
+        text: Parcourez les sources de mod sur la droite pour activer des mods !
+
+mod-sources:
+  title: Sources de mods
+
+  specials:
+    cdlc: Creator DLCs
+    workshop: Steam Workshop
+
+  errors:
+    noSources:
+      title: Aucune source de mod
+      text: Ajouter un dossier de mods avec le bouton {'"'}@:add{'"'} pour commencer à utiliser des mods !
+
+settings:
+  title: Paramètres
+
+  errors:
+    noSettings: Échec du chargement des paramètres
+
+  game:
+    path: Chemin du jeu
+
+    arguments:
+      title: Arguments du jeu
+      loadingSpeedup:
+        title: Accélération du chargement du jeu
+        noSplash:
+          label: Pas d'écrans de démarrage
+          hint: Indique au moteur de contourner les écrans de démarrage lors du lancement du jeu
+        skipIntro:
+          label: Passer l'introduction
+          hint: Désactive les intros du monde dans le menu principal de façon permanente
+        loadEmptyWorld:
+          label: Charger un monde vide
+          hint: Aucun monde par défaut chargé et intro du monde dans le menu principal
+
+      profileOptions:
+        title: Options de profil
+        profiles:
+          label: Emplacements des profils
+          hint: Emplacement du dossier des profils utilisateur
+        name:
+          label: Profil
+          hint: Définit le nom du profil
+        unit:
+          label: Unité
+          hint: Passe l'ID d'une unité au binaire
+
+      performance:
+        title: Performance
+        enableHT:
+          label: Activer l'HyperThreading
+          hint: Active l'utilisation de tous les cœurs logiques du CPU pour le traitement parallèle. Si le CPU ne supporte pas l'Hyper-Threading ou une technologie similaire, ce paramètre est ignoré. Lorsqu'il est désactivé, seuls les cœurs physiques sont utilisés
+        hugePages:
+          label: Activer les huge pages
+          hint: Active les hugepages avec l'allocateur de mémoire par défaut pour le client et le serveur
+        setThreadCharacteristics:
+          label: Enregistrer en tant que jeu
+          hint: Enregistre l'exécutable du jeu en tant que 'Jeu' dans Windows pour améliorer les performances
+        maxMem:
+          label: Mémoire maximale
+          hint: Remplace la limite d'allocation mémoire par une valeur spécifique (en mégaoctets)
+
+      developerOptions:
+        title: Options pour développeurs
+        noPause:
+          label: Pas de pause
+          hint: Permet au jeu de continuer à fonctionner même lorsque sa fenêtre n'a pas le focus (par exemple, en arrière-plan)
+        noPauseAudio:
+          label: Pas de pause audio
+          hint: Maintient l'audio en marche en arrière-plan lorsque vous basculez vers une autre fenêtre. Doit être utilisé avec -noPause pour fonctionner correctement
+        showScriptErrors:
+          label: Afficher les erreurs de script
+          hint: Introduit pour afficher les erreurs dans les scripts à l'écran. Dans Eden Editor, les erreurs de script sont toujours affichées, même si ce paramètre n'est pas utilisé
+        debug:
+          label: Mode débogage
+          hint: Active une journalisation des erreurs plus détaillée
+        noLogs:
+          label: Pas de journaux
+          hint: Sachez que cela signifie qu'aucune erreur ne sera enregistrée dans le fichier RPT. Cependant, en cas de crash, les informations d'adresse de faute seront sauvegardées
+        language:
+          label: Langue
+          hint: Lance le client avec la langue préférée
+
+      performanceAdvanced:
+        title: Performance - Avancé
+        maxVram:
+          label: Mémoire vidéo maximale
+          hint: Définit la limite d'allocation de mémoire vidéo (en mégaoctets)
+        maxFileCacheSize:
+          label: Taille maximale du cache de fichiers
+          hint: Définit la taille par défaut du cache de fichiers (lorsque les fichiers sont chargés depuis le disque, ils sont mis en cache dans la RAM. Si le cache est plein, le fichier le plus ancien est évincé)
+        noCB:
+          label: Pas d'utilisation multicœur
+          hint: Désactive l'utilisation du multicœur. Cela ralentit le rendu mais peut résoudre certains bugs visuels
+        cpuCount:
+          label: Nombre de CPU
+          hint: Modifie le nombre à une valeur inférieure ou égale au nombre de cœurs disponibles. Cela remplacera la détection automatique (qui correspond aux cœurs natifs)
+        cpuAffinity:
+          label: Affinité CPU
+          hint: Définit le masque d'affinité CPU du jeu
+        cpuMainThreadAffinity:
+          label: Affinité CPU pour le thread principal
+          hint: Définit le masque d'affinité CPU du thread principal
+        malloc:
+          label: Allocateur de mémoire
+          hint: Définit l'allocateur de mémoire utilisé. Affecte de manière significative les performances et la stabilité du jeu
+        exThreads:
+          label: Nombre de threads supplémentaires
+          hint: Modifie le nombre à 0, 1, 3, 5, 7. Cela remplacera la détection automatique (qui utilise 3 pour un dual-core et 7 pour un quad-core)
+
+      developerOptionsAdvanced:
+        title: Options pour développeurs - Avancé
+        noFreezeCheck:
+          label: Pas de vérification de blocage
+          hint: Désactive la vérification de blocage. Cela limite normalement le nombre de dumps à 4 par exécution du jeu (2 par gel distinct). Similaire aux fichiers de crash
+        filePatching:
+          label: Autoriser les données non empaquetées
+          hint: Permet au jeu de charger des données non empaquetées
+        checkSignatures:
+          label: Vérifier les signatures
+          hint: Effectue un test approfondi de toutes les signatures de tous les banques chargées (PBOs) au démarrage du jeu. Seules les valeurs sha1 stockées sont vérifiées avec les signatures/clés. La sortie est dans le fichier .rpt
+        checkSignaturesFull:
+          label: Vérifier signatures et intégrité
+          hint: Même que ci-dessus, mais vérifie chaque octet du contenu du fichier. Vérifie à la fois les signatures et l'intégrité du fichier
+        d3dNoLock:
+          label: Pas de verrou D3D
+          hint: Ne verrouille pas la VRAM
+        d3dNoMultiCB:
+          label: Pas de tampon multi D3D
+          hint: D3D utilise des Tampons Constantes simples au lieu de plusieurs Tampons Constantes
+        debugCallExtension:
+          label: Journaux des appels d'extension
+          hint: Enregistre les appels d'extension dans le fichier RPT
+        dumpAddonDependencyGraph:
+          label: Graphes des dépendances des addons
+          hint: génère un fichier texte Graphviz dans le répertoire RPT avec un graphe de toutes les dépendances des addons (addons requis)
+        networkDiagInterval:
+          label: Intervalles de diagnostic réseau
+          hint: Interroge l'état de la bande passante, du trafic et des données similaires toutes les X secondes. Enregistre également la taille et le nombre de variables publiques lors de l'utilisation du binaire Profiling
+
+  display:
+    title: Affichage
+
+    theme: Thème
+    themes:
+      light: Mode lumineux
+      dark: Mode sombre
+      auto: Automatique (basé sur le système)
+
+    language: Langue de l'application
+    languages:
+      en: English
+      fr: Français
+
+notSynced: Pas synchronisé
+browse: Parcourir
+pick: Choisir
+add: Ajouter
+delete: Supprimer
+edit: Editer
+play: Jouer

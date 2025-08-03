@@ -40,7 +40,7 @@ prepareMethod(async function startGame() {
   // Set params from settings
   // https://community.bistudio.com/wiki/Arma_3:_Startup_Parameters
   // eslint-disable-next-line no-restricted-syntax
-  for (const [key, value] of Object.entries(settings.gameParams)) {
+  for (const [key, value] of Object.entries(settings.game.params)) {
     if (!value) {
       // eslint-disable-next-line no-continue
       continue;
