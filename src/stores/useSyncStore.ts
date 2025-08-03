@@ -1,6 +1,6 @@
 import type { SyncState } from '~/app/models/sync/types';
 
-export const useGameStore = defineStore('sync', () => {
+export const useSyncStore = defineStore('sync', () => {
   const {
     value: syncState,
     isSynced,
