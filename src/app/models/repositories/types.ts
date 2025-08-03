@@ -1,4 +1,4 @@
-export type SyncSource = {
+export type Repository = {
   name: string,
   url: string,
   options?: {
@@ -7,6 +7,6 @@ export type SyncSource = {
   destination: string,
 };
 
-export type SyncState = {
-  sources: SyncSource[],
+export type RepositoriesState = {
+  repositories: Repository[],
 };

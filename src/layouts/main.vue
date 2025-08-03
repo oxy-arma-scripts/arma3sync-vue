@@ -80,6 +80,11 @@ const navItems = computed<NavItem[]>(() => [
     prependIcon: 'mdi-toy-brick',
     to: '/',
   },
+  {
+    title: 'Repositories',
+    prependIcon: 'mdi-cloud-sync',
+    to: '/repositories',
+  },
 ]);
 
 const footItems = computed<NavItem[]>(() => [

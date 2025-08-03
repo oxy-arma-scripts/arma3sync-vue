@@ -7,6 +7,7 @@ const logger = mainLogger.scope('app.models.loading-state');
 
 let loadingState: LoadingState = {
   settings: false,
+  repositories: false,
   mods: false,
 };
 

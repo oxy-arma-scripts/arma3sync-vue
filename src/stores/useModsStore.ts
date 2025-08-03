@@ -9,8 +9,6 @@ type DisplayModSource = ModSource & {
 };
 
 export const useModsStore = defineStore('mods', () => {
-  const { settings } = storeToRefs(useSettingsStore());
-
   const {
     value: mods,
     isSynced,
@@ -18,32 +16,34 @@ export const useModsStore = defineStore('mods', () => {
   } = useIPCBridge<ModsState>('mods');
 
   const sources = computed(() => {
+    if (!mods.value) {
+      return [];
+    }
+
     const res = new Map<string, DisplayModSource>(
-      settings.value?.mods.sources.map((source) => [source.name, {
+      mods.value.sources.map((source) => [source.name, {
         ...source,
         mods: [] as DisplayMod[],
         enabledCount: 0,
       }]) ?? [],
     );
 
-    if (mods.value) {
-      const activeMods = new Set(mods.value.active);
+    const activeMods = new Set(mods.value.active);
 
-      // eslint-disable-next-line no-restricted-syntax
-      for (const { source, ...mod } of Object.values(mods.value.list)) {
-        const entry: DisplayModSource = {
-          mods: [],
-          enabledCount: 0,
-          ...source,
-          ...res.get(source.name),
-        };
-        const item = { ...mod, active: activeMods.has(mod.id) };
+    // eslint-disable-next-line no-restricted-syntax
+    for (const { source, ...mod } of Object.values(mods.value.list)) {
+      const entry: DisplayModSource = {
+        mods: [],
+        enabledCount: 0,
+        ...source,
+        ...res.get(source.name),
+      };
+      const item = { ...mod, active: activeMods.has(mod.id) };
 
-        entry.mods.push(item);
-        entry.enabledCount += item.active ? 1 : 0;
+      entry.mods.push(item);
+      entry.enabledCount += item.active ? 1 : 0;
 
-        res.set(source.name, entry);
-      }
+      res.set(source.name, entry);
     }
 
     return [...res.values()];

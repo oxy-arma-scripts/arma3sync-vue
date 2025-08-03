@@ -13,5 +13,6 @@ export type ModSource = {
 
 export type ModsState = {
   list: Record<string, Mod>;
+  sources: ModSource[];
   active: string[];
 };

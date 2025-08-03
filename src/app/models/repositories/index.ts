@@ -11,13 +11,13 @@ import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 import type * as a3syncTypes from '~/app/lib/a3sync/types';
 import * as a3sync from '~/app/lib/a3sync/ftp';
 
-import { SyncSource, SyncState } from './types';
+import { Repository, RepositoriesState } from './types';
 
 const logger = mainLogger.scope('app.models.sync');
-const configPath = join(app.getPath('userData'), 'sync.json');
+const configPath = join(app.getPath('userData'), 'repositories.json');
 
-let state: SyncState = {
-  sources: [],
+let state: RepositoriesState = {
+  repositories: [],
 };
 
 async function saveState() {
@@ -25,9 +25,9 @@ async function saveState() {
 
   try {
     await writeFile(configPath, JSON.stringify(state, undefined, 2));
-    logger.info('Settings saved', { configPath });
+    logger.info('Repositories saved', { configPath });
   } catch (error) {
-    logger.error('Failed to save settings', { configPath, error });
+    logger.error('Failed to save repositories', { configPath, error });
     throw error;
   }
 }
@@ -44,9 +44,9 @@ async function loadState() {
       ...state,
       ...JSON.parse(data),
     };
-    sendToRender('bridge:settings', state);
+    sendToRender('bridge:sync', state);
   } catch (error) {
-    logger.error('Failed to load settings', { configPath, error });
+    logger.error('Failed to load repositories', { configPath, error });
     throw error;
   }
 }
@@ -64,7 +64,7 @@ const {
   },
 );
 
-function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[number]): Omit<SyncSource, 'destination'> {
+function getRepositoryFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[number]): Omit<Repository, 'destination'> {
   const config = autoConfig.protocole;
 
   // TODO: what if url have protocol ? what if ftps ?
@@ -83,7 +83,7 @@ function getSyncSourceFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[numb
 }
 
 // eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function importSyncSource(publicUrl: string): Promise<Omit<SyncSource, 'destination'>> {
+prepareMethod(async function importRepository(publicUrl: string): Promise<Omit<Repository, 'destination'>> {
   const url = new URL(publicUrl);
   const client = await a3sync.getClient(url);
   const [autoConfig] = await a3sync.getAutoConfig(client, url.pathname);
@@ -91,11 +91,11 @@ prepareMethod(async function importSyncSource(publicUrl: string): Promise<Omit<S
     throw new Error('No config found on server');
   }
 
-  return getSyncSourceFromAutoConfig(autoConfig);
+  return getRepositoryFromAutoConfig(autoConfig);
 });
 
 export {
   getSync,
   setSync,
-  loadState,
+  loadState as loadRepositories,
 };

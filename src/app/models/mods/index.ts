@@ -15,45 +15,53 @@ import { sendToRender, showOpenDialog } from '~/app/lib/window';
 import { APP_ID } from '~/app/lib/a3';
 import { parseModMeta } from '~/app/lib/a3/modmeta';
 
-import { getSettings, setSettings } from '~/app/models/settings';
+import { getSettings } from '~/app/models/settings';
 
 import type { ModsState, Mod, ModSource } from './types';
 
 const logger = mainLogger.scope('app.models.mods');
-const activePath = join(app.getPath('userData'), 'active-mods.json');
+const activePath = join(app.getPath('userData'), 'mods.json');
 
 const CDLCs = ['GM', 'VN', 'CSLA', 'WS', 'SPE', 'RF', 'EF'] as const;
 const CDLCKeys = new Set<string>(CDLCs);
 type CDLCKey = typeof CDLCs[number];
 
-const state: ModsState = {
+let state: ModsState = {
   list: {},
+  sources: [],
   active: [],
 };
 
-async function saveActiveMods() {
+async function saveState() {
   await fsp.mkdir(dirname(activePath), { recursive: true });
 
   try {
-    await fsp.writeFile(activePath, JSON.stringify(state.active, undefined, 2));
-    logger.info('Active mods saved', { activePath });
+    await fsp.writeFile(activePath, JSON.stringify({
+      ...state,
+      list: undefined,
+    }, undefined, 2));
+    logger.info('Mods saved', { activePath });
   } catch (error) {
-    logger.error('Failed to save active mods', { activePath, error });
+    logger.error('Failed to save mods', { activePath, error });
     throw error;
   }
 }
 
-async function loadActiveMods() {
+async function loadState() {
   if (!existsSync(activePath)) {
-    await saveActiveMods();
+    await saveState();
     return;
   }
 
   try {
     const data = await fsp.readFile(activePath, 'utf8');
-    state.active = JSON.parse(data);
+    state = {
+      ...state,
+      ...JSON.parse(data),
+    };
+    sendToRender('bridge:mods', state);
   } catch (error) {
-    logger.error('Failed to load settings', { activePath, error });
+    logger.error('Failed to load mods', { activePath, error });
     throw error;
   }
 }
@@ -64,9 +72,13 @@ const {
   'mods',
   logger,
   () => state,
-  ({ active }) => {
-    state.active = [...new Set(active)];
-    saveActiveMods();
+  ({ list: _, ...value }) => {
+    state = {
+      ...state,
+      ...value,
+      active: [...new Set(value.active)],
+    };
+    saveState();
   },
 );
 
@@ -169,12 +181,10 @@ async function listModsFromSource(source: ModSource): Promise<Mod[]> {
 }
 
 async function loadMods() {
-  if (existsSync(activePath)) {
-    await loadActiveMods();
-  }
+  await loadState();
 
   const settings = getSettings();
-  const sources = [...settings.mods.sources];
+  const sources = [...state.sources];
   const modList: Mod[] = [];
 
   if (settings.game.path) {
@@ -238,19 +248,13 @@ prepareMethod(async function addModSource() {
       name: basename(path),
     }));
 
-  // Updating settings
-  const settings = getSettings();
-  const existingPaths = new Set(settings.mods.sources.map((d) => d.path));
-  setSettings({
-    ...settings,
-    mods: {
-      ...settings.mods,
-      sources: [
-        ...settings.mods.sources,
-        ...sources.filter(({ path }) => !existingPaths.has(path)),
-      ],
-    },
-  });
+  // Updating sources
+  state.sources = [...new Map(
+    [
+      ...state.sources,
+      ...sources,
+    ].map((s) => [s.path, s]),
+  ).values()];
 
   // Loading mods from new sources
   const modList: Mod[] = [];
@@ -277,15 +281,8 @@ prepareMethod(async function addModSource() {
 
 // eslint-disable-next-line prefer-arrow-callback
 prepareMethod(async function removeModSource(source: ModSource) {
-  // Updating settings
-  const settings = getSettings();
-  setSettings({
-    ...settings,
-    mods: {
-      ...settings.mods,
-      sources: settings.mods.sources.filter(({ path }) => path !== source.path),
-    },
-  });
+  // Updating sources
+  state.sources = state.sources.filter(({ path }) => path !== source.path);
 
   // Saving mod list
   const modList = Object.entries(state.list).filter(([, m]) => m.source.path !== source.path);

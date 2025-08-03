@@ -1,6 +1,7 @@
 loading:
   unknown: Chargement des derniers éléments...
   settings: Chargement des paramètres
+  repositories: Chargement des entrepôts
   mods: Chargement des mods
 
 mods:

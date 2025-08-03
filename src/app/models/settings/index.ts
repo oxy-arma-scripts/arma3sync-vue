@@ -23,10 +23,6 @@ let state: Settings = {
     theme: 'auto',
     language: null, // let browser decide
   },
-
-  mods: {
-    sources: [],
-  },
 };
 
 async function saveState() {

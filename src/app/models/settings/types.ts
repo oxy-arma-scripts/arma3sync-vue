@@ -1,5 +1,3 @@
-import type { ModSource } from '../mods/types';
-
 export type Settings = {
   game: {
     path: string;
@@ -10,8 +8,4 @@ export type Settings = {
     theme: 'light' | 'dark' | 'auto';
     language: string | null;
   }
-
-  mods: {
-    sources: ModSource[];
-  };
 };
