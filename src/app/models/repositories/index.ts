@@ -55,7 +55,7 @@ const {
   get: getSync,
   set: setSync,
 } = prepareBridge(
-  'sync',
+  'repositories',
   logger,
   () => state,
   (v) => {
