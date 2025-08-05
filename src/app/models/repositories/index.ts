@@ -8,8 +8,7 @@ import { sendToRender } from '~/app/lib/window';
 import mainLogger from '~/app/lib/logger';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 
-import type * as a3syncTypes from '~/app/lib/a3sync/types';
-import * as a3sync from '~/app/lib/a3sync/ftp';
+import * as a3sync from '~/app/lib/a3sync';
 
 import { Repository, RepositoriesState } from './types';
 
@@ -64,11 +63,10 @@ const {
   },
 );
 
-function getRepositoryFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[number]): Omit<Repository, 'destination'> {
+function getRepositoryFromAutoConfig(autoConfig: a3sync.AutoConfigType[number]): Omit<Repository, 'destination'> {
   const config = autoConfig.protocole;
 
-  // TODO: what if url have protocol ? what if ftps ?
-  const url = new URL(`ftp://${config.url}`);
+  const url = new URL(`${config.protocolType}://${config.url}`);
   url.username = config.login;
   url.password = config.password;
   url.port = `${config.port}`;
@@ -85,6 +83,7 @@ function getRepositoryFromAutoConfig(autoConfig: a3syncTypes.AutoConfigType[numb
 // eslint-disable-next-line prefer-arrow-callback
 prepareMethod(async function importRepository(publicUrl: string): Promise<Omit<Repository, 'destination'>> {
   const url = new URL(publicUrl);
+  url.pathname = url.pathname.replace(/\/\.a3s\/autoconfig\/?/i, '/');
 
   let client;
   try {

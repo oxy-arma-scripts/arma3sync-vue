@@ -23,6 +23,7 @@
     "find-process": "^2.0.0",
     "java-deserialization": "^0.1.0",
     "object-hash": "^3.0.0",
+    "ofetch": "^1.4.1",
     "pinia": "^3.0.3",
     "vue": "^3.5.18",
     "vue-i18n": "^11.1.11",

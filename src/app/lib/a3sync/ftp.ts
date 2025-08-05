@@ -1,4 +1,4 @@
-import { PassThrough, type Readable } from 'node:stream';
+import { PassThrough } from 'node:stream';
 import { createGunzip } from 'node:zlib';
 import { join } from 'node:path/posix';
 
@@ -18,20 +18,7 @@ import {
   type SyncType,
 } from './types';
 
-async function streamToBuffer(readableStream: Readable) {
-  return new Promise<Buffer<ArrayBuffer>>((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    readableStream.on('data', (data) => {
-      chunks.push(data);
-    });
-    readableStream.on('end', () => {
-      resolve(Buffer.concat(chunks));
-    });
-    readableStream.on('error', reject);
-  });
-}
-
-async function getClient(url: URL, timeout?: number) {
+async function getClient(url: URL, timeout?: number): Promise<FTPClient> {
   const client = new FTPClient(timeout);
 
   await client.access({
@@ -49,32 +36,32 @@ async function fetchA3SFile(client: FTPClient, path: string): Promise<unknown> {
 
   await client.downloadTo(stream, path);
 
-  const buffer = await streamToBuffer(stream);
+  const buffer = Buffer.concat(await Array.fromAsync(stream));
   return deserializer.parse(buffer);
 }
 
-async function getAutoConfig(client: FTPClient, path: string): Promise<AutoConfigType> {
-  const data = await fetchA3SFile(client, path);
+async function getAutoConfig(client: FTPClient, basePath?: string): Promise<AutoConfigType> {
+  const data = await fetchA3SFile(client, join(basePath || '', '/.a3s/autoconfig'));
   return AutoConfig.parseAsync(data);
 }
 
-async function getChangelogs(client: FTPClient, path: string): Promise<ChangelogsType> {
-  const data = await fetchA3SFile(client, join(path, 'changelogs'));
+async function getChangelogs(client: FTPClient, basePath?: string): Promise<ChangelogsType> {
+  const data = await fetchA3SFile(client, join(basePath || '', '/.a3s/changelogs'));
   return Changelogs.parseAsync(data);
 }
 
-async function getEvents(client: FTPClient, path: string): Promise<EventType> {
-  const data = await fetchA3SFile(client, join(path, 'events'));
+async function getEvents(client: FTPClient, basePath?: string): Promise<EventType> {
+  const data = await fetchA3SFile(client, join(basePath || '', '/.a3s/events'));
   return Events.parseAsync(data);
 }
 
-async function getServerInfo(client: FTPClient, path: string): Promise<ServerInfoType> {
-  const data = await fetchA3SFile(client, join(path, 'serverinfo'));
+async function getServerInfo(client: FTPClient, basePath?: string): Promise<ServerInfoType> {
+  const data = await fetchA3SFile(client, join(basePath || '', '/.a3s/serverinfo'));
   return ServerInfo.parseAsync(data);
 }
 
-async function getSync(client: FTPClient, path: string): Promise<SyncType> {
-  const data = await fetchA3SFile(client, join(path, 'sync'));
+async function getSync(client: FTPClient, basePath?: string): Promise<SyncType> {
+  const data = await fetchA3SFile(client, join(basePath || '', '/.a3s/sync'));
   return Sync.parseAsync(data);
 }
 
