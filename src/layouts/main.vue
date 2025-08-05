@@ -56,6 +56,7 @@ type NavItem = {
 };
 
 const { smAndDown } = useDisplay();
+const { t } = useI18n();
 
 const [showNav, toggleNav] = useToggle(false);
 
@@ -76,7 +77,7 @@ const navState = computed(() => {
 
 const navItems = computed<NavItem[]>(() => [
   {
-    title: 'Mods',
+    title: t('mods.title'),
     prependIcon: 'mdi-toy-brick',
     to: '/',
   },
@@ -89,13 +90,13 @@ const navItems = computed<NavItem[]>(() => [
 
 const footItems = computed<NavItem[]>(() => [
   {
-    title: 'Settings',
+    title: t('settings.title'),
     prependIcon: 'mdi-cog',
     to: '/settings',
     baseColor: isValid.value ? undefined : 'red',
   },
   {
-    title: 'About',
+    title: t('about.title'),
     prependIcon: 'mdi-information',
     to: '/about',
   },

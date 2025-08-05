@@ -5,6 +5,7 @@ loading:
   mods: Chargement des mods
 
 mods:
+  title: Mods
   count: '1 mod | {n} mods'
 
   enabled:

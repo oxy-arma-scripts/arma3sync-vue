@@ -5,6 +5,7 @@ loading:
   settings: Loading settings
 
 mods:
+  title: Mods
   count: '1 mod | {n} mods'
 
   enabled:
