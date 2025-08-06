@@ -77,7 +77,7 @@ export const useModsStore = defineStore('mods', () => {
   }
 
   async function removeModSource(source: ModSource) {
-    await window.ipc.methods.removeModSource(source);
+    await window.ipc.methods.removeModSource(toRaw(source));
   }
 
   async function openModSourceFolder(source: ModSource) {
