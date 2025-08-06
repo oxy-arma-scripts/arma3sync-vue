@@ -28,6 +28,18 @@ mod-sources:
     noSources:
       title: No mod sources found
       text: Add a source folder with the {'"'}@:add{'"'} button to start using mods !
+    noName: Name is required
+    noPath: Location is required
+
+  item:
+    name: Name
+    path: Location of mods
+
+  new:
+    title: New source
+
+  edit:
+    title: Edit source
 
 repositories:
   title: Repositories
@@ -62,6 +74,9 @@ repositories:
         title: Details
       source:
         title: Mod Source
+
+  edit:
+    title: Edit repository
 
 settings:
   title: Settings
@@ -225,6 +240,7 @@ browse: Browse
 pick: Pick
 add: Add
 delete: Delete
+create: Create
 edit: Edit
 play: Play
 import: Import

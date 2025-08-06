@@ -48,7 +48,7 @@ export const ServerInfo = z.array(
   z.object({
     compressedPboFilesOnly: z.boolean(),
     noPartialFileTransfer: z.boolean(),
-    numberOfConnections: z.boolean(),
+    numberOfConnections: z.int(),
     numberOfFiles: z.unknown(), // Long ???
     repositoryContentUpdated: z.boolean(),
     revision: z.int(),

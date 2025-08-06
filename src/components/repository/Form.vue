@@ -93,7 +93,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: Repository): void
+  (e: 'update:model-value', value: Repository): void
 }>();
 
 const { t } = useI18n();
@@ -178,7 +178,7 @@ watch([
     isURL.value = true;
   } catch (err) {
     isURL.value = err.message;
-    emit('update:modelValue', {
+    emit('update:model-value', {
       ...props.modelValue,
       name: name.value,
       url: '',
@@ -190,7 +190,7 @@ watch([
   url.username = anonymous.value ? '' : username.value;
   url.password = anonymous.value ? '' : password.value;
 
-  emit('update:modelValue', {
+  emit('update:model-value', {
     ...props.modelValue,
     name: name.value,
     url: url.toString(),

@@ -18,6 +18,7 @@ import { parseModMeta } from '~/app/lib/a3/modmeta';
 import { getSettings } from '~/app/models/settings';
 
 import type { ModsState, Mod, ModSource } from './types';
+import { t } from '../../lib/i18n';
 
 const logger = mainLogger.scope('app.models.mods');
 const activePath = join(app.getPath('userData'), 'mods.json');
@@ -231,6 +232,17 @@ async function loadMods() {
 
   logger.info('Mods loaded', { sources });
 }
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function openModSourceFolderPicker() {
+  const result = await showOpenDialog({
+    title: t('mod-sources.folderPicker.title'),
+    properties: ['openDirectory', 'dontAddToRecent'],
+  });
+
+  const [path] = result.filePaths;
+  return path || null;
+});
 
 prepareMethod((source: ModSource) => shell.openPath(source.path), 'openModSourceFolder');
 

@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import type { ModSource } from '~/app/models/mods/types';
 import type { Repository } from '~/app/models/repositories/types';
 
 const repositoriesStore = useRepositoriesStore();
@@ -69,15 +70,17 @@ function openForm(repository?: Repository) {
   showForm.value = true;
 }
 
-function onRepositoryUpdate(repository: Repository) {
+function onRepositoryUpdate(repository: Repository & { source?: ModSource }) {
   const list = repositoriesState.value.repositories;
+
+  // TODO: use backend to update list
 
   if (!editedRepository.value) {
     list.push(repository);
     return;
   }
 
-  const index = list.findIndex((r) => r.name === editedRepository.value.name);
+  const index = list.findIndex((r) => r.destination === editedRepository.value.destination);
   if (index < 0) {
     return;
   }

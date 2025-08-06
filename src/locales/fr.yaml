@@ -28,6 +28,18 @@ mod-sources:
     noSources:
       title: Aucune source de mod
       text: Ajouter un dossier de mods avec le bouton {'"'}@:add{'"'} pour commencer à utiliser des mods !
+    noName: Le nom est requis
+    noPath: L'emplacement est requise
+
+  item:
+    name: Nom
+    path: Emplacement des mods
+
+  new:
+    title: Nouvelle source
+
+  edit:
+    title: Éditer une source
 
 repositories:
   title: Entrepôts
@@ -53,7 +65,7 @@ repositories:
     anonymous: Anonyme
 
   new:
-    title: Nouveau entrepôt
+    title: Nouvel entrepôt
     steps:
       autoImport:
         title: Importation automatique
@@ -62,6 +74,9 @@ repositories:
         title: Détails
       source:
         title: Source de mods
+
+  edit:
+    title: Éditer un entrepôt
 
 settings:
   title: Paramètres
@@ -226,5 +241,6 @@ pick: Choisir
 add: Ajouter
 delete: Supprimer
 edit: Éditer
+create: Créer
 play: Jouer
 import: Importer

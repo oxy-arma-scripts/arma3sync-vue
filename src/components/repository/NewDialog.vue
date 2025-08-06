@@ -118,10 +118,10 @@
 
             <v-stepper-window-item :value="3">
               <v-form v-model="areStepsValid[2]">
-                A
+                <ModSourceForm v-model="modSource" />
               </v-form>
 
-              <div class="d-flex">
+              <div class="d-flex mt-4">
                 <v-btn
                   :text="$t('$vuetify.stepper.prev')"
                   prepend-icon="mdi-arrow-left-circle-outline"
@@ -133,7 +133,7 @@
 
                 <v-btn
                   :text="$t('create')"
-                  :disabled="!areStepsValid[2]"
+                  :disabled="!areStepsValid[2] || !repository.destination"
                   color="success"
                   prepend-icon="mdi-check-circle-outline"
                   variant="tonal"
@@ -150,6 +150,7 @@
 
 <script setup lang="ts">
 import type { Repository } from '~/app/models/repositories/types';
+import type { ModSource } from '~/app/models/mods/types';
 
 defineProps<{
   modelValue: boolean,
@@ -157,7 +158,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:model-value', value: boolean): void
-  (e: 'update:repository', value: Repository): void
+  (e: 'update:repository', value: Repository & { source: ModSource }): void
 }>();
 
 const currentStep = shallowRef(1);
@@ -166,6 +167,10 @@ const repository = ref<Repository>({
   name: '',
   url: '',
   destination: '',
+});
+const modSource = ref<ModSource>({
+  name: '',
+  path: '',
 });
 const autoImportUrl = shallowRef('');
 const autoImportUrlLoading = shallowRef(false);
@@ -213,6 +218,7 @@ async function testRepository() {
   testError.value = '';
   try {
     await window.ipc.methods.checkRepository(toRaw(repository.value));
+    modSource.value.name = repository.value.name;
     currentStep.value += 1;
   } catch (e) {
     testError.value = e.message;
@@ -221,7 +227,7 @@ async function testRepository() {
 }
 
 function createRepository() {
-  emit('update:repository', { ...repository.value });
+  emit('update:repository', { ...repository.value, source: { ...modSource.value } });
   emit('update:model-value', false);
 }
 
@@ -238,5 +244,9 @@ watch(autoImportUrl, () => {
   }
 
   autoImportUrlChanged.value = true;
+});
+
+watch(() => modSource.value.path, (path) => {
+  repository.value.destination = path;
 });
 </script>

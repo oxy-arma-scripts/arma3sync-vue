@@ -24,6 +24,7 @@ const ipc = {
     openGameFolderPicker: registerIPCMethod('openGameFolderPicker'),
     openGameFolder: registerIPCMethod<string>('openGameFolder'),
     // Mod sources methods
+    openModSourceFolderPicker: registerIPCMethod<string | null>('openModSourceFolderPicker'),
     openModSourceFolder: registerIPCMethod<string, [ModSource]>('openModSourceFolder'),
     addModSource: registerIPCMethod<ModSource[]>('addModSource'),
     removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),

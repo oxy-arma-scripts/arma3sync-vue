@@ -1,3 +1,7 @@
+mod-sources:
+  folderPicker:
+    title: Select mods folder
+
 settings:
   gameFolderPicker:
     title: Select game folder
