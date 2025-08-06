@@ -31,7 +31,7 @@ export const AutoConfig = z.array(
     }).catchall(z.unknown()),
 
     repositoryName: z.string(),
-  }).catchall(z.unknown()).optional(),
+  }).catchall(z.unknown()),
 );
 
 export type AutoConfigType = z.infer<typeof AutoConfig>;
@@ -44,7 +44,17 @@ export const Events = z.unknown();
 
 export type EventType = z.infer<typeof Events>;
 
-export const ServerInfo = z.unknown();
+export const ServerInfo = z.array(
+  z.object({
+    compressedPboFilesOnly: z.boolean(),
+    noPartialFileTransfer: z.boolean(),
+    numberOfConnections: z.boolean(),
+    numberOfFiles: z.unknown(), // Long ???
+    repositoryContentUpdated: z.boolean(),
+    revision: z.int(),
+    totalFilesSize: z.unknown(), // Long ???
+  }).catchall(z.unknown()),
+);
 
 export type ServerInfoType = z.infer<typeof ServerInfo>;
 

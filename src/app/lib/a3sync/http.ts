@@ -20,10 +20,17 @@ import {
 } from './types';
 
 function getClient(url: URL, timeout?: number): Promise<$Fetch> {
+  const baseURL = new URL(url);
+  baseURL.username = '';
+  baseURL.password = '';
+
+  const authorization = Buffer.from([url.username, url.password].join(':')).toString('base64');
+
   const client = ofetch.create({
-    baseURL: url.toString(),
+    baseURL: baseURL.toString(),
     headers: {
       'User-Agent': `Arma3Sync/${VERSION}`,
+      Authorization: `Basic ${authorization}`,
     },
     timeout,
   });

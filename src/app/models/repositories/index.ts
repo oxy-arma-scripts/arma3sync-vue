@@ -106,6 +106,25 @@ prepareMethod(async function importRepository(publicUrl: string): Promise<Omit<R
   return getRepositoryFromAutoConfig(autoConfig);
 });
 
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function checkRepository(repository: Repository) {
+  const url = new URL(repository.url);
+  let client;
+  try {
+    client = await a3sync.getClient(url);
+  } catch (e) {
+    throw new Error('Failed to connect to server', { cause: e });
+  }
+
+  try {
+    await a3sync.getServerInfo(client, url.pathname);
+  } catch (e) {
+    throw new Error('Failed to get server info', { cause: e });
+  }
+
+  return true;
+});
+
 export {
   getSync,
   setSync,

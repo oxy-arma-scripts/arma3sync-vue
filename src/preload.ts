@@ -29,6 +29,7 @@ const ipc = {
     removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
     // Repositories methods
     importRepository: registerIPCMethod<Omit<Repository, 'destination'>, [string]>('importRepository'),
+    checkRepository: registerIPCMethod<void, [Repository]>('checkRepository'),
   },
 };
 

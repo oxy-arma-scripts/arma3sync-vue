@@ -83,6 +83,15 @@
 
             <v-stepper-window-item :value="2">
               <v-form v-model="areStepsValid[1]">
+                <v-slide-y-transition>
+                  <v-alert
+                    v-if="testError"
+                    :text="testError"
+                    type="error"
+                    class="mb-4"
+                  />
+                </v-slide-y-transition>
+
                 <RepositoryForm v-model="repository" />
               </v-form>
 
@@ -99,9 +108,10 @@
                 <v-btn
                   :text="$t('$vuetify.stepper.next')"
                   :disabled="!areStepsValid[1] || !repository.url"
+                  :loading="testLoading"
                   prepend-icon="mdi-arrow-right-circle-outline"
                   variant="tonal"
-                  @click="currentStep += 1"
+                  @click="testRepository()"
                 />
               </div>
             </v-stepper-window-item>
@@ -161,6 +171,8 @@ const autoImportUrl = shallowRef('');
 const autoImportUrlLoading = shallowRef(false);
 const autoImportUrlError = shallowRef('');
 const autoImportUrlChanged = shallowRef(false);
+const testError = shallowRef('');
+const testLoading = shallowRef(false);
 
 const rules = computed(() => ({
   autoImport: {
@@ -194,6 +206,18 @@ async function importRepository() {
     autoImportUrlError.value = e.message;
   }
   autoImportUrlLoading.value = false;
+}
+
+async function testRepository() {
+  testLoading.value = true;
+  testError.value = '';
+  try {
+    await window.ipc.methods.checkRepository(toRaw(repository.value));
+    currentStep.value += 1;
+  } catch (e) {
+    testError.value = e.message;
+  }
+  testLoading.value = false;
 }
 
 function createRepository() {
