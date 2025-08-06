@@ -22,7 +22,7 @@
               append-icon="mdi-cloud-plus"
               variant="tonal"
               color="green"
-              @click="() => {}"
+              @click="openForm()"
             />
           </template>
         </v-toolbar>
@@ -40,10 +40,12 @@
       v-if="editedRepository"
       v-model="showForm"
       :repository="editedRepository"
+      @update:repository="onRepositoryUpdate($event)"
     />
     <RepositoryNewDialog
       v-else
       v-model="showForm"
+      @update:repository="onRepositoryUpdate($event)"
     />
   </v-container>
 </template>
@@ -59,6 +61,27 @@ const {
   loading,
 } = storeToRefs(repositoriesStore);
 
-const showForm = ref(false);
+const showForm = shallowRef(false);
 const editedRepository = ref<Repository | undefined>();
+
+function openForm(repository?: Repository) {
+  editedRepository.value = repository;
+  showForm.value = true;
+}
+
+function onRepositoryUpdate(repository: Repository) {
+  const list = repositoriesState.value.repositories;
+
+  if (!editedRepository.value) {
+    list.push(repository);
+    return;
+  }
+
+  const index = list.findIndex((r) => r.name === editedRepository.value.name);
+  if (index < 0) {
+    return;
+  }
+  list[index] = repository;
+  editedRepository.value = undefined;
+}
 </script>

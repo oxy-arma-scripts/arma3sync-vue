@@ -59,5 +59,5 @@
 </template>
 
 <script setup lang="ts">
-import { version as VERSION } from '../../package.json';
+import { version as VERSION } from '~/../package.json';
 </script>

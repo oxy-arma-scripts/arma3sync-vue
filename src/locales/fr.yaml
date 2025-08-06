@@ -29,6 +29,40 @@ mod-sources:
       title: Aucune source de mod
       text: Ajouter un dossier de mods avec le bouton {'"'}@:add{'"'} pour commencer à utiliser des mods !
 
+repositories:
+  title: Entrepôts
+
+  errors:
+    noRepositories:
+      title: Aucun entrepôt trouvé
+      text: Ajouter un entrepôt avec le bouton {'"'}@:add{'"'} pour se synchroniser avec un entrepôt distant !
+    noName: Le nom est requis
+    noProtocol: Le protocole est requis
+    noHost: L'hôte est requis
+    noPort: Le port est requis
+    noUsername: Un nom d'utilisateur est requis pour se connecter, sinon cochez {'"'}@:repositories.item.anonymous{'"'}
+    noPassword: Un mot de passe est requis pour se connecter, sinon cochez {'"'}@:repositories.item.anonymous{'"'}
+
+  item:
+    name: Nom
+    protocol: Protocole
+    host: Hôte
+    port: Port
+    username: Nom d'utilisateur
+    password: Mot de passe
+    anonymous: Anonyme
+
+  new:
+    title: Nouveau entrepôt
+    steps:
+      autoImport:
+        title: Importation automatique
+        url: URL pour importer automatiquement un dépôt ditant
+      details:
+        title: Détails
+      source:
+        title: Source de mods
+
 settings:
   title: Paramètres
 
@@ -191,5 +225,6 @@ browse: Parcourir
 pick: Choisir
 add: Ajouter
 delete: Supprimer
-edit: Editer
+edit: Éditer
 play: Jouer
+import: Importer

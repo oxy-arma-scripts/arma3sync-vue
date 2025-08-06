@@ -582,9 +582,9 @@
 </template>
 
 <script setup lang="ts">
-const LANG_FLAGS: Record<string, string> = {
+const LANG_FLAGS: Readonly<Record<string, string>> = {
   en: 'gb',
-};
+} as const;
 
 const { t, availableLocales } = useI18n();
 const settingsStore = useSettingsStore();

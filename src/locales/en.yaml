@@ -36,8 +36,21 @@ repositories:
     noRepositories:
       title: No repositories found
       text: Add a repository with the {'"'}@:add{'"'} button to sync from a remote !
+    noName: Name is required
+    noProtocol: Protocol is required
+    noHost: Host is required
+    noPort: Port is required
+    noUsername: Username is required to connect, or check {'"'}@:repositories.item.anonymous{'"'}
+    noPassword: Password is required to connect, or check {'"'}@:repositories.item.anonymous{'"'}
 
-  name: Name
+  item:
+    name: Name
+    protocol: Protocol
+    host: Host
+    port: Port
+    username: Username
+    password: Password
+    anonymous: Anonymous
 
   new:
     title: New repository
@@ -45,8 +58,8 @@ repositories:
       autoImport:
         title: Auto import
         url: URL to auto import repository
-      connection:
-        title: Connection
+      details:
+        title: Details
       source:
         title: Mod Source
 

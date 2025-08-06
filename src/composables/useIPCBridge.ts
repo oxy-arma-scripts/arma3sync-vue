@@ -6,10 +6,10 @@ export default function useIPCBridge<T extends hash.NotUndefined>(
   key: keyof typeof window.ipc.bridges,
   onUpdate?: (value: T) => void,
 ) {
-  const loading = ref(true);
+  const loading = shallowRef(true);
   const localValue = ref<T | null>(null);
-  const localHash = ref<string>('');
-  const remoteHash = ref<string>('');
+  const localHash = shallowRef<string>('');
+  const remoteHash = shallowRef<string>('');
 
   const isSynced = computed(() => localHash.value === remoteHash.value);
 
