@@ -4,6 +4,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 import { app, shell } from 'electron';
 
+import { i18n, t } from '~/app/lib/i18n';
 import { sendToRender, showOpenDialog } from '~/app/lib/window';
 import mainLogger from '~/app/lib/logger';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
@@ -49,6 +50,9 @@ async function loadState() {
       ...state,
       ...JSON.parse(data),
     };
+    if (state.display.language) {
+      i18n.setLocale(state.display.language);
+    }
     sendToRender('bridge:settings', state);
   } catch (error) {
     logger.error('Failed to load settings', { configPath, error });
@@ -65,6 +69,9 @@ const {
   () => state,
   (v) => {
     state = v;
+    if (v.display.language) {
+      i18n.setLocale(v.display.language);
+    }
     saveState();
   },
 );
@@ -72,7 +79,7 @@ const {
 // eslint-disable-next-line prefer-arrow-callback
 prepareMethod(async function openGameFolderPicker() {
   const result = await showOpenDialog({
-    title: 'Select game folder',
+    title: t('settings.gameFolderPicker.title'),
     properties: ['openDirectory', 'dontAddToRecent'],
   });
 

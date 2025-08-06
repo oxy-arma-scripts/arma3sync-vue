@@ -14,7 +14,7 @@
 
     "types": [
       "@intlify/unplugin-vue-i18n/messages",
-      "./vite/*.d.ts",
+      "@modyfi/vite-plugin-yaml/modules",
     ],
     "paths": {
       "~/*": ["./src/*"],
