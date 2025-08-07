@@ -18,8 +18,8 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const isValid = shallowRef(true);
 
-  function openGameFolderPicker() {
-    window.ipc.methods.openGameFolderPicker();
+  async function openGameFolderPicker() {
+    await window.ipc.methods.openGameFolderPicker();
   }
 
   async function openGameFolder() {

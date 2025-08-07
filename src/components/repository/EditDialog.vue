@@ -9,42 +9,31 @@
       :subtitle="props.repository.name"
       prepend-icon="mdi-cloud"
     >
+      <template #append>
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          size="small"
+          @click="$emit('update:model-value', false)"
+        />
+      </template>
+
       <template #text>
         <v-form v-model="isValid">
           <RepositoryForm v-model="cloned" />
-
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model="cloned.destination"
-                :label="$t('mod-sources.item.path')"
-                :rules="rules.destination"
-                prepend-icon="mdi-folder"
-                variant="underlined"
-              >
-                <template #append>
-                  <v-btn
-                    v-if="cloned.destination"
-                    :text="$t('browse')"
-                    color="secondary"
-                    density="comfortable"
-                    class="mr-2"
-                    @click="openFolder()"
-                  />
-                  <v-btn
-                    :text="$t('pick')"
-                    color="primary"
-                    density="comfortable"
-                    @click="pickFolder()"
-                  />
-                </template>
-              </v-text-field>
-            </v-col>
-          </v-row>
         </v-form>
       </template>
 
       <template #actions>
+        <v-btn
+          v-if="cloned.destination"
+          :text="$t('browse')"
+          prepend-icon="mdi-open-in-new"
+          color="secondary"
+          class="mr-2"
+          @click="openFolder()"
+        />
+
         <v-spacer />
 
         <v-btn
@@ -73,30 +62,13 @@ const emit = defineEmits<{
   (e: 'update:repository', value: Repository): void
 }>();
 
-const { t } = useI18n();
+const { openRepositoryFolder } = useRepositoriesStore();
 
 const isValid = shallowRef(false);
-const { cloned } = useCloned(props.repository);
-
-const rules = computed(() => ({
-  destination: [
-    (v: string) => !!v || t('mod-sources.errors.noPath'),
-  ],
-}));
+const { cloned } = useCloned(props.repository, { immediate: true });
 
 async function openFolder() {
-  await window.ipc.methods.openModSourceFolder({
-    name: '',
-    path: cloned.value.destination,
-  });
-}
-
-async function pickFolder() {
-  const path = await window.ipc.methods.openModSourceFolderPicker();
-  if (!path) {
-    return;
-  }
-  cloned.value.destination = path;
+  await openRepositoryFolder(cloned.value);
 }
 
 function editRepository() {

@@ -5,6 +5,15 @@
     @update:model-value="$emit('update:model-value', $event)"
   >
     <v-card :title="$t('repositories.new.title')" prepend-icon="mdi-cloud-plus">
+      <template #append>
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          size="small"
+          @click="$emit('update:model-value', false)"
+        />
+      </template>
+
       <template #text>
         <v-stepper v-model="currentStep" flat>
           <v-stepper-header style="box-shadow: none;">
@@ -19,7 +28,7 @@
             <v-divider />
             <v-stepper-item
               :title="$t('repositories.new.steps.details.title')"
-              :complete="false"
+              :complete="currentStep > 2 && !!repository.url"
               :error="!areStepsValid[1]"
               :value="2"
               editable
@@ -67,7 +76,7 @@
                   prepend-icon="mdi-cloud-arrow-down"
                   variant="tonal"
                   class="mr-2"
-                  @click="importRepository()"
+                  @click="importFromURL()"
                 />
 
                 <v-btn
@@ -117,9 +126,15 @@
             </v-stepper-window-item>
 
             <v-stepper-window-item :value="3">
-              <v-form v-model="areStepsValid[2]">
-                <ModSourceForm v-model="modSource" />
-              </v-form>
+              <div class="d-flex align-center justify-center">
+                <v-btn
+                  :text="$t('pick')"
+                  append-icon="mdi-folder-plus"
+                  color="primary"
+                  size="x-large"
+                  @click="createSource()"
+                />
+              </div>
 
               <div class="d-flex mt-4">
                 <v-btn
@@ -137,7 +152,6 @@
                   color="success"
                   prepend-icon="mdi-check-circle-outline"
                   variant="tonal"
-                  @click="createRepository()"
                 />
               </div>
             </v-stepper-window-item>
@@ -150,7 +164,6 @@
 
 <script setup lang="ts">
 import type { Repository } from '~/app/models/repositories/types';
-import type { ModSource } from '~/app/models/mods/types';
 
 defineProps<{
   modelValue: boolean,
@@ -158,8 +171,11 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:model-value', value: boolean): void
-  (e: 'update:repository', value: Repository & { source: ModSource }): void
+  (e: 'update:repository', value: Repository): void
 }>();
+
+const { useRepositoryImport, useRepositoryCheck } = useRepositoriesStore();
+const { createModSourceFromPicker, updateModSource } = useModsStore();
 
 const currentStep = shallowRef(1);
 const areStepsValid = ref([true, true, true]);
@@ -168,16 +184,20 @@ const repository = ref<Repository>({
   url: '',
   destination: '',
 });
-const modSource = ref<ModSource>({
-  name: '',
-  path: '',
-});
-const autoImportUrl = shallowRef('');
-const autoImportUrlLoading = shallowRef(false);
-const autoImportUrlError = shallowRef('');
-const autoImportUrlChanged = shallowRef(false);
-const testError = shallowRef('');
-const testLoading = shallowRef(false);
+
+const {
+  url: autoImportUrl,
+  loading: autoImportUrlLoading,
+  error: autoImportUrlError,
+  changed: autoImportUrlChanged,
+  importRepo,
+} = useRepositoryImport();
+
+const {
+  error: testError,
+  loading: testLoading,
+  checkRepo,
+} = useRepositoryCheck(repository);
 
 const rules = computed(() => ({
   autoImport: {
@@ -196,57 +216,33 @@ const rules = computed(() => ({
   },
 }));
 
-async function importRepository() {
-  autoImportUrlLoading.value = true;
-  autoImportUrlError.value = '';
-  try {
-    const imported = await window.ipc.methods.importRepository(autoImportUrl.value);
-    repository.value = {
-      ...repository.value,
-      ...imported,
-    };
-    autoImportUrlChanged.value = false;
+async function importFromURL() {
+  const imported = await importRepo();
+  if (imported) {
+    repository.value = imported;
     currentStep.value += 1;
-  } catch (e) {
-    autoImportUrlError.value = e.message;
   }
-  autoImportUrlLoading.value = false;
 }
 
 async function testRepository() {
-  testLoading.value = true;
-  testError.value = '';
-  try {
-    await window.ipc.methods.checkRepository(toRaw(repository.value));
-    modSource.value.name = repository.value.name;
+  if (checkRepo()) {
     currentStep.value += 1;
-  } catch (e) {
-    testError.value = e.message;
   }
-  testLoading.value = false;
 }
 
 function createRepository() {
-  emit('update:repository', { ...repository.value, source: { ...modSource.value } });
+  emit('update:repository', { ...repository.value });
   emit('update:model-value', false);
 }
 
-watch(autoImportUrl, () => {
-  autoImportUrlError.value = '';
-
-  if (!autoImportUrl.value) {
-    autoImportUrlChanged.value = false;
+async function createSource() {
+  const [source] = await createModSourceFromPicker();
+  if (!source) {
     return;
   }
-
-  if (autoImportUrlChanged.value) {
-    return;
-  }
-
-  autoImportUrlChanged.value = true;
-});
-
-watch(() => modSource.value.path, (path) => {
-  repository.value.destination = path;
-});
+  source.name = repository.value.name;
+  await updateModSource(source);
+  repository.value.destination = source.path;
+  createRepository();
+}
 </script>

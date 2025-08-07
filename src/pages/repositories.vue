@@ -36,6 +36,72 @@
       </v-col>
     </v-row>
 
+    <v-row v-if="!loading">
+      <v-col>
+        <v-empty-state
+          v-if="repositoriesState.repositories.length === 0"
+          :title="$t('repositories.errors.noRepositories.title')"
+          :text="$t('repositories.errors.noRepositories.text')"
+          icon="mdi-cloud-search"
+        />
+
+        <v-expansion-panels v-else>
+          <v-expansion-panel
+            v-for="repo in repositoriesState.repositories"
+            :key="repo.destination"
+            :value="repo.name"
+          >
+            <template #title>
+              <v-row no-gutters class="ga-3">
+                <div class="d-flex align-center">
+                  <v-icon
+                    icon="mdi-cloud"
+                    start
+                  />
+
+                  {{ repo.name }}
+                </div>
+
+                <v-spacer />
+
+                <div class="text-end mr-2">
+                  <v-btn
+                    v-tooltip:top="$t('edit')"
+                    icon="mdi-pencil"
+                    density="comfortable"
+                    variant="text"
+                    size="small"
+                    color="blue"
+                    class="ml-2"
+                    @click.stop="openForm(repo)"
+                  />
+                  <v-btn
+                    v-tooltip:top="$t('delete')"
+                    icon="mdi-delete"
+                    density="comfortable"
+                    variant="text"
+                    size="small"
+                    color="red"
+                    class="ml-2"
+                    @click.stop="repositoriesStore.deleteRepository(repo)"
+                  />
+                  <v-btn
+                    v-tooltip:top="$t('browse')"
+                    icon="mdi-open-in-new"
+                    density="comfortable"
+                    variant="text"
+                    size="small"
+                    class="ml-2"
+                    @click.stop="repositoriesStore.openRepositoryFolder(repo)"
+                  />
+                </div>
+              </v-row>
+            </template>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+
     <RepositoryEditDialog
       v-if="editedRepository"
       v-model="showForm"
@@ -55,6 +121,7 @@ import type { ModSource } from '~/app/models/mods/types';
 import type { Repository } from '~/app/models/repositories/types';
 
 const repositoriesStore = useRepositoriesStore();
+const { createModSource } = useModsStore();
 
 const {
   repositoriesState,
@@ -70,21 +137,15 @@ function openForm(repository?: Repository) {
   showForm.value = true;
 }
 
-function onRepositoryUpdate(repository: Repository & { source?: ModSource }) {
-  const list = repositoriesState.value.repositories;
-
-  // TODO: use backend to update list
-
-  if (!editedRepository.value) {
-    list.push(repository);
-    return;
+async function onRepositoryUpdate(repository: Repository & { source?: ModSource }) {
+  if (editedRepository.value) {
+    await repositoriesStore.updateRepository(repository);
+  } else {
+    await repositoriesStore.createRepository(repository);
   }
 
-  const index = list.findIndex((r) => r.destination === editedRepository.value.destination);
-  if (index < 0) {
-    return;
+  if (repository.source) {
+    await createModSource(repository.source);
   }
-  list[index] = repository;
-  editedRepository.value = undefined;
 }
 </script>

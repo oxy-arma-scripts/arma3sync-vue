@@ -1,6 +1,8 @@
 import hash from 'object-hash';
 
-const hashVueObject = (obj: hash.NotUndefined) => hash(toRaw(obj));
+import toRawDeep from '~/utils/toRawDeep';
+
+const hashVueObject = (obj: hash.NotUndefined) => hash(toRawDeep(obj));
 
 export default function useIPCBridge<T extends hash.NotUndefined>(
   key: keyof typeof window.ipc.bridges,

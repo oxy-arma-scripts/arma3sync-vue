@@ -19,7 +19,7 @@
               :title="$t('settings.errors.noSettings')"
               type="error"
             />
-            <v-form v-else v-model="isValid">
+            <v-form v-else v-model="isValid" ref="formRef">
               <v-row>
                 <v-col cols="12">
                   <v-text-field
@@ -589,6 +589,8 @@ const LANG_FLAGS: Readonly<Record<string, string>> = {
 const { t, availableLocales } = useI18n();
 const settingsStore = useSettingsStore();
 
+const formRef = useTemplateRef('formRef');
+
 const {
   settings,
   isSynced,
@@ -601,4 +603,8 @@ const rules = computed(() => ({
     path: [(v: string) => !!v || t('settings.errors.missingGamePath')],
   },
 }));
+
+onMounted(() => {
+  formRef.value?.validate();
+});
 </script>

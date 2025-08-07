@@ -2,7 +2,7 @@ import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
-import { app } from 'electron';
+import { app, shell } from 'electron';
 
 import { sendToRender } from '~/app/lib/window';
 import mainLogger from '~/app/lib/logger';
@@ -51,8 +51,8 @@ async function loadState() {
 }
 
 const {
-  get: getSync,
-  set: setSync,
+  get: getState,
+  set: setState,
 } = prepareBridge(
   'repositories',
   logger,
@@ -125,8 +125,48 @@ prepareMethod(async function checkRepository(repository: Repository) {
   return true;
 });
 
+prepareMethod((repository: Repository) => shell.openPath(repository.destination), 'openRepositoryFolder');
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function addRepository(repository: Repository) {
+  state.repositories = [...new Map(
+    [
+      ...state.repositories,
+      repository,
+    ].map((r) => [r.destination, r]),
+  ).values()];
+
+  setState(state);
+});
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function editRepository(repository: Repository) {
+  const index = state.repositories.findIndex(
+    ({ destination }) => destination === repository.destination,
+  );
+  if (index < 0) {
+    return;
+  }
+
+  state.repositories[index] = {
+    ...repository,
+    destination: state.repositories[index].destination,
+  };
+
+  setState(state);
+});
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function removeRepository(repository: Repository) {
+  state.repositories = state.repositories.filter(
+    ({ destination }) => destination !== repository.destination,
+  );
+
+  setState(state);
+});
+
 export {
-  getSync,
-  setSync,
+  getState as getSync,
+  setState as setSync,
   loadState as loadRepositories,
 };

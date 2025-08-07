@@ -7,8 +7,17 @@
     <v-card
       :title="$t(`mod-sources.${props.source ? 'edit' : 'new'}.title`)"
       :subtitle="props.source?.name"
-      :prepend-icon="props.source ? 'mdi-folder' : 'mdi-folder-plus"
+      :prepend-icon="props.source ? 'mdi-folder' : 'mdi-folder-plus'"
     >
+      <template #append>
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          size="small"
+          @click="$emit('update:model-value', false)"
+        />
+      </template>
+
       <template #text>
         <v-form v-model="isValid">
           <ModSourceForm v-model="cloned" />
@@ -16,6 +25,15 @@
       </template>
 
       <template #actions>
+        <v-btn
+          v-if="cloned.path"
+          :text="$t('browse')"
+          prepend-icon="mdi-open-in-new"
+          color="secondary"
+          class="mr-2"
+          @click="openFolder()"
+        />
+
         <v-spacer />
 
         <v-btn
@@ -44,8 +62,10 @@ const emit = defineEmits<{
   (e: 'update:source', value: ModSource): void
 }>();
 
+const { openModSourceFolder } = useModsStore();
+
 const isValid = shallowRef(false);
-const { cloned } = useCloned<ModSource>(props.source ?? {
+const { cloned } = useCloned<ModSource>(() => props.source ?? {
   name: '',
   path: '',
 });
@@ -53,5 +73,9 @@ const { cloned } = useCloned<ModSource>(props.source ?? {
 function editSource() {
   emit('update:source', { ...cloned.value });
   emit('update:model-value', false);
+}
+
+async function openFolder() {
+  await openModSourceFolder(cloned.value);
 }
 </script>

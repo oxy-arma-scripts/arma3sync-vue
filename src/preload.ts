@@ -24,13 +24,18 @@ const ipc = {
     openGameFolderPicker: registerIPCMethod('openGameFolderPicker'),
     openGameFolder: registerIPCMethod<string>('openGameFolder'),
     // Mod sources methods
-    openModSourceFolderPicker: registerIPCMethod<string | null>('openModSourceFolderPicker'),
     openModSourceFolder: registerIPCMethod<string, [ModSource]>('openModSourceFolder'),
-    addModSource: registerIPCMethod<ModSource[]>('addModSource'),
+    openModSourcePicker: registerIPCMethod<ModSource[]>('openModSourcePicker'),
+    addModSources: registerIPCMethod<void, [ModSource[]]>('addModSources'),
+    editModSource: registerIPCMethod<void, [ModSource]>('editModSource'),
     removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
     // Repositories methods
     importRepository: registerIPCMethod<Omit<Repository, 'destination'>, [string]>('importRepository'),
     checkRepository: registerIPCMethod<void, [Repository]>('checkRepository'),
+    openRepositoryFolder: registerIPCMethod<string, [Repository]>('openRepositoryFolder'),
+    addRepository: registerIPCMethod<void, [Repository]>('addRepository'),
+    editRepository: registerIPCMethod<void, [Repository]>('editRepository'),
+    removeRepository: registerIPCMethod<void, [Repository]>('removeRepository'),
   },
 };
 

@@ -1,9 +1,10 @@
 import type { Mod, ModSource, ModsState } from '~/app/models/mods/types';
 
 import logger from '~/lib/logger';
+import toRawDeep from '~/utils/toRawDeep';
 
 type DisplayMod = Omit<Mod & { active: boolean }, 'source'>;
-type DisplayModSource = ModSource & {
+export type DisplayModSource = ModSource & {
   mods: DisplayMod[],
   enabledCount: number,
 };
@@ -72,18 +73,26 @@ export const useModsStore = defineStore('mods', () => {
     mods.value.active = mods.value.active.filter((id) => id !== mod.id);
   }
 
-  async function openModSourcePicker() {
-    await window.ipc.methods.addModSource();
+  function createModSourceFromPicker(): Promise<ModSource[]> {
+    return window.ipc.methods.openModSourcePicker();
+  }
+
+  async function createModSource(source: ModSource) {
+    await window.ipc.methods.addModSources([toRawDeep(source)]);
+  }
+
+  async function updateModSource(source: ModSource) {
+    await window.ipc.methods.editModSource(toRawDeep(source));
   }
 
   async function removeModSource(source: ModSource) {
-    await window.ipc.methods.removeModSource(toRaw(source));
+    await window.ipc.methods.removeModSource(toRawDeep(source));
   }
 
   async function openModSourceFolder(source: ModSource) {
-    const error = await window.ipc.methods.openModSourceFolder(source);
+    const error = await window.ipc.methods.openModSourceFolder(toRawDeep(source));
     if (error) {
-      logger.error('Failed to source folder', { error });
+      logger.error('Failed to open source folder', { error });
     }
   }
 
@@ -94,7 +103,9 @@ export const useModsStore = defineStore('mods', () => {
     isSynced,
     loading,
     setModActive,
-    openModSourcePicker,
+    createModSourceFromPicker,
+    createModSource,
+    updateModSource,
     removeModSource,
     openModSourceFolder,
   };

@@ -61,7 +61,7 @@
                   append-icon="mdi-folder-plus"
                   variant="tonal"
                   color="green"
-                  @click="modStore.openModSourcePicker()"
+                  @click="modStore.createModSourceFromPicker()"
                 />
               </template>
             </v-toolbar>
@@ -77,7 +77,6 @@
 
         <v-row>
           <v-col>
-
             <v-empty-state
               v-if="sources.length === 0"
               :title="$t('mod-sources.errors.noSources.title')"
@@ -88,7 +87,7 @@
             <v-expansion-panels v-else multiple>
               <v-expansion-panel
                 v-for="source in sources"
-                :key="source.name"
+                :key="source.path"
                 :value="source.name"
               >
                 <template #title>
@@ -114,6 +113,17 @@
                     <div class="text-end mr-2">
                       <v-btn
                         v-if="!source.mandatory"
+                        v-tooltip:top="$t('edit')"
+                        icon="mdi-pencil"
+                        density="comfortable"
+                        variant="text"
+                        size="small"
+                        color="blue"
+                        class="ml-2"
+                        @click.stop="openForm(source)"
+                      />
+                      <v-btn
+                        v-if="!source.mandatory"
                         v-tooltip:top="$t('delete')"
                         icon="mdi-delete"
                         density="comfortable"
@@ -125,7 +135,7 @@
                       />
                       <v-btn
                         v-tooltip:top="$t('browse')"
-                        icon="mdi-folder"
+                        icon="mdi-open-in-new"
                         density="comfortable"
                         variant="text"
                         size="small"
@@ -160,13 +170,25 @@
         </v-row>
       </v-col>
     </v-row>
+
+    <ModSourceFormDialog
+      v-model="showForm"
+      :source="editedSource"
+      @update:source="onSourceUpdate($event)"
+    />
   </v-container>
 </template>
 
 <script setup lang="ts">
+import type { ModSource } from '~/app/models/mods/types';
+import type { DisplayModSource } from '~/stores/useModsStore';
+
 const { t } = useI18n();
 
 const modStore = useModsStore();
+
+const showForm = shallowRef(false);
+const editedSource = ref<ModSource | undefined>();
 
 const {
   activeMods,
@@ -185,4 +207,23 @@ const specialSources = computed<Record<string, { title: string, icon: string }>>
     icon: 'mdi-steam',
   },
 }));
+
+function openForm(source?: DisplayModSource) {
+  const ignoreKeys = new Set<string>(['mods', 'enabledCount']);
+
+  editedSource.value = Object.fromEntries(
+    Object.entries(source)
+      .filter(([key]) => !ignoreKeys.has(key)),
+  ) as ModSource;
+
+  showForm.value = true;
+}
+
+async function onSourceUpdate(source: ModSource) {
+  if (editedSource.value) {
+    await modStore.updateModSource(source);
+    return;
+  }
+  await modStore.createModSource(source);
+}
 </script>

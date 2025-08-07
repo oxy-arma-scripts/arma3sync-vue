@@ -68,7 +68,8 @@ async function loadState() {
 }
 
 const {
-  get: getMods,
+  get: getState,
+  set: setState,
 } = prepareBridge(
   'mods',
   logger,
@@ -233,33 +234,9 @@ async function loadMods() {
   logger.info('Mods loaded', { sources });
 }
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function openModSourceFolderPicker() {
-  const result = await showOpenDialog({
-    title: t('mod-sources.folderPicker.title'),
-    properties: ['openDirectory', 'dontAddToRecent'],
-  });
-
-  const [path] = result.filePaths;
-  return path || null;
-});
-
 prepareMethod((source: ModSource) => shell.openPath(source.path), 'openModSourceFolder');
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function addModSource() {
-  const result = await showOpenDialog({
-    title: 'Select source folder(s)',
-    properties: ['openDirectory', 'dontAddToRecent'],
-  });
-
-  const sources: ModSource[] = result.filePaths
-    .filter((d) => !!d)
-    .map((path) => ({
-      path,
-      name: basename(path),
-    }));
-
+async function addModSources(sources: ModSource[]) {
   // Updating sources
   state.sources = [...new Map(
     [
@@ -286,9 +263,46 @@ prepareMethod(async function addModSource() {
     ...state.list,
     ...Object.fromEntries(modList.map((m): [string, Mod] => [m.id, m])),
   };
+
+  // Not using setState cause we changed the list
   sendToRender('bridge:mods', state);
+  await saveState();
+}
+
+prepareMethod(addModSources);
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function openModSourcePicker() {
+  const result = await showOpenDialog({
+    title: t('mod-sources.folderPicker.title'),
+    properties: ['openDirectory', 'dontAddToRecent'],
+  });
+
+  const sources = result.filePaths
+    .filter((d) => !!d)
+    .map((path) => ({
+      path,
+      name: basename(path),
+    }));
+
+  await addModSources(sources);
 
   return sources;
+});
+
+// eslint-disable-next-line prefer-arrow-callback
+prepareMethod(async function editModSource(source: ModSource) {
+  const index = state.sources.findIndex(({ path }) => path === source.path);
+  if (index < 0) {
+    return;
+  }
+
+  state.sources[index] = {
+    ...source,
+    path: state.sources[index].path,
+  };
+
+  setState(state);
 });
 
 // eslint-disable-next-line prefer-arrow-callback
@@ -302,10 +316,13 @@ prepareMethod(async function removeModSource(source: ModSource) {
   state.list = Object.fromEntries(modList);
   // Ensuring active mods exists
   state.active = state.active.filter((id) => modList.some(([, m]) => m.id === id));
+
+  // Not using setState cause we changed the list
   sendToRender('bridge:mods', state);
+  await saveState();
 });
 
 export {
-  getMods,
+  getState as getMods,
   loadMods,
 };
