@@ -147,7 +147,13 @@
                 </template>
 
                 <template #text>
-                  <v-list style="max-height: 500px; overflow-y: auto;">
+                  <v-empty-state
+                    v-if="source.mods.length === 0"
+                    :title="$t('mod-sources.errors.noMods.title')"
+                    :text="$t('mod-sources.errors.noMods.text')"
+                    icon="mdi-toy-brick-remove"
+                  />
+                  <v-list v-else style="max-height: 500px; overflow-y: auto;">
                     <v-list-item
                       v-for="mod in source.mods"
                       :key="mod.id"

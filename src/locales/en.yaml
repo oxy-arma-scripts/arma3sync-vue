@@ -28,6 +28,9 @@ mod-sources:
     noSources:
       title: No mod sources found
       text: Add a source folder with the {'"'}@:add{'"'} button to start using mods !
+    noMods:
+      title: No mods in source found
+      text: Check the location of the source, and if any mods is present int this location.
     noName: Name is required
     noPath: Location is required
 

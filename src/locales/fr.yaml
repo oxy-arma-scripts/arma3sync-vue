@@ -28,6 +28,9 @@ mod-sources:
     noSources:
       title: Aucune source de mod
       text: Ajouter un dossier de mods avec le bouton {'"'}@:add{'"'} pour commencer à utiliser des mods !
+    noMods:
+      title: Aucun mod trouvé dans cette source
+      text: Vérifiez l'emplacement de cette source, et si des mods sont bien présent à cet emplacement.
     noName: Le nom est requis
     noPath: L'emplacement est requise
 
