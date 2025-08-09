@@ -1,5 +1,11 @@
 import z from 'zod';
 
+export type BaseClient<Type extends string, Client> = {
+  type: Type;
+  client: Client;
+  baseURL: URL;
+};
+
 /**
  * Validation for an usable autoconfig from A3S, might not be 100% accurate
  */

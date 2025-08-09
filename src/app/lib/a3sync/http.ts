@@ -7,6 +7,7 @@ import deserializer from 'java-deserialization';
 import { version as VERSION } from '~/../package.json';
 
 import {
+  type BaseClient,
   AutoConfig,
   type AutoConfigType,
   Changelogs,
@@ -19,15 +20,17 @@ import {
   type SyncType,
 } from './types';
 
-function getClient(url: URL, timeout?: number): Promise<$Fetch> {
-  const baseURL = new URL(url);
-  baseURL.username = '';
-  baseURL.password = '';
+export type Client = BaseClient<'http', $Fetch>;
 
-  const authorization = Buffer.from([url.username, url.password].join(':')).toString('base64');
+function getClient(baseURL: URL, timeout?: number): Promise<Client> {
+  const url = new URL(baseURL);
+  url.username = '';
+  url.password = '';
+
+  const authorization = Buffer.from([baseURL.username, baseURL.password].join(':')).toString('base64');
 
   const client = ofetch.create({
-    baseURL: baseURL.toString(),
+    baseURL: url.toString(),
     headers: {
       'User-Agent': `Arma3Sync/${VERSION}`,
       Authorization: `Basic ${authorization}`,
@@ -35,10 +38,14 @@ function getClient(url: URL, timeout?: number): Promise<$Fetch> {
     timeout,
   });
 
-  return Promise.resolve(client);
+  return Promise.resolve({
+    type: 'http',
+    client,
+    baseURL,
+  });
 }
 
-async function fetchA3SFile(client: $Fetch, path: string): Promise<unknown> {
+async function fetchA3SFile({ client }: Client, path: string): Promise<unknown> {
   const response = await client(path, {
     method: 'GET',
     responseType: 'stream',
@@ -50,27 +57,27 @@ async function fetchA3SFile(client: $Fetch, path: string): Promise<unknown> {
   return deserializer.parse(buffer);
 }
 
-async function getAutoConfig(client: $Fetch): Promise<AutoConfigType> {
+async function getAutoConfig(client: Client): Promise<AutoConfigType> {
   const data = await fetchA3SFile(client, '/.a3s/autoconfig');
   return AutoConfig.parseAsync(data);
 }
 
-async function getChangelogs(client: $Fetch): Promise<ChangelogsType> {
+async function getChangelogs(client: Client): Promise<ChangelogsType> {
   const data = await fetchA3SFile(client, '/.a3s/changelogs');
   return Changelogs.parseAsync(data);
 }
 
-async function getEvents(client: $Fetch): Promise<EventType> {
+async function getEvents(client: Client): Promise<EventType> {
   const data = await fetchA3SFile(client, '/.a3s/events');
   return Events.parseAsync(data);
 }
 
-async function getServerInfo(client: $Fetch): Promise<ServerInfoType> {
+async function getServerInfo(client: Client): Promise<ServerInfoType> {
   const data = await fetchA3SFile(client, '/.a3s/serverinfo');
   return ServerInfo.parseAsync(data);
 }
 
-async function getSync(client: $Fetch): Promise<SyncType> {
+async function getSync(client: Client): Promise<SyncType> {
   const data = await fetchA3SFile(client, '/.a3s/sync');
   return Sync.parseAsync(data);
 }

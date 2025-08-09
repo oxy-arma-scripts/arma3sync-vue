@@ -1,6 +1,3 @@
-import { Client as FTPClient } from 'basic-ftp';
-import type { $Fetch } from 'ofetch';
-
 import * as ftp from './ftp';
 import * as http from './http';
 
@@ -12,52 +9,77 @@ import type {
   SyncType,
 } from './types';
 
-type A3SClient = $Fetch | FTPClient;
+type A3SClient = ftp.Client | http.Client;
 
-async function getClient(url: URL, timeout?: number): Promise<A3SClient> {
-  const { protocol } = url;
+async function getClient(baseURL: URL, timeout?: number): Promise<A3SClient> {
+  const { protocol } = baseURL;
   if (protocol.startsWith('http')) {
-    return http.getClient(url, timeout);
+    return http.getClient(baseURL, timeout);
   }
   if (protocol.startsWith('ftp')) {
-    return ftp.getClient(url, timeout);
+    return ftp.getClient(baseURL, timeout);
   }
   throw new Error(`Protocol "${protocol}" is not supported`);
 }
 
-async function getAutoConfig(client: A3SClient, basePath?: string): Promise<AutoConfigType> {
-  if (client instanceof FTPClient) {
-    return ftp.getAutoConfig(client, basePath);
+async function getAutoConfig(client: A3SClient): Promise<AutoConfigType> {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.getAutoConfig(client);
+    case 'http':
+      return http.getAutoConfig(client);
+
+    default:
+      throw new Error('Client type not supported');
   }
-  return http.getAutoConfig(client);
 }
 
-async function getChangelogs(client: A3SClient, basePath?: string): Promise<ChangelogsType> {
-  if (client instanceof FTPClient) {
-    return ftp.getChangelogs(client, basePath);
+async function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.getChangelogs(client);
+    case 'http':
+      return http.getChangelogs(client);
+
+    default:
+      throw new Error('Client type not supported');
   }
-  return http.getChangelogs(client);
 }
 
-async function getEvents(client: A3SClient, basePath?: string): Promise<EventType> {
-  if (client instanceof FTPClient) {
-    return ftp.getEvents(client, basePath);
+async function getEvents(client: A3SClient): Promise<EventType> {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.getEvents(client);
+    case 'http':
+      return http.getEvents(client);
+
+    default:
+      throw new Error('Client type not supported');
   }
-  return http.getEvents(client);
 }
 
-async function getServerInfo(client: A3SClient, basePath?: string): Promise<ServerInfoType> {
-  if (client instanceof FTPClient) {
-    return ftp.getServerInfo(client, basePath);
+async function getServerInfo(client: A3SClient): Promise<ServerInfoType> {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.getServerInfo(client);
+    case 'http':
+      return http.getServerInfo(client);
+
+    default:
+      throw new Error('Client type not supported');
   }
-  return http.getServerInfo(client);
 }
 
-async function getSync(client: A3SClient, basePath?: string): Promise<SyncType> {
-  if (client instanceof FTPClient) {
-    return ftp.getSync(client, basePath);
+async function getSync(client: A3SClient): Promise<SyncType> {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.getSync(client);
+    case 'http':
+      return http.getSync(client);
+
+    default:
+      throw new Error('Client type not supported');
   }
-  return http.getSync(client);
 }
 
 export {

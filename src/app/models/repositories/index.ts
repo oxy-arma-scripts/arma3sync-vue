@@ -94,7 +94,7 @@ prepareMethod(async function importRepository(publicUrl: string): Promise<Omit<R
 
   let autoConfig;
   try {
-    ([autoConfig] = await a3sync.getAutoConfig(client, url.pathname));
+    ([autoConfig] = await a3sync.getAutoConfig(client));
   } catch (e) {
     throw new Error('Failed to get autoconfig', { cause: e });
   }
@@ -117,7 +117,7 @@ prepareMethod(async function checkRepository(repository: Repository) {
   }
 
   try {
-    await a3sync.getServerInfo(client, url.pathname);
+    await a3sync.getServerInfo(client);
   } catch (e) {
     throw new Error('Failed to get server info', { cause: e });
   }
