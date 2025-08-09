@@ -4,7 +4,7 @@ import * as http from './http';
 import type {
   AutoConfigType,
   ChangelogsType,
-  EventType,
+  ModsetsType,
   ServerInfoType,
   SyncType,
 } from './types';
@@ -46,12 +46,12 @@ async function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
   }
 }
 
-async function getEvents(client: A3SClient): Promise<EventType> {
+async function getModsets(client: A3SClient): Promise<ModsetsType> {
   switch (client.type) {
     case 'ftp':
-      return ftp.getEvents(client);
+      return ftp.getModsets(client);
     case 'http':
-      return http.getEvents(client);
+      return http.getModsets(client);
 
     default:
       throw new Error('Client type not supported');
@@ -85,14 +85,14 @@ async function getSync(client: A3SClient): Promise<SyncType> {
 export {
   type AutoConfigType,
   type ChangelogsType,
-  type EventType,
+  type ModsetsType,
   type ServerInfoType,
   type SyncType,
 
   getClient,
   getAutoConfig,
   getChangelogs,
-  getEvents,
+  getModsets,
   getServerInfo,
   getSync,
 };
