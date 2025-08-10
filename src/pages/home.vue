@@ -112,7 +112,7 @@
 
                     <div class="text-end mr-2">
                       <v-btn
-                        v-if="!source.mandatory"
+                        v-if="!source.native"
                         v-tooltip:top="$t('edit')"
                         icon="mdi-pencil"
                         density="comfortable"
@@ -123,7 +123,7 @@
                         @click.stop="openForm(source)"
                       />
                       <v-btn
-                        v-if="!source.mandatory"
+                        v-if="!source.native"
                         v-tooltip:top="$t('delete')"
                         icon="mdi-delete"
                         density="comfortable"

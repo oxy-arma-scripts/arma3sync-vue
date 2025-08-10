@@ -10,15 +10,20 @@ import {
 import { app, shell } from 'electron';
 
 import mainLogger from '~/app/lib/logger';
+import { t } from '~/app/lib/i18n';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 import { sendToRender, showOpenDialog } from '~/app/lib/window';
 import { APP_ID } from '~/app/lib/a3';
-import { parseModMeta } from '~/app/lib/a3/modmeta';
+import { type ModMeta, parseModMeta } from '~/app/lib/a3/modmeta';
 
 import { getSettings } from '~/app/models/settings';
 
-import type { ModsState, Mod, ModSource } from './types';
-import { t } from '../../lib/i18n';
+import type {
+  ModsState,
+  Mod,
+  ModSource,
+  ModFeatures,
+} from './types';
 
 const logger = mainLogger.scope('app.models.mods');
 const activePath = join(app.getPath('userData'), 'mods.json');
@@ -84,21 +89,53 @@ const {
   },
 );
 
-async function getMod(source: string, f: Dirent<string>): Promise<Omit<Mod, 'source'> | null> {
+const EXPECTED_CONTENTS: Readonly<Record<ModFeatures, RegExp>> = {
+  addons: /^addons?$/i,
+  keys: /^keys?$/i,
+  meta: /^meta\.cpp$/i,
+  main: /^mod\.cpp$/i,
+} as const;
+
+async function getMod(source: string, folder: Dirent<string>): Promise<Omit<Mod, 'source'> | null> {
+  const modPath = join(source, folder.name);
   try {
-    const modPath = join(source, f.name);
-    const metaPath = join(modPath, 'mod.cpp');
-    if (!existsSync(metaPath)) {
+    const contents = await fsp.readdir(modPath);
+
+    const features = contents.reduce((acc, c) => {
+      const entries = Object.entries(EXPECTED_CONTENTS) as [ModFeatures, RegExp][];
+
+      // eslint-disable-next-line no-restricted-syntax
+      for (const [key, value] of entries) {
+        acc[key] = acc[key] || value.test(c);
+      }
+      return acc;
+    }, {} as Record<keyof typeof EXPECTED_CONTENTS, boolean>);
+
+    const seemsLikeAMod = Object.values(features).some((v) => v);
+    if (!seemsLikeAMod) {
       return null;
     }
 
-    const meta = parseModMeta(await fsp.readFile(metaPath, 'utf-8'));
+    let meta: ModMeta = {};
+    if (features.meta) {
+      meta = {
+        ...meta,
+        ...parseModMeta(await fsp.readFile(join(modPath, 'meta.cpp'), 'utf-8')),
+      };
+    }
+    if (features.main) {
+      meta = {
+        ...meta,
+        ...parseModMeta(await fsp.readFile(join(modPath, 'mod.cpp'), 'utf-8')),
+      };
+    }
 
-    return ({
-      id: f.name,
-      subpath: f.name,
-      name: meta.name || f.name,
-    });
+    return {
+      id: folder.name,
+      subpath: folder.name,
+      name: meta.name || folder.name,
+      features,
+    };
   } catch (err) {
     logger.error('Failed to load mod', { err });
     return null;
@@ -115,14 +152,14 @@ async function listCDLCFromSource(source: ModSource): Promise<Mod[]> {
   const mods: Mod[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const f of contents) {
-    if (!isCDLC(f)) {
+  for (const folder of contents) {
+    if (!isCDLC(folder)) {
       // eslint-disable-next-line no-continue
       continue;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const mod = await getMod(source.path, f);
+    const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
     }
@@ -141,14 +178,14 @@ async function listWorkshopModsFromSource(source: ModSource): Promise<Mod[]> {
   const mods: Mod[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const f of contents) {
-    if (!isWorkshopMod(f)) {
+  for (const folder of contents) {
+    if (!isWorkshopMod(folder)) {
       // eslint-disable-next-line no-continue
       continue;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const mod = await getMod(source.path, f);
+    const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
     }
@@ -166,14 +203,29 @@ async function listModsFromSource(source: ModSource): Promise<Mod[]> {
   const mods: Mod[] = [];
 
   // eslint-disable-next-line no-restricted-syntax
-  for (const f of contents) {
-    if (!isMod(f)) {
+  for (const folder of contents) {
+    if (!isMod(folder)) {
+      // Try to find mods in subfolders
+      if (folder.isDirectory()) {
+        // eslint-disable-next-line no-await-in-loop
+        const subMods = await listModsFromSource({
+          ...source,
+          path: join(source.path, folder.name),
+        });
+
+        mods.push(...subMods.map((m) => ({
+          ...m,
+          source,
+          subpath: join(folder.name, m.subpath),
+        })));
+      }
+
       // eslint-disable-next-line no-continue
       continue;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const mod = await getMod(source.path, f);
+    const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
     }
@@ -192,13 +244,13 @@ async function loadMods() {
   if (settings.game.path) {
     const cdlcSource: ModSource = {
       name: '!cdlc',
-      mandatory: true,
+      native: true,
       path: settings.game.path,
     };
 
     const workshopSource: ModSource = {
       name: '!workshop',
-      mandatory: true,
+      native: true,
       path: resolve(settings.game.path, `../../workshop/content/${APP_ID}`),
     };
 

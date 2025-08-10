@@ -1,14 +1,20 @@
+export type ModFeatures = 'addons'
+| 'keys'
+| 'meta'
+| 'main';
+
 export type Mod = {
   id: string;
   subpath: string;
   name: string;
   source: ModSource;
+  features: Record<ModFeatures, boolean>;
 };
 
 export type ModSource = {
   name: string;
   path: string;
-  mandatory?: true;
+  native?: true;
 };
 
 export type ModsState = {

@@ -10,6 +10,8 @@ export type DisplayModSource = ModSource & {
 };
 
 export const useModsStore = defineStore('mods', () => {
+  const { locale } = useI18n();
+
   const {
     value: mods,
     isSynced,
@@ -31,6 +33,7 @@ export const useModsStore = defineStore('mods', () => {
 
     const activeMods = new Set(mods.value.active);
 
+    // Map mods to sources
     // eslint-disable-next-line no-restricted-syntax
     for (const { source, ...mod } of Object.values(mods.value.list)) {
       const entry: DisplayModSource = {
@@ -47,6 +50,24 @@ export const useModsStore = defineStore('mods', () => {
       res.set(source.name, entry);
     }
 
+    // Sort mods
+    const collator = new Intl.Collator(locale.value);
+
+    const nativeComparator = (
+      modA: DisplayMod,
+      modB: DisplayMod,
+    ) => collator.compare(modA.name, modB.name);
+
+    const comparator = (
+      modA: DisplayMod,
+      modB: DisplayMod,
+    ) => collator.compare(modA.subpath, modB.subpath);
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const entry of res.values()) {
+      entry.mods.sort(entry.native ? nativeComparator : comparator);
+    }
+
     return [...res.values()];
   });
 
@@ -55,7 +76,9 @@ export const useModsStore = defineStore('mods', () => {
       return [];
     }
 
-    return mods.value.active.map((id) => mods.value.list[id]);
+    return mods.value.active
+      .map((id) => mods.value.list[id])
+      .sort((modA, modB) => modA.name.localeCompare(modB.name, locale.value));
   });
 
   function setModActive(mod: { id: string, active: boolean }, value: boolean) {
