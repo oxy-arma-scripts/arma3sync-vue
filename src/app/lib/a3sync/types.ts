@@ -6,6 +6,12 @@ export type BaseClient<Type extends string, Client> = {
   baseURL: URL;
 };
 
+const JavaLong = z.object({
+  low: z.number(),
+  high: z.number(),
+  unsigned: z.boolean(),
+});
+
 const JavaList = <Type extends z.ZodType>(items: Type) => z.object({
   size: z.number(),
   list: z.array(items).optional(),
@@ -94,32 +100,38 @@ export const ServerInfo = z.array(
     compressedPboFilesOnly: z.boolean(),
     noPartialFileTransfer: z.boolean(),
     numberOfConnections: z.int(),
-    numberOfFiles: z.unknown(), // Long ???
+    numberOfFiles: JavaLong,
     repositoryContentUpdated: z.boolean(),
     revision: z.int(),
-    totalFilesSize: z.unknown(), // Long ???
+    totalFilesSize: JavaLong,
   }).catchall(z.unknown()),
 );
 
 export type ServerInfoType = z.infer<typeof ServerInfo>;
 
-const SyncItem = z.object({
+const SyncFileItem = z.object({
+  size: JavaLong,
   name: z.string(),
-  // @ts-expect-error - Should be fixed with new versions of TS
-  get list() {
-    return JavaList(SyncItem);
-  },
+  sha1: z.string(),
 }).catchall(z.unknown());
 
-export const Sync = z.array(
-  z.object({
-    list: JavaList(
-      z.object({
-        name: z.string(),
-        list: JavaList(SyncItem),
-      }).catchall(z.unknown()),
-    ),
-  }).catchall(z.unknown()),
-);
+const SyncFileDirectory = z.object({
+  name: z.string(),
+  deleted: z.boolean(),
+  hidden: z.boolean(),
+  markAsAddon: z.boolean(),
+  updated: z.boolean(),
+
+  parent: z.unknown(), // Skip it
+
+  list: z.object({
+    size: z.number(),
+    get list() {
+      return z.array(SyncFileItem.or(SyncFileDirectory)).optional();
+    },
+  }),
+}); // .catchall(z.unknown());
+
+export const Sync = z.array(SyncFileItem.or(SyncFileDirectory));
 
 export type SyncType = z.infer<typeof Sync>;

@@ -8,7 +8,7 @@ import type { Settings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
 import type { ModsState, ModSource } from '~/app/models/mods/types';
-import type { RepositoriesState, Repository } from './app/models/repositories/types';
+import type { RepositoriesState, Repository } from '~/app/models/repositories/types';
 
 const ipc = {
   bridges: {
