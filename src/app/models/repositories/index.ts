@@ -9,6 +9,7 @@ import {
   addRepository,
   editRepository,
   removeRepository,
+  fetchRepository,
 } from './methods';
 
 prepareMethod((repository: Repository) => shell.openPath(repository.destination), 'openRepositoryFolder');
@@ -18,6 +19,7 @@ prepareMethod(checkRepository);
 prepareMethod(addRepository);
 prepareMethod(editRepository);
 prepareMethod(removeRepository);
+prepareMethod(fetchRepository);
 
 // eslint-disable-next-line import/prefer-default-export
 export { loadRepositories } from './methods';

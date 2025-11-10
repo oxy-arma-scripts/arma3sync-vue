@@ -10,3 +10,8 @@ export type Repository = {
 export type RepositoriesState = {
   repositories: Repository[],
 };
+
+export type RepositorySyncItem = {
+  type: 'CREATE' | 'UPDATE' | 'DELETE',
+  path: string,
+};

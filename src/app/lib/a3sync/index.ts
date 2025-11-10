@@ -82,7 +82,20 @@ async function getSync(client: A3SClient): Promise<SyncType> {
   }
 }
 
+async function downloadFile(client: A3SClient, source: string, destination: string) {
+  switch (client.type) {
+    case 'ftp':
+      return ftp.downloadFile(client, source, destination);
+    case 'http':
+      return http.downloadFile(client, source, destination);
+
+    default:
+      throw new Error('Client type not supported');
+  }
+}
+
 export {
+  type A3SClient,
   type AutoConfigType,
   type ChangelogsType,
   type ModsetsType,
@@ -95,4 +108,5 @@ export {
   getModsets,
   getServerInfo,
   getSync,
+  downloadFile,
 };

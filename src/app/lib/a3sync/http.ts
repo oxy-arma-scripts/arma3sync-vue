@@ -1,4 +1,6 @@
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
+import { createWriteStream } from 'node:fs';
 import { createGunzip } from 'node:zlib';
 
 import { ofetch, type $Fetch } from 'ofetch';
@@ -82,6 +84,18 @@ async function getSync(client: Client): Promise<SyncType> {
   return Sync.parseAsync(data);
 }
 
+async function downloadFile({ client }: Client, source: string, destination: string) {
+  const data = await client(source, {
+    method: 'GET',
+    responseType: 'stream',
+  });
+
+  await pipeline(
+    Readable.fromWeb(data),
+    createWriteStream(destination),
+  );
+}
+
 export {
   getClient,
   getAutoConfig,
@@ -89,4 +103,5 @@ export {
   getModsets,
   getServerInfo,
   getSync,
+  downloadFile,
 };

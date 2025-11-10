@@ -20,6 +20,7 @@
     "basic-ftp": "^5.0.5",
     "electron-log": "^5.4.2",
     "electron-squirrel-startup": "^1.0.1",
+    "fastq": "^1.19.1",
     "find-process": "^2.0.0",
     "i18n": "^0.15.1",
     "java-deserialization": "^0.1.0",

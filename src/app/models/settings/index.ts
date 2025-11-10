@@ -1,4 +1,4 @@
-import { dirname, join } from 'node:path';
+import { dirname, join, sep } from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
@@ -24,6 +24,8 @@ let state: Settings = {
     theme: 'auto',
     language: null, // let browser decide
   },
+
+  pathSeparator: sep,
 };
 
 async function saveState() {
@@ -49,6 +51,7 @@ async function loadState() {
     state = {
       ...state,
       ...JSON.parse(data),
+      pathSeparator: sep,
     };
     if (state.display.language) {
       i18n.setLocale(state.display.language);

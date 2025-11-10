@@ -97,6 +97,10 @@
                 </div>
               </v-row>
             </template>
+
+            <template #text>
+              <RepositorySyncPanel :repository="repo" />
+            </template>
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>

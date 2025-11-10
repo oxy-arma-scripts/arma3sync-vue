@@ -7,5 +7,7 @@ export type Settings = {
   display: {
     theme: 'light' | 'dark' | 'auto';
     language: string | null;
-  }
+  };
+
+  pathSeparator: string;
 };

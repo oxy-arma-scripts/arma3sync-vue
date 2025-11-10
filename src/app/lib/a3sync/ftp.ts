@@ -72,6 +72,10 @@ async function getSync(client: Client): Promise<SyncType> {
   return Sync.parseAsync(data);
 }
 
+async function downloadFile({ client }: Client, source: string, destination: string) {
+  await client.downloadTo(destination, source);
+}
+
 export {
   getClient,
   getAutoConfig,
@@ -79,4 +83,5 @@ export {
   getModsets,
   getServerInfo,
   getSync,
+  downloadFile,
 };

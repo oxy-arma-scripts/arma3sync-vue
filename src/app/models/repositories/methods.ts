@@ -1,7 +1,10 @@
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { createReadStream, existsSync } from 'node:fs';
 import {
-  readFile, writeFile, mkdir, glob,
+  readFile,
+  writeFile,
+  mkdir,
+  glob,
 } from 'node:fs/promises';
 
 import { app } from 'electron';
@@ -13,7 +16,7 @@ import { prepareBridge } from '~/app/lib/bridge';
 import * as a3sync from '~/app/lib/a3sync';
 
 import { createHash } from 'node:crypto';
-import { Repository, RepositoriesState } from './types';
+import type { Repository, RepositoriesState, RepositorySyncItem } from './types';
 
 const logger = mainLogger.scope('app.models.sync');
 const configPath = join(app.getPath('userData'), 'repositories.json');
@@ -152,7 +155,7 @@ const flattenSync = (sync: a3sync.SyncType, root = '.') => sync.flatMap(
   },
 );
 
-export async function syncRepository(repository: Repository) {
+export async function fetchRepository(repository: Repository): Promise<RepositorySyncItem[]> {
   const client = await getA3SClientFromRepository(repository);
 
   let sync;
@@ -163,7 +166,7 @@ export async function syncRepository(repository: Repository) {
   }
 
   const filesFromSync = new Map(
-    flattenSync(sync, repository.destination)
+    flattenSync(sync)
       .map((item) => [item.path, item]),
   );
 
@@ -171,7 +174,8 @@ export async function syncRepository(repository: Repository) {
     withFileTypes: true,
   });
 
-  // TODO: parallel
+  const operations = [];
+
   // eslint-disable-next-line no-restricted-syntax
   for await (const file of filesOnDisk) {
     if (!file.isFile()) {
@@ -179,29 +183,45 @@ export async function syncRepository(repository: Repository) {
       continue;
     }
 
-    const path = join(file.parentPath, file.name);
-    const syncItem = filesFromSync.get(path);
+    const absolutePath = join(file.parentPath, file.name);
+    const relativePath = relative(repository.destination, absolutePath);
+
+    const syncItem = filesFromSync.get(relativePath);
     if (!syncItem) {
-      // TODO: delete
+      operations.push({
+        type: 'DELETE',
+        path: relativePath,
+      });
+      // eslint-disable-next-line no-continue
+      continue;
     }
 
     // Item was found, no need to keep it
-    filesFromSync.delete(path);
+    filesFromSync.delete(relativePath);
 
-    const sha1 = createReadStream(path)
+    const sha1 = createReadStream(absolutePath)
       .pipe(createHash('sha1'))
       .digest('hex');
 
     if (sha1 !== syncItem?.sha1) {
-      // TODO: update
+      operations.push({
+        type: 'UPDATE',
+        path: relativePath,
+      });
+      // eslint-disable-next-line no-continue
+      continue;
     }
   }
 
-  // TODO: parallel
   // eslint-disable-next-line no-restricted-syntax
   for await (const item of filesFromSync.values()) {
-    // TODO: create
+    operations.push({
+      type: 'CREATE',
+      path: item.path,
+    });
   }
+
+  return operations;
 }
 
 export async function addRepository(repository: Repository) {
