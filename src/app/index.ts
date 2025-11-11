@@ -7,7 +7,7 @@ import { loadSettings } from '~/app/models/settings';
 import { loadMods } from '~/app/models/mods';
 import { loadRepositories } from '~/app/models/repositories';
 // oxlint-disable-next-line no-unassigned-import
-import '~/app/models/game/index-old';
+import '~/app/models/game/index';
 
 async function loadApp(): Promise<void> {
   await setTimeout(1000);
