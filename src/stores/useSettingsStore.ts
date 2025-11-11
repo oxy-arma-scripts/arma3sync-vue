@@ -5,13 +5,18 @@ import type { Settings } from '~/app/models/settings/types';
 import { renderLogger } from '~/lib/logger';
 
 async function openGameFolderPicker(): Promise<void> {
-  await window.ipc.methods.openGameFolderPicker();
+  try {
+    await window.ipc.methods.openGameFolderPicker();
+  } catch (err) {
+    renderLogger.error('Failed to pick game folder', { err });
+  }
 }
 
 async function openGameFolder(): Promise<void> {
-  const error = await window.ipc.methods.openGameFolder();
-  if (error) {
-    renderLogger.error('Failed to open game folder', { error });
+  try {
+    await window.ipc.methods.openGameFolder();
+  } catch (err) {
+    renderLogger.error('Failed to open game folder', { err });
   }
 }
 

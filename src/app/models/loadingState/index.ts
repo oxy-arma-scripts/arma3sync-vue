@@ -1,24 +1,18 @@
-import { mainLogger } from '~/app/lib/logger';
-import { prepareBridge } from '~/app/lib/bridge';
-
 import type { LoadingState } from './types';
 
-const logger = mainLogger.scope('app.models.loading-state');
+import { getLoadingState, setLoadingState } from './state';
 
-let loadingState: LoadingState = {
-  settings: false,
-  repositories: false,
-  mods: false,
-};
+/**
+ * Set step status
+ *
+ * @param key - The step to update
+ * @param val - The new value of the step
+ */
+export function setStep(key: keyof LoadingState, val: boolean): void {
+  setLoadingState({
+    ...getLoadingState(),
+    [key]: val,
+  });
+}
 
-const { get: getLoadingState, set: setLoadingState } = prepareBridge(
-  'loading-state',
-  logger,
-  () => loadingState,
-  (value) => {
-    loadingState = value;
-  },
-  { readonly: true }
-);
-
-export { getLoadingState, setLoadingState };
+export { getLoadingState } from './state';

@@ -12,6 +12,11 @@ import { isLinux } from '~/app/lib/platforms/linux';
 
 // TODO: Allow to not use steam
 
+/**
+ * Check if should run game with Proton
+ *
+ * @returns Should run game with proton
+ */
 function checkIsProton(): boolean {
   if (isWindows) {
     return false;
@@ -21,6 +26,11 @@ function checkIsProton(): boolean {
   return true;
 }
 
+/**
+ * Check if steam is in flatpak
+ *
+ * @returns Should run game with steam in flatpak
+ */
 function checkIsFlatpak(): boolean {
   if (!isLinux) {
     return false;
@@ -36,6 +46,13 @@ function checkIsFlatpak(): boolean {
   });
 }
 
+/**
+ * Transform list of mods into a start param
+ *
+ * @param mods - List of mod paths
+ *
+ * @returns The start param
+ */
 function getModParam(mods: string[]): string {
   if (isWindows) {
     return mods.join(';');
@@ -50,6 +67,14 @@ function getModParam(mods: string[]): string {
   return mods.join('\\;');
 }
 
+/**
+ * Launch game with given params and mods
+ *
+ * @param params - List of start params (except mods)
+ * @param mods - List of mod paths to start with game
+ *
+ * @returns Necessary data to track process
+ */
 export function launchGame(
   params: string[],
   mods: string[]

@@ -4,25 +4,28 @@ import { prepareMethod } from '~/app/lib/bridge';
 
 import type { Repository } from './types';
 
+import { addRepository, editRepository, removeRepository } from './state';
+
 import {
   importRepository,
   checkRepository,
   fetchRepository,
   syncRepository,
 } from './actions';
-import { addRepository, editRepository, removeRepository } from './state';
 
 // Prepare methods for IPC
 prepareMethod(
   (repository: Repository) => shell.openPath(repository.destination),
   'openRepositoryFolder'
 );
-prepareMethod(importRepository);
-prepareMethod(checkRepository);
+
 prepareMethod(addRepository);
 prepareMethod(editRepository);
 prepareMethod(removeRepository);
+
+prepareMethod(importRepository);
+prepareMethod(checkRepository);
 prepareMethod(fetchRepository);
 prepareMethod(syncRepository);
 
-export { loadRepositories } from './state';
+export { loadRepositories, getSync } from './state';

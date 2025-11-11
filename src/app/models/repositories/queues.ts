@@ -19,7 +19,6 @@ import type {
 // Status of queue for each repository
 export const checkStatus: Record<string, FetchQueueStatus> = {};
 
-// FIXME: what if mod doesn't start with @ ?
 const regexModFromPath = new RegExp(`(?<path>.*(?<name>@[^${sep}]+))`, 'i');
 
 type FileCheckTask = {

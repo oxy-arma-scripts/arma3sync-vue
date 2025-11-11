@@ -1,3 +1,6 @@
+/**
+ * Type of the state
+ */
 export type Settings = {
   game: {
     path: string;
