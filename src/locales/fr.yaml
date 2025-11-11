@@ -1,5 +1,6 @@
 loading:
   unknown: Chargement des derniers éléments...
+  db: Chargement de la base de donnée
   settings: Chargement des paramètres
   repositories: Chargement des entrepôts
   mods: Chargement des mods
@@ -80,6 +81,25 @@ repositories:
 
   edit:
     title: Éditer un entrepôt
+
+  sync:
+    title: État de mise à jour
+    mods: ({mods} mods)
+    fetch: Récupérer
+    pending: Aucune information de synchronisation est disponible, veuillez cliquer sur le bouton {'"'}@:repositories.sync.fetch{'"'} en haut à droite
+    syncAvailable: >
+      {mods} mods ne sont pas synchronisés, sélectionnez les puis cliquer sur le bouton {'"'}@:repositories.sync.sync{'"'} en bas à gauche
+    syncOk: Les mods sélectionnés ont bien été synchronisés
+    selectedMods: '{n} mods sélectionnés'
+    sync: Synchroniser
+    error: Une erreur est survenue
+    loadingTooltip:
+      value: '{done} fichiers effectués sur {total}'
+    types:
+      create: Nouveau
+      update: Mise à jour
+      delete: Supprimé
+      unchanged: À jour
 
 settings:
   title: Paramètres
@@ -247,3 +267,4 @@ edit: Éditer
 create: Créer
 play: Jouer
 import: Importer
+selectAll: Tout sélectionner

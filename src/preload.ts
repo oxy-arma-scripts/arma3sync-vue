@@ -37,6 +37,7 @@ const ipc = {
     editRepository: registerIPCMethod<void, [Repository]>('editRepository'),
     removeRepository: registerIPCMethod<void, [Repository]>('removeRepository'),
     fetchRepository: registerIPCMethod<RepositorySyncItem[], [Repository]>('fetchRepository'),
+    syncRepository: registerIPCMethod<unknown[], [Repository, RepositorySyncItem[]]>('syncRepository'),
   },
 };
 

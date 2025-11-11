@@ -1,5 +1,6 @@
 loading:
   unknown: Loading last elements...
+  db: Loading database
   mods: Loading mods
   repositories: Loading repositories
   settings: Loading settings
@@ -80,6 +81,24 @@ repositories:
 
   edit:
     title: Edit repository
+
+  sync:
+    title: Update state
+    mods: ({mods} mods)
+    fetch: Fetch
+    pending: No sync information is available, please click on the {'"'}@:repositories.sync.fetch{'"'} button
+    syncAvailable: >
+      {mods} mods aren't synced, select them before clicking on the {'"'}@:repositories.sync.sync{'"'} button
+    syncOk: Selected mods were sucessfully synced
+    selectedMods: '{n} mods selected'
+    sync: Sync
+    loadingTooltip:
+      value: '{done} files done out of {total}'
+    types:
+      create: New
+      update: Update
+      delete: Deleted
+      unchanged: Up to date
 
 settings:
   title: Settings
@@ -247,3 +266,4 @@ create: Create
 edit: Edit
 play: Play
 import: Import
+selectAll: Select all

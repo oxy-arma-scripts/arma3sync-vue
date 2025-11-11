@@ -82,7 +82,7 @@ const navItems = computed<NavItem[]>(() => [
     to: '/',
   },
   {
-    title: 'Repositories',
+    title: t('repositories.title'),
     prependIcon: 'mdi-cloud-sync',
     to: '/repositories',
   },
