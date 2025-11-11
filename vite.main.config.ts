@@ -5,14 +5,10 @@ import yaml from '@modyfi/vite-plugin-yaml';
 
 // https://vitejs.dev/config
 export default defineConfig({
-  plugins: [
-    yaml(),
-  ],
+  plugins: [yaml()],
 
   resolve: {
-    alias: [
-      { find: '~', replacement: resolve(__dirname, 'src') },
-    ],
+    alias: [{ find: '~', replacement: resolve(__dirname, 'src') }],
   },
 
   server: {

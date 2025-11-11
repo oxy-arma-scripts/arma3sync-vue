@@ -2,8 +2,9 @@ import { join, relative } from 'node:path';
 import { glob } from 'node:fs/promises';
 
 import { sendToRender } from '~/app/lib/window';
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 
+// oxlint-disable-next-line no-namespace
 import * as a3sync from '~/app/lib/a3sync';
 
 import type { Repository, RepositorySyncItem } from './types';
@@ -11,7 +12,11 @@ import type { Repository, RepositorySyncItem } from './types';
 import { getSync } from './state';
 import { addToFileCheckQueue, addToFileSyncQueue } from './queues';
 
-import { flattenSync, getA3SClientFromRepository, getRepositoryFromAutoConfig } from './utils';
+import {
+  flattenSync,
+  getA3SClientFromRepository,
+  getRepositoryFromAutoConfig,
+} from './utils';
 
 const logger = mainLogger.scope('app.models.sync');
 
@@ -22,22 +27,24 @@ const logger = mainLogger.scope('app.models.sync');
  *
  * @returns A configured Repository (without destination, user will need to provide it)
  */
-export async function importRepository(publicUrl: string): Promise<Omit<Repository, 'destination'>> {
+export async function importRepository(
+  publicUrl: string
+): Promise<Omit<Repository, 'destination'>> {
   const url = new URL(publicUrl);
   url.pathname = url.pathname.replace(/\/\.a3s\/autoconfig\/?/i, '/');
 
   let client;
   try {
     client = await a3sync.getClient(url);
-  } catch (e) {
-    throw new Error('Failed to connect to server', { cause: e });
+  } catch (err) {
+    throw new Error('Failed to connect to server', { cause: err });
   }
 
   let autoConfig;
   try {
-    ([autoConfig] = await a3sync.getAutoConfig(client));
-  } catch (e) {
-    throw new Error('Failed to get autoconfig', { cause: e });
+    [autoConfig] = await a3sync.getAutoConfig(client);
+  } catch (err) {
+    throw new Error('Failed to get autoconfig', { cause: err });
   }
 
   if (!autoConfig) {
@@ -54,13 +61,15 @@ export async function importRepository(publicUrl: string): Promise<Omit<Reposito
  *
  * @returns If configuration is valid
  */
-export async function checkRepository(repository: Repository): Promise<boolean> {
+export async function checkRepository(
+  repository: Repository
+): Promise<boolean> {
   const client = await getA3SClientFromRepository(repository);
 
   try {
     await a3sync.getServerInfo(client);
-  } catch (e) {
-    throw new Error('Failed to get server info', { cause: e });
+  } catch (err) {
+    throw new Error('Failed to get server info', { cause: err });
   }
 
   return true;
@@ -73,7 +82,10 @@ export async function checkRepository(repository: Repository): Promise<boolean> 
  *
  * @returns The difference
  */
-export async function fetchRepository(repository: Repository): Promise<RepositorySyncItem[]> {
+// oxlint-disable-next-line max-lines-per-function
+export async function fetchRepository(
+  repository: Repository
+): Promise<RepositorySyncItem[]> {
   const client = await getA3SClientFromRepository(repository);
 
   logger.info('Getting sync file from remote...', { repository });
@@ -81,13 +93,12 @@ export async function fetchRepository(repository: Repository): Promise<Repositor
   let sync;
   try {
     sync = await a3sync.getSync(client);
-  } catch (e) {
-    throw new Error('Failed to get sync', { cause: e });
+  } catch (err) {
+    throw new Error('Failed to get sync', { cause: err });
   }
 
   const filesFromSync = new Map(
-    flattenSync(sync)
-      .map((item) => [item.path, item]),
+    flattenSync(sync).map((item) => [item.path, item])
   );
 
   logger.info('Sync data is ready to be used, scanning destination...', {
@@ -112,10 +123,8 @@ export async function fetchRepository(repository: Repository): Promise<Repositor
 
   const tasks = [];
 
-  // eslint-disable-next-line no-restricted-syntax
   for await (const file of filesOnDisk) {
     if (!file.isFile()) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -131,10 +140,10 @@ export async function fetchRepository(repository: Repository): Promise<Repositor
         absolutePath,
         relativePath,
         syncItem,
-
       })
         // Notify renderer about progression
-        .then(notifier),
+        // oxlint-disable-next-line prefer-await-to-then
+        .then(notifier)
     );
   }
 
@@ -146,13 +155,12 @@ export async function fetchRepository(repository: Repository): Promise<Repositor
   // Wait for tasks
   const operations = await Promise.all(tasks);
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const item of operations) {
     filesFromSync.delete(item.path);
   }
 
   // Add missing files as operations
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const item of filesFromSync.values()) {
     operations.push({
       type: 'CREATE',
@@ -178,9 +186,10 @@ export async function fetchRepository(repository: Repository): Promise<Repositor
  * @param repository - The Repository configuration
  * @param diff - The items we need to do (`UNCHANGED` items will be ignoreed)
  */
+// oxlint-disable-next-line max-lines-per-function
 export async function syncRepository(
   repository: Repository,
-  diff: RepositorySyncItem[],
+  diff: RepositorySyncItem[]
 ): Promise<void> {
   const client = await getA3SClientFromRepository(repository);
 
@@ -202,9 +211,8 @@ export async function syncRepository(
   const tasks = [];
   const toDo = diff
     .filter(({ type }) => type !== 'UNCHANGED')
-    .sort((a, b) => a.path.localeCompare(b.path));
+    .toSorted((itemA, itemB) => itemA.path.localeCompare(itemB.path));
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const item of toDo) {
     // Generate tasks from files present in file system
     tasks.push(
@@ -214,7 +222,8 @@ export async function syncRepository(
         item,
       })
         // Notify renderer about progression
-        .then(notifier),
+        // oxlint-disable-next-line prefer-await-to-then
+        .then(notifier)
     );
   }
 

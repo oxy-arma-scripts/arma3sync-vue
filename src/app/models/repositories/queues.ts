@@ -23,10 +23,10 @@ export const checkStatus: Record<string, FetchQueueStatus> = {};
 const regexModFromPath = new RegExp(`(?<path>.*(?<name>@[^${sep}]+))`, 'i');
 
 type FileCheckTask = {
-  repository: Repository,
-  absolutePath: string,
-  relativePath: string,
-  syncItem: FlatSyncItem | null,
+  repository: Repository;
+  absolutePath: string;
+  relativePath: string;
+  syncItem: FlatSyncItem | null;
 };
 
 // Queue used to get what changed between a local and a remote file
@@ -50,6 +50,7 @@ const fileCheckQueue = createQueue(
       .pipe(createHash('sha1'))
       .setEncoding('hex');
 
+    // oxlint-disable-next-line avoid-new
     const sha1 = await new Promise<string>((resolve, reject) => {
       const stream = createReadStream(task.absolutePath)
         .pipe(createHash('sha1'))
@@ -57,7 +58,9 @@ const fileCheckQueue = createQueue(
 
       let hash = '';
       stream.on('error', (err) => reject(err));
-      stream.on('data', (chunk) => { hash += chunk; });
+      stream.on('data', (chunk) => {
+        hash += chunk;
+      });
       stream.on('end', () => resolve(hash));
     });
 
@@ -68,7 +71,7 @@ const fileCheckQueue = createQueue(
       mod: task.syncItem.mod,
     };
   },
-  4, // TODO: make it configurable
+  4 // TODO: make it configurable
 );
 
 /**
@@ -78,7 +81,9 @@ const fileCheckQueue = createQueue(
  *
  * @returns The action needed to make it synced
  */
-export async function addToFileCheckQueue(task: FileCheckTask): Promise<RepositorySyncItem> {
+export async function addToFileCheckQueue(
+  task: FileCheckTask
+): Promise<RepositorySyncItem> {
   // State is scoped by repository
   let queueState = checkStatus[task.repository.name];
 
@@ -107,16 +112,19 @@ export async function addToFileCheckQueue(task: FileCheckTask): Promise<Reposito
 export const syncStatus: Record<string, SyncQueueStatus> = {};
 
 type FileSyncTask = {
-  repository: Repository,
-  client: A3SClient,
-  item: RepositorySyncItem,
+  repository: Repository;
+  client: A3SClient;
+  item: RepositorySyncItem;
 };
 
 // Queue used to apply changes between a local and remote file
 const fileSyncQueue = createQueue(
   async (task: FileSyncTask): Promise<void> => {
     const source = task.item.path;
-    const destination = resolvePath(task.repository.destination, task.item.path);
+    const destination = resolvePath(
+      task.repository.destination,
+      task.item.path
+    );
 
     if (task.item.type === 'DELETE') {
       await unlink(destination);
@@ -126,7 +134,7 @@ const fileSyncQueue = createQueue(
     await mkdir(dirname(destination), { recursive: true });
     await downloadFile(task.client, source, destination);
   },
-  4, // TODO: make it configurable
+  4 // TODO: make it configurable
 );
 
 /**

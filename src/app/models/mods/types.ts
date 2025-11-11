@@ -1,7 +1,4 @@
-export type ModFeatures = 'addons'
-| 'keys'
-| 'meta'
-| 'main';
+export type ModFeatures = 'addons' | 'keys' | 'meta' | 'main';
 
 export type Mod = {
   id: string;

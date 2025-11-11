@@ -38,7 +38,10 @@ async function getClient(baseURL: URL, timeout?: number): Promise<Client> {
   };
 }
 
-async function fetchA3SFile({ client, baseURL }: Client, path: string): Promise<unknown> {
+async function fetchA3SFile(
+  { client, baseURL }: Client,
+  path: string
+): Promise<unknown> {
   const stream = new PassThrough().pipe(createGunzip());
 
   await client.downloadTo(stream, join(baseURL.pathname || '', path));
@@ -72,7 +75,11 @@ async function getSync(client: Client): Promise<SyncType> {
   return Sync.parseAsync(data);
 }
 
-async function downloadFile({ client }: Client, source: string, destination: string) {
+async function downloadFile(
+  { client }: Client,
+  source: string,
+  destination: string
+): Promise<void> {
   await client.downloadTo(destination, source);
 }
 

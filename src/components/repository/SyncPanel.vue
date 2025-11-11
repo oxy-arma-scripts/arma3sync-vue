@@ -27,7 +27,9 @@
     <template #text>
       <div v-if="loadingBar.active">
         <v-progress-linear
-          v-tooltip:top="$t('repositories.sync.loadingTooltip.value', loadingBar)"
+          v-tooltip:top="
+            $t('repositories.sync.loadingTooltip.value', loadingBar)
+          "
           :model-value="loadingBar.progress"
           :indeterminate="loadingBar.done === 0"
           :color="fetchStatus.active ? 'grey' : 'success'"
@@ -46,10 +48,7 @@
         </div>
       </div>
 
-      <v-alert
-        v-if="alert"
-        v-bind="alert"
-      />
+      <v-alert v-if="alert" v-bind="alert" />
 
       <v-checkbox
         v-if="!fetchStatus.active && diffMods.length > 0"
@@ -60,7 +59,10 @@
         class="ml-2"
         @update:model-value="toggleAll()"
       />
-      <div v-if="!fetchStatus.active" style="overflow-y: auto; max-height: 500px">
+      <div
+        v-if="!fetchStatus.active"
+        style="overflow-y: auto; max-height: 500px"
+      >
         <v-treeview
           v-model="selectedPaths"
           :items="diffTree"
@@ -92,11 +94,7 @@
               </template>
 
               <template #append>
-                <v-chip
-                  label
-                  class="mr-2"
-                  v-bind="typeChips[item.type]"
-                />
+                <v-chip label class="mr-2" v-bind="typeChips[item.type]" />
               </template>
             </v-list-item>
           </template>
@@ -108,7 +106,10 @@
       <v-spacer />
 
       <v-btn
-        v-tooltip="{ enabled: selectedPaths.length > 0, text: $t('repositories.sync.selectedMods', selectedPaths.length) }"
+        v-tooltip="{
+          enabled: selectedPaths.length > 0,
+          text: $t('repositories.sync.selectedMods', selectedPaths.length),
+        }"
         :text="$t('repositories.sync.sync')"
         :disabled="selectedPaths.length <= 0"
         :loading="syncStatus.active"
@@ -122,7 +123,10 @@
 </template>
 
 <script setup lang="ts">
-import type { Repository, RepositorySyncItem } from '~/app/models/repositories/types';
+import type {
+  Repository,
+  RepositorySyncItem,
+} from '~/app/models/repositories/types';
 
 type RepositorySyncMod = {
   name: string;
@@ -185,14 +189,15 @@ const typeChips = computed(() => ({
  * Group diff by mod
  */
 const diffMods = computed(() => {
-  const map = new Map<string, RepositorySyncMod & {
-    types: Partial<Record<RepositorySyncItem['type'], number>>
-  }>();
+  const map = new Map<
+    string,
+    RepositorySyncMod & {
+      types: Partial<Record<RepositorySyncItem['type'], number>>;
+    }
+  >();
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const item of diff.value) {
     if (!item.mod) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
@@ -232,12 +237,12 @@ const diffMods = computed(() => {
 /**
  * Organize mod diff as a tree
  */
+// oxlint-disable-next-line max-lines-per-function
 const diffTree = computed(() => {
   // Get separator from OS
   const sep = settings.value.pathSeparator;
   const tree: RepositorySyncTreeItem[] = [];
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const item of diffMods.value) {
     // Split path into its parent folders
     const parts = item.path.split(sep);
@@ -251,7 +256,7 @@ const diffTree = computed(() => {
       text: '',
       children: tree,
     };
-    // eslint-disable-next-line no-restricted-syntax
+
     for (let index = 0; index < parts.length; index += 1) {
       // If last element of the path, it's the mod so we add it to the parent
       if (index === parts.length - 1) {
@@ -261,7 +266,6 @@ const diffTree = computed(() => {
           text: parts[index],
         });
 
-        // eslint-disable-next-line no-continue
         continue;
       }
 
@@ -287,7 +291,7 @@ const diffTree = computed(() => {
       // Ignore if child of mod
       if (!parent.children) {
         unusedParts.push(parts[index]);
-        // eslint-disable-next-line no-continue
+
         continue;
       }
 
@@ -341,7 +345,9 @@ const syncStatus = computed(() => {
  * Status of the current action, mainly used in loading bar
  */
 const loadingBar = computed(() => {
-  const status = fetchStatus.value.active ? fetchStatus.value : syncStatus.value;
+  const status = fetchStatus.value.active
+    ? fetchStatus.value
+    : syncStatus.value;
 
   // if (status.active) {
   //   const stats = {};
@@ -358,7 +364,7 @@ const loadingBar = computed(() => {
 const alert = computed(() => {
   // Don't show if loading
   if (fetchStatus.value.active || syncStatus.value.active) {
-    return undefined;
+    return;
   }
 
   // Show error
@@ -394,7 +400,7 @@ const alert = computed(() => {
     };
   }
 
-  return undefined;
+  return;
 });
 
 /**
@@ -408,7 +414,7 @@ const isAllSelected = computed(() => {
 /**
  * Select all changes, or select none
  */
-function toggleAll() {
+function toggleAll(): void {
   if (isAllSelected.value) {
     selectedPaths.value = [];
     return;
@@ -426,9 +432,13 @@ async function fetchDiff(): Promise<void> {
   isFetching.value = true;
 
   try {
-    const data = await window.ipc.methods.fetchRepository(toRawDeep(repository));
+    const data = await window.ipc.methods.fetchRepository(
+      toRawDeep(repository)
+    );
 
-    diff.value = data.sort((a, b) => a.path.localeCompare(b.path, locale.value));
+    diff.value = data.toSorted((itemA, itemB) =>
+      itemA.path.localeCompare(itemB.path, locale.value)
+    );
   } catch (err) {
     fetchError.value = err.message;
   }
@@ -444,11 +454,16 @@ async function syncRepo(): Promise<void> {
   isSyncComplete.value = false;
 
   const selectedPathsSet = new Set(selectedPaths.value);
-  const selectedMods = diffMods.value.filter((mod) => selectedPathsSet.has(mod.path));
+  const selectedMods = diffMods.value.filter((mod) =>
+    selectedPathsSet.has(mod.path)
+  );
   const selectedDiff = selectedMods.flatMap(({ items }) => items);
 
   try {
-    await window.ipc.methods.syncRepository(toRawDeep(repository), toRawDeep(selectedDiff));
+    await window.ipc.methods.syncRepository(
+      toRawDeep(repository),
+      toRawDeep(selectedDiff)
+    );
     isSyncComplete.value = true;
   } catch (err) {
     syncError.value = err.message;

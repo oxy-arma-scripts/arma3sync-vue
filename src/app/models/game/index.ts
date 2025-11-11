@@ -2,15 +2,15 @@ import find from 'find-process';
 
 import { resolve } from 'node:path';
 
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 
 import { getSettings } from '~/app/models/settings';
 import { getMods } from '~/app/models/mods';
 
-import { isLinux } from '~/app/lib/platforms/linux';
+// import { isLinux } from '~/app/lib/platforms/linux';
 import type { GameState } from './types';
-import launchGame from './launch';
+import { launchGame } from './launch';
 
 const logger = mainLogger.scope('app.models.game');
 
@@ -18,19 +18,18 @@ let state: GameState = {
   isRunning: false,
 };
 
-const {
-  get: getGameState,
-  set: setGameState,
-} = prepareBridge(
+const { get: getGameState, set: setGameState } = prepareBridge(
   'game',
   logger,
   () => state,
-  (v) => { state = v; },
-  { readonly: true },
+  (val) => {
+    state = val;
+  },
+  { readonly: true }
 );
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function startGame() {
+// oxlint-disable-next-line max-lines-per-function
+prepareMethod(function startGame(): void {
   const settings = getSettings();
 
   // Default params
@@ -39,16 +38,15 @@ prepareMethod(async function startGame() {
 
   // Set params from settings
   // https://community.bistudio.com/wiki/Arma_3:_Startup_Parameters
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const [key, value] of Object.entries(settings.game.params)) {
     if (!value) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
     if (value === true) {
       params.push(`-${key}`);
-      // eslint-disable-next-line no-continue
+
       continue;
     }
 
@@ -62,11 +60,15 @@ prepareMethod(async function startGame() {
 
   // Resolving active mods
   const { list, active } = getMods();
-  const activeMods = active.map((id) => {
-    const mod = list[id];
-    if (!mod) { return undefined; }
-    return resolve(mod.source.path, mod.subpath);
-  }).filter((m) => !!m);
+  const activeMods = active
+    .map((id): string => {
+      const mod = list[id];
+      if (!mod) {
+        return '';
+      }
+      return resolve(mod.source.path, mod.subpath);
+    })
+    .filter((mod) => !!mod);
 
   try {
     setGameState({
@@ -75,7 +77,7 @@ prepareMethod(async function startGame() {
     });
 
     // Launch game
-    const { cmd, args, process } = await launchGame(params, activeMods);
+    const { cmd, args, process } = launchGame(params, activeMods);
     logger.debug('Starting game...', { cmd, args });
 
     // Add logs on spawned process
@@ -101,7 +103,7 @@ prepareMethod(async function startGame() {
   }
 });
 
-async function updateIsRunning() {
+async function updateIsRunning(): Promise<void> {
   let { isRunning } = state;
   try {
     logger.debug('Checking if game is running');
@@ -124,12 +126,10 @@ async function updateIsRunning() {
 // Check every ~10s if game is running
 // Using setTimeout to not block the main thread
 // (and cause we don't need precision here)
-(function watchGame() {
-  updateIsRunning().then(() => {
-    setTimeout(watchGame, 10 * 1000);
-  });
-}());
+async function watchGame(): Promise<void> {
+  await updateIsRunning();
+  setTimeout(watchGame, 10 * 1000);
+}
+watchGame();
 
-export {
-  getGameState,
-};
+export { getGameState };

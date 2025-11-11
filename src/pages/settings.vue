@@ -9,7 +9,9 @@
         >
           <template #append>
             <v-slide-x-reverse-transition>
-              <span v-if="!isSynced" class="text-red">{{ $t('notSynced') }}</span>
+              <span v-if="!isSynced" class="text-red">
+                {{ $t('notSynced') }}
+              </span>
             </v-slide-x-reverse-transition>
           </template>
 
@@ -63,7 +65,9 @@
         >
           <template #append>
             <v-slide-x-reverse-transition>
-              <span v-if="!isSynced" class="text-red">{{ $t('notSynced') }}</span>
+              <span v-if="!isSynced" class="text-red">
+                {{ $t('notSynced') }}
+              </span>
             </v-slide-x-reverse-transition>
           </template>
 
@@ -141,10 +145,7 @@
             <template #title>
               <v-row no-gutters>
                 <v-col>
-                  <v-icon
-                    icon="mdi-hammer-wrench"
-                    start
-                  />
+                  <v-icon icon="mdi-hammer-wrench" start />
 
                   {{ $t('settings.game.arguments.title') }}
                 </v-col>
@@ -164,8 +165,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.noSplash"
-                            :label="$t('settings.game.arguments.loadingSpeedup.noSplash.label')"
-                            :hint="$t('settings.game.arguments.loadingSpeedup.noSplash.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.noSplash.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.noSplash.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -173,20 +182,40 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.skipIntro"
-                            :label="$t('settings.game.arguments.loadingSpeedup.skipIntro.label')"
-                            :hint="$t('settings.game.arguments.loadingSpeedup.skipIntro.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.skipIntro.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.skipIntro.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            :model-value="settings.game.params.world === 'empty'"
-                            :label="$t('settings.game.arguments.loadingSpeedup.loadEmptyWorld.label')"
-                            :hint="$t('settings.game.arguments.loadingSpeedup.loadEmptyWorld.hint')"
+                            :model-value="
+                              settings.game.params.world === 'empty'
+                            "
+                            :label="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.loadEmptyWorld.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.loadingSpeedup.loadEmptyWorld.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
-                            @update:model-value="settings.game.params.world = 'empty'"
+                            @update:model-value="
+                              settings.game.params.world = 'empty'
+                            "
                           />
                         </v-col>
                       </v-row>
@@ -208,8 +237,16 @@
                           <!-- TODO: Folder picker -->
                           <v-text-field
                             v-model="settings.game.params.profiles"
-                            :label="$t('settings.game.arguments.profileOptions.profiles.label')"
-                            :hint="$t('settings.game.arguments.profileOptions.profiles.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.profileOptions.profiles.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.profileOptions.profiles.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -219,8 +256,16 @@
                           <!-- TODO: Autocomplete -->
                           <v-text-field
                             v-model="settings.game.params.name"
-                            :label="$t('settings.game.arguments.profileOptions.name.label')"
-                            :hint="$t('settings.game.arguments.profileOptions.name.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.profileOptions.name.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.profileOptions.name.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -229,8 +274,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.unit"
-                            :label="$t('settings.game.arguments.profileOptions.unit.label')"
-                            :hint="$t('settings.game.arguments.profileOptions.unit.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.profileOptions.unit.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.profileOptions.unit.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -256,9 +309,20 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.enableHT"
-                            :disabled="!!settings.game.params.cpuCount || !!settings.game.params.cpuAffinity"
-                            :label="$t('settings.game.arguments.performance.enableHT.label')"
-                            :hint="$t('settings.game.arguments.performance.enableHT.hint')"
+                            :disabled="
+                              !!settings.game.params.cpuCount ||
+                              !!settings.game.params.cpuAffinity
+                            "
+                            :label="
+                              $t(
+                                'settings.game.arguments.performance.enableHT.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performance.enableHT.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -266,17 +330,35 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.hugePages"
-                            :label="$t('settings.game.arguments.performance.hugePages.label')"
-                            :hint="$t('settings.game.arguments.performance.hugePages.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performance.hugePages.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performance.hugePages.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.game.params.setThreadCharacteristics"
-                            :label="$t('settings.game.arguments.performance.setThreadCharacteristics.label')"
-                            :hint="$t('settings.game.arguments.performance.setThreadCharacteristics.hint')"
+                            v-model="
+                              settings.game.params.setThreadCharacteristics
+                            "
+                            :label="
+                              $t(
+                                'settings.game.arguments.performance.setThreadCharacteristics.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performance.setThreadCharacteristics.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -284,8 +366,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.maxMem"
-                            :label="$t('settings.game.arguments.performance.maxMem.label')"
-                            :hint="$t('settings.game.arguments.performance.maxMem.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performance.maxMem.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performance.maxMem.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -302,7 +392,9 @@
               <v-row>
                 <v-col>
                   <v-card
-                    :title="$t('settings.game.arguments.developerOptions.title')"
+                    :title="
+                      $t('settings.game.arguments.developerOptions.title')
+                    "
                     prepend-icon="mdi-code-tags"
                     variant="outlined"
                   >
@@ -311,8 +403,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.noPause"
-                            :label="$t('settings.game.arguments.developerOptions.noPause.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.noPause.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.noPause.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.noPause.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -321,8 +421,16 @@
                           <v-checkbox
                             v-model="settings.game.params.noPauseAudio"
                             :disabled="!settings.game.params.noPause"
-                            :label="$t('settings.game.arguments.developerOptions.noPauseAudio.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.noPauseAudio.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.noPauseAudio.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.noPauseAudio.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -330,8 +438,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.showScriptErrors"
-                            :label="$t('settings.game.arguments.developerOptions.showScriptErrors.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.showScriptErrors.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.showScriptErrors.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.showScriptErrors.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -339,8 +455,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.debug"
-                            :label="$t('settings.game.arguments.developerOptions.debug.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.debug.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.debug.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.debug.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -348,8 +472,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.noLogs"
-                            :label="$t('settings.game.arguments.developerOptions.noLogs.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.noLogs.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.noLogs.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.noLogs.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -358,8 +490,16 @@
                           <!-- TODO: select -->
                           <v-text-field
                             v-model="settings.game.params.language"
-                            :label="$t('settings.game.arguments.developerOptions.language.label')"
-                            :hint="$t('settings.game.arguments.developerOptions.language.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptions.language.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptions.language.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -374,7 +514,9 @@
               <v-row>
                 <v-col>
                   <v-card
-                    :title="$t('settings.game.arguments.performanceAdvanced.title')"
+                    :title="
+                      $t('settings.game.arguments.performanceAdvanced.title')
+                    "
                     prepend-icon="mdi-lightning-bolt"
                     variant="outlined"
                   >
@@ -383,8 +525,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.maxVram"
-                            :label="$t('settings.game.arguments.performanceAdvanced.maxVram.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.maxVram.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.maxVram.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.maxVram.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -395,8 +545,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.maxFileCacheSize"
-                            :label="$t('settings.game.arguments.performanceAdvanced.maxFileCacheSize.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.maxFileCacheSize.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.maxFileCacheSize.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.maxFileCacheSize.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -407,8 +565,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.noCB"
-                            :label="$t('settings.game.arguments.performanceAdvanced.noCB.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.noCB.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.noCB.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.noCB.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -416,8 +582,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.cpuCount"
-                            :label="$t('settings.game.arguments.performanceAdvanced.cpuCount.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuCount.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuCount.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuCount.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -428,8 +602,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.cpuAffinity"
-                            :label="$t('settings.game.arguments.performanceAdvanced.cpuAffinity.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuAffinity.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuAffinity.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuAffinity.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -438,8 +620,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.cpuMainThreadAffinity"
-                            :label="$t('settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.cpuMainThreadAffinity.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -448,8 +638,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.malloc"
-                            :label="$t('settings.game.arguments.performanceAdvanced.malloc.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.malloc.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.malloc.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.malloc.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             persistent-hint
@@ -458,8 +656,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.exThreads"
-                            :label="$t('settings.game.arguments.performanceAdvanced.exThreads.label')"
-                            :hint="$t('settings.game.arguments.performanceAdvanced.exThreads.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.exThreads.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.performanceAdvanced.exThreads.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -476,7 +682,11 @@
               <v-row>
                 <v-col>
                   <v-card
-                    :title="$t('settings.game.arguments.developerOptionsAdvanced.title')"
+                    :title="
+                      $t(
+                        'settings.game.arguments.developerOptionsAdvanced.title'
+                      )
+                    "
                     prepend-icon="mdi-code-tags"
                     variant="outlined"
                   >
@@ -485,8 +695,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.noFreezeCheck"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.noFreezeCheck.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -494,8 +712,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.filePatching"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.filePatching.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.filePatching.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.filePatching.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.filePatching.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -503,9 +729,19 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.checkSignatures"
-                            :disabled="!!settings.game.params.checkSignaturesFull"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.checkSignatures.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.checkSignatures.hint')"
+                            :disabled="
+                              !!settings.game.params.checkSignaturesFull
+                            "
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.checkSignatures.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.checkSignatures.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -514,8 +750,16 @@
                           <v-checkbox
                             v-model="settings.game.params.checkSignaturesFull"
                             :disabled="!!settings.game.params.checkSignatures"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.checkSignaturesFull.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -523,8 +767,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.d3dNoLock"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoLock.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoLock.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.d3dNoLock.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.d3dNoLock.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -532,8 +784,16 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.d3dNoMultiCB"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.d3dNoMultiCB.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -541,17 +801,35 @@
                         <v-col cols="12">
                           <v-checkbox
                             v-model="settings.game.params.debugCallExtension"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.debugCallExtension.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.debugCallExtension.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.debugCallExtension.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.debugCallExtension.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
                         </v-col>
                         <v-col cols="12">
                           <v-checkbox
-                            v-model="settings.game.params.dumpAddonDependencyGraph"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.hint')"
+                            v-model="
+                              settings.game.params.dumpAddonDependencyGraph
+                            "
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.dumpAddonDependencyGraph.hint'
+                              )
+                            "
                             density="comfortable"
                             persistent-hint
                           />
@@ -559,8 +837,16 @@
                         <v-col cols="12">
                           <v-text-field
                             v-model="settings.game.params.networkDiagInterval"
-                            :label="$t('settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.label')"
-                            :hint="$t('settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.hint')"
+                            :label="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.label'
+                              )
+                            "
+                            :hint="
+                              $t(
+                                'settings.game.arguments.developerOptionsAdvanced.networkDiagInterval.hint'
+                              )
+                            "
                             density="comfortable"
                             variant="underlined"
                             type="number"
@@ -591,16 +877,14 @@ const settingsStore = useSettingsStore();
 
 const formRef = useTemplateRef('formRef');
 
-const {
-  settings,
-  isSynced,
-  isValid,
-  loading,
-} = storeToRefs(settingsStore);
+const { settings, isSynced, isValid, loading } = storeToRefs(settingsStore);
 
 const rules = computed(() => ({
   game: {
-    path: [(v: string) => !!v || t('settings.errors.missingGamePath')],
+    path: [
+      (value: string): true | string =>
+        !!value || t('settings.errors.missingGamePath'),
+    ],
   },
 }));
 

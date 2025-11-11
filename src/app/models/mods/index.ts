@@ -1,15 +1,10 @@
 import fsp from 'node:fs/promises';
 import { existsSync, type Dirent } from 'node:fs';
-import {
-  basename,
-  dirname,
-  join,
-  resolve,
-} from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 
 import { app, shell } from 'electron';
 
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 import { t } from '~/app/lib/i18n';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 import { sendToRender, showOpenDialog } from '~/app/lib/window';
@@ -18,19 +13,14 @@ import { type ModMeta, parseModMeta } from '~/app/lib/a3/modmeta';
 
 import { getSettings } from '~/app/models/settings';
 
-import type {
-  ModsState,
-  Mod,
-  ModSource,
-  ModFeatures,
-} from './types';
+import type { ModsState, Mod, ModSource, ModFeatures } from './types';
 
 const logger = mainLogger.scope('app.models.mods');
 const activePath = join(app.getPath('userData'), 'mods.json');
 
 const CDLCs = ['GM', 'VN', 'CSLA', 'WS', 'SPE', 'RF', 'EF'] as const;
 const CDLCKeys = new Set<string>(CDLCs);
-type CDLCKey = typeof CDLCs[number];
+type CDLCKey = (typeof CDLCs)[number];
 
 let state: ModsState = {
   list: {},
@@ -38,14 +28,21 @@ let state: ModsState = {
   active: [],
 };
 
-async function saveState() {
+async function saveState(): Promise<void> {
   await fsp.mkdir(dirname(activePath), { recursive: true });
 
   try {
-    await fsp.writeFile(activePath, JSON.stringify({
-      ...state,
-      list: undefined,
-    }, undefined, 2));
+    await fsp.writeFile(
+      activePath,
+      JSON.stringify(
+        {
+          ...state,
+          list: undefined,
+        },
+        undefined,
+        2
+      )
+    );
     logger.info('Mods saved', { activePath });
   } catch (error) {
     logger.error('Failed to save mods', { activePath, error });
@@ -53,7 +50,7 @@ async function saveState() {
   }
 }
 
-async function loadState() {
+async function loadState(): Promise<void> {
   if (!existsSync(activePath)) {
     await saveState();
     return;
@@ -72,10 +69,7 @@ async function loadState() {
   }
 }
 
-const {
-  get: getState,
-  set: setState,
-} = prepareBridge(
+const { get: getState, set: setState } = prepareBridge(
   'mods',
   logger,
   () => state,
@@ -86,7 +80,7 @@ const {
       active: [...new Set(value.active)],
     };
     saveState();
-  },
+  }
 );
 
 const EXPECTED_CONTENTS: Readonly<Record<ModFeatures, RegExp>> = {
@@ -96,22 +90,28 @@ const EXPECTED_CONTENTS: Readonly<Record<ModFeatures, RegExp>> = {
   main: /^mod\.cpp$/i,
 } as const;
 
-async function getMod(source: string, folder: Dirent<string>): Promise<Omit<Mod, 'source'> | null> {
+// oxlint-disable-next-line max-lines-per-function
+async function getMod(
+  source: string,
+  folder: Dirent<string>
+): Promise<Omit<Mod, 'source'> | null> {
   const modPath = join(source, folder.name);
   try {
     const contents = await fsp.readdir(modPath);
 
-    const features = contents.reduce((acc, c) => {
-      const entries = Object.entries(EXPECTED_CONTENTS) as [ModFeatures, RegExp][];
+    const features = {} as Record<keyof typeof EXPECTED_CONTENTS, boolean>;
+    for (const content of contents) {
+      const entries = Object.entries(EXPECTED_CONTENTS) as [
+        ModFeatures,
+        RegExp,
+      ][];
 
-      // eslint-disable-next-line no-restricted-syntax
       for (const [key, value] of entries) {
-        acc[key] = acc[key] || value.test(c);
+        features[key] = features[key] || value.test(content);
       }
-      return acc;
-    }, {} as Record<keyof typeof EXPECTED_CONTENTS, boolean>);
+    }
 
-    const seemsLikeAMod = Object.values(features).some((v) => v);
+    const seemsLikeAMod = Object.values(features).some((value) => !!value);
     if (!seemsLikeAMod) {
       return null;
     }
@@ -142,8 +142,8 @@ async function getMod(source: string, folder: Dirent<string>): Promise<Omit<Mod,
   }
 }
 
-function isCDLC(f: Dirent<string>): f is Dirent<CDLCKey> {
-  return f.isDirectory() && CDLCKeys.has(f.name);
+function isCDLC(dir: Dirent<string>): dir is Dirent<CDLCKey> {
+  return dir.isDirectory() && CDLCKeys.has(dir.name);
 }
 
 async function listCDLCFromSource(source: ModSource): Promise<Mod[]> {
@@ -151,14 +151,12 @@ async function listCDLCFromSource(source: ModSource): Promise<Mod[]> {
 
   const mods: Mod[] = [];
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const folder of contents) {
     if (!isCDLC(folder)) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
-    // eslint-disable-next-line no-await-in-loop
+    // oxlint-disable-next-line no-await-in-loop
     const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
@@ -168,8 +166,8 @@ async function listCDLCFromSource(source: ModSource): Promise<Mod[]> {
   return mods;
 }
 
-function isWorkshopMod(f: Dirent<string>): f is Dirent<string> {
-  return f.isDirectory();
+function isWorkshopMod(dir: Dirent<string>): dir is Dirent<string> {
+  return dir.isDirectory();
 }
 
 async function listWorkshopModsFromSource(source: ModSource): Promise<Mod[]> {
@@ -177,14 +175,12 @@ async function listWorkshopModsFromSource(source: ModSource): Promise<Mod[]> {
 
   const mods: Mod[] = [];
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const folder of contents) {
     if (!isWorkshopMod(folder)) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
-    // eslint-disable-next-line no-await-in-loop
+    // oxlint-disable-next-line no-await-in-loop
     const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
@@ -194,37 +190,37 @@ async function listWorkshopModsFromSource(source: ModSource): Promise<Mod[]> {
   return mods;
 }
 
-function isMod(f: Dirent<string>): f is Dirent<`@${string}`> {
-  return f.isDirectory() && f.name.startsWith('@');
+function isMod(dir: Dirent<string>): dir is Dirent<`@${string}`> {
+  return dir.isDirectory() && dir.name.startsWith('@');
 }
 
 async function listModsFromSource(source: ModSource): Promise<Mod[]> {
   const contents = await fsp.readdir(source.path, { withFileTypes: true });
   const mods: Mod[] = [];
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const folder of contents) {
     if (!isMod(folder)) {
       // Try to find mods in subfolders
       if (folder.isDirectory()) {
-        // eslint-disable-next-line no-await-in-loop
+        // oxlint-disable-next-line no-await-in-loop
         const subMods = await listModsFromSource({
           ...source,
           path: join(source.path, folder.name),
         });
 
-        mods.push(...subMods.map((m) => ({
-          ...m,
-          source,
-          subpath: join(folder.name, m.subpath),
-        })));
+        mods.push(
+          ...subMods.map((mod) => ({
+            ...mod,
+            source,
+            subpath: join(folder.name, mod.subpath),
+          }))
+        );
       }
 
-      // eslint-disable-next-line no-continue
       continue;
     }
 
-    // eslint-disable-next-line no-await-in-loop
+    // oxlint-disable-next-line no-await-in-loop
     const mod = await getMod(source.path, folder);
     if (mod) {
       mods.push({ ...mod, source });
@@ -234,7 +230,8 @@ async function listModsFromSource(source: ModSource): Promise<Mod[]> {
   return mods;
 }
 
-async function loadMods() {
+// oxlint-disable-next-line max-lines-per-function
+async function loadMods(): Promise<void> {
   await loadState();
 
   const settings = getSettings();
@@ -266,14 +263,16 @@ async function loadMods() {
       const mods = await listWorkshopModsFromSource(workshopSource);
       modList.push(...mods);
     } catch (error) {
-      logger.error('Failed to list workshop mods', { source: workshopSource, error });
+      logger.error('Failed to list workshop mods', {
+        source: workshopSource,
+        error,
+      });
     }
   }
 
-  // eslint-disable-next-line no-restricted-syntax
   for (const source of sources) {
     try {
-      // eslint-disable-next-line no-await-in-loop
+      // oxlint-disable-next-line no-await-in-loop
       const mods = await listModsFromSource(source);
       modList.push(...mods);
     } catch (error) {
@@ -281,28 +280,32 @@ async function loadMods() {
     }
   }
 
-  state.list = Object.fromEntries(modList.map((m): [string, Mod] => [m.id, m]));
+  state.list = Object.fromEntries(
+    modList.map((mod): [string, Mod] => [mod.id, mod])
+  );
 
   logger.info('Mods loaded', { sources });
 }
 
-prepareMethod((source: ModSource) => shell.openPath(source.path), 'openModSourceFolder');
+prepareMethod(
+  (source: ModSource) => shell.openPath(source.path),
+  'openModSourceFolder'
+);
 
-async function addModSources(sources: ModSource[]) {
+async function addModSources(sources: ModSource[]): Promise<void> {
   // Updating sources
-  state.sources = [...new Map(
-    [
-      ...state.sources,
-      ...sources,
-    ].map((s) => [s.path, s]),
-  ).values()];
+  state.sources = [
+    ...new Map(
+      [...state.sources, ...sources].map((source) => [source.path, source])
+    ).values(),
+  ];
 
   // Loading mods from new sources
   const modList: Mod[] = [];
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const source of sources) {
     try {
-      // eslint-disable-next-line no-await-in-loop
+      // oxlint-disable-next-line no-await-in-loop
       const mods = await listModsFromSource(source);
       modList.push(...mods);
     } catch (error) {
@@ -313,7 +316,7 @@ async function addModSources(sources: ModSource[]) {
   // Saving mod list
   state.list = {
     ...state.list,
-    ...Object.fromEntries(modList.map((m): [string, Mod] => [m.id, m])),
+    ...Object.fromEntries(modList.map((mod): [string, Mod] => [mod.id, mod])),
   };
 
   // Not using setState cause we changed the list
@@ -323,15 +326,16 @@ async function addModSources(sources: ModSource[]) {
 
 prepareMethod(addModSources);
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function openModSourcePicker() {
+prepareMethod(async function openModSourcePicker(): Promise<
+  { path: string; name: string }[]
+> {
   const result = await showOpenDialog({
     title: t('mod-sources.folderPicker.title'),
     properties: ['openDirectory', 'dontAddToRecent'],
   });
 
   const sources = result.filePaths
-    .filter((d) => !!d)
+    .filter((path) => !!path)
     .map((path) => ({
       path,
       name: basename(path),
@@ -342,8 +346,7 @@ prepareMethod(async function openModSourcePicker() {
   return sources;
 });
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function editModSource(source: ModSource) {
+prepareMethod(function editModSource(source: ModSource): void {
   const index = state.sources.findIndex(({ path }) => path === source.path);
   if (index < 0) {
     return;
@@ -357,24 +360,24 @@ prepareMethod(async function editModSource(source: ModSource) {
   setState(state);
 });
 
-// eslint-disable-next-line prefer-arrow-callback
-prepareMethod(async function removeModSource(source: ModSource) {
+prepareMethod(async function removeModSource(source: ModSource): Promise<void> {
   // Updating sources
   state.sources = state.sources.filter(({ path }) => path !== source.path);
 
   // Saving mod list
-  const modList = Object.entries(state.list).filter(([, m]) => m.source.path !== source.path);
+  const modList = Object.entries(state.list).filter(
+    ([, mod]) => mod.source.path !== source.path
+  );
 
   state.list = Object.fromEntries(modList);
   // Ensuring active mods exists
-  state.active = state.active.filter((id) => modList.some(([, m]) => m.id === id));
+  state.active = state.active.filter((id) =>
+    modList.some(([, mod]) => mod.id === id)
+  );
 
   // Not using setState cause we changed the list
   sendToRender('bridge:mods', state);
   await saveState();
 });
 
-export {
-  getState as getMods,
-  loadMods,
-};
+export { getState as getMods, loadMods };

@@ -6,7 +6,7 @@ import { app, shell } from 'electron';
 
 import { i18n, t } from '~/app/lib/i18n';
 import { sendToRender, showOpenDialog } from '~/app/lib/window';
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge, prepareMethod } from '~/app/lib/bridge';
 
 import type { Settings } from './types';
@@ -63,23 +63,19 @@ async function loadState() {
   }
 }
 
-const {
-  get: getSettings,
-  set: setSettings,
-} = prepareBridge(
+const { get: getSettings, set: setSettings } = prepareBridge(
   'settings',
   logger,
   () => state,
-  (v) => {
-    state = v;
-    if (v.display.language) {
-      i18n.setLocale(v.display.language);
+  (value) => {
+    state = value;
+    if (value.display.language) {
+      i18n.setLocale(value.display.language);
     }
     saveState();
-  },
+  }
 );
 
-// eslint-disable-next-line prefer-arrow-callback
 prepareMethod(async function openGameFolderPicker() {
   const result = await showOpenDialog({
     title: t('settings.gameFolderPicker.title'),

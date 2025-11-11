@@ -4,9 +4,7 @@
       <v-btn icon="mdi-menu" @click="toggleNav()" />
     </template>
 
-    <template #title>
-      Arma3Sync Vue
-    </template>
+    <template #title> Arma3Sync Vue </template>
 
     <template #append>
       <PlayBtn class="mr-2" />
@@ -55,20 +53,21 @@ type NavItem = {
   onClick?: () => void;
 };
 
-const { smAndDown } = useDisplay();
 const { t } = useI18n();
+const { smAndDown } = useDisplay();
 
 const [showNav, toggleNav] = useToggle(false);
 
 const { isValid } = storeToRefs(useSettingsStore());
 
-const navState = computed(() => {
+const navState = computed<{ show: boolean; rail: boolean }>(() => {
   if (smAndDown.value) {
     return {
       show: showNav.value,
       rail: false,
     };
   }
+
   return {
     show: true,
     rail: !showNav.value,

@@ -44,7 +44,6 @@
       <v-checkbox
         v-model="anonymous"
         :label="$t('repositories.item.anonymous')"
-        :rules="rules.anonymous"
         hide-details="auto"
         prepend-icon="mdi-incognito"
         variant="underlined"
@@ -88,13 +87,7 @@ const PROTOCOLS_PORT: Readonly<Record<string, number>> = {
   https: 443,
 } as const;
 
-const props = defineProps<{
-  modelValue?: Repository,
-}>();
-
-const emit = defineEmits<{
-  (e: 'update:model-value', value: Repository): void
-}>();
+const modelValue = defineModel<Repository>({ default: () => ({}) });
 
 const { t } = useI18n();
 
@@ -110,52 +103,59 @@ const anonymous = shallowRef(false);
 
 const rules = computed(() => ({
   name: [
-    (v: string) => !!v || t('repositories.errors.noName'),
-    () => isURL.value,
+    (val: string): true | string => !!val || t('repositories.errors.noName'),
+    (): true | string => isURL.value,
   ],
   protocol: [
-    (v: string) => !!v || t('repositories.errors.noProtocol'),
-    () => isURL.value,
+    (val: string): true | string =>
+      !!val || t('repositories.errors.noProtocol'),
+    (): true | string => isURL.value,
   ],
   host: [
-    (v: string) => !!v || t('repositories.errors.noHost'),
-    () => isURL.value,
+    (val: string): true | string => !!val || t('repositories.errors.noHost'),
+    (): true | string => isURL.value,
   ],
   port: [
-    (v: number) => !!v || t('repositories.errors.noPort'),
-    () => isURL.value,
+    (val: number) => !!val || t('repositories.errors.noPort'),
+    (): true | string => isURL.value,
   ],
   username: [
-    (v: string) => !!v || t('repositories.errors.noUsername'),
-    () => isURL.value,
+    (val: string): true | string =>
+      !!val || t('repositories.errors.noUsername'),
+    (): true | string => isURL.value,
   ],
   password: [
-    (v: string) => !anonymous.value || !!v || t('repositories.errors.noPassword'),
-    () => isURL.value,
+    (val: string): true | string =>
+      !anonymous.value || !!val || t('repositories.errors.noPassword'),
+    (): true | string => isURL.value,
   ],
-  anonymous: [],
 }));
 
 // Parse modelValue as idependant parts
-watch(() => props.modelValue, (repository) => {
-  name.value = repository.name;
+watch(
+  modelValue,
+  (repository) => {
+    name.value = repository.name;
 
-  let url: URL;
-  try {
-    url = new URL(repository.url);
-    isURL.value = true;
-  } catch (err) {
-    isURL.value = err.message;
-    return;
-  }
+    let url: URL;
+    try {
+      url = new URL(repository.url);
+      isURL.value = true;
+    } catch (err) {
+      isURL.value = err.message;
+      return;
+    }
 
-  protocol.value = url.protocol.slice(0, url.protocol.length - 1);
-  host.value = `${url.hostname}${url.pathname}`;
-  port.value = Number.parseInt(url.port, 10) || PROTOCOLS_PORT[protocol.value];
-  username.value = url.username;
-  password.value = url.password;
-  anonymous.value = !url.username && !url.password;
-}, { immediate: true });
+    protocol.value = url.protocol.slice(0, url.protocol.length - 1);
+    host.value = `${url.hostname}${url.pathname}`;
+    port.value =
+      Number.parseInt(url.port, 10) || PROTOCOLS_PORT[protocol.value];
+    username.value = url.username;
+    password.value = url.password;
+    anonymous.value = !url.username && !url.password;
+  },
+  { immediate: true }
+);
 
 // Change default port when updating protocol
 watch(protocol, () => {
@@ -163,26 +163,18 @@ watch(protocol, () => {
 });
 
 // Update modelValue when part(s) changes
-watch([
-  name,
-  protocol,
-  host,
-  port,
-  username,
-  password,
-  anonymous,
-], () => {
+watch([name, protocol, host, port, username, password, anonymous], () => {
   let url: URL;
   try {
     url = new URL(`${protocol.value}://${host.value}`);
     isURL.value = true;
   } catch (err) {
     isURL.value = err.message;
-    emit('update:model-value', {
-      ...props.modelValue,
+    modelValue.value = {
+      ...modelValue.value,
       name: name.value,
       url: '',
-    });
+    };
     return;
   }
 
@@ -190,10 +182,10 @@ watch([
   url.username = anonymous.value ? '' : username.value;
   url.password = anonymous.value ? '' : password.value;
 
-  emit('update:model-value', {
-    ...props.modelValue,
+  modelValue.value = {
+    ...modelValue.value,
     name: name.value,
     url: url.toString(),
-  });
+  };
 });
 </script>

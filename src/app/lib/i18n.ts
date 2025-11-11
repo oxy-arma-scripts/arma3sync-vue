@@ -15,24 +15,14 @@ const i18n = new I18n({
   retryInDefaultLocale: true,
 });
 
-/* eslint-disable no-underscore-dangle */
-// @ts-ignore
+/* oxlint-disable id-length */
+// @ts-expect-error - Issues with types of params
 const t: typeof i18n.__ = (...params) => i18n.__(...params);
-// @ts-ignore
+// @ts-expect-error - Issues with types of params
 const n: typeof i18n.__n = (...params) => i18n.__n(...params);
-// @ts-ignore
 const mf: typeof i18n.__mf = (...params) => i18n.__mf(...params);
-// @ts-ignore
 const l: typeof i18n.__l = (...params) => i18n.__l(...params);
-// @ts-ignore
 const h: typeof i18n.__h = (...params) => i18n.__h(...params);
-/* eslint-enable no-underscore-dangle */
+/* oxlint-enable id-length */
 
-export {
-  i18n,
-  t,
-  n,
-  mf,
-  l,
-  h,
-};
+export { i18n, t, n, mf, l, h };

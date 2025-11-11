@@ -2,29 +2,29 @@ import { app, BrowserWindow } from 'electron';
 import path from 'node:path';
 
 import { init } from '~/app';
-import appLogger from '~/app/lib/logger';
-import { isWayland } from '~/app/lib/platforms/linux';
+import { mainLogger } from '~/app/lib/logger';
+import { isLinux, isWayland } from '~/app/lib/platforms/linux';
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// eslint-disable-next-line global-require
+
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-if (process.platform !== 'win32' && process.platform !== 'darwin') {
-  // Linux specific code
-  if (isWayland) {
-    // TODO: Still use XWayland
-    appLogger.info('Wayland detected, setting ozone platform');
-    app.commandLine.appendSwitch('ozone-platform-hint', 'wayland');
-    app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform,WaylandWindowDecorations');
-  }
+if (isLinux && isWayland) {
+  // TODO: Still use XWayland
+  mainLogger.info('Wayland detected, setting ozone platform');
+  app.commandLine.appendSwitch('ozone-platform-hint', 'wayland');
+  app.commandLine.appendSwitch(
+    'enable-features',
+    'UseOzonePlatform,WaylandWindowDecorations'
+  );
 }
 
-const createWindow = () => {
+const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -39,7 +39,9 @@ const createWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(
+      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)
+    );
   }
 
   // Open the DevTools.

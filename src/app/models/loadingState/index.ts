@@ -1,4 +1,4 @@
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
 import type { LoadingState } from './types';
@@ -11,18 +11,14 @@ let loadingState: LoadingState = {
   mods: false,
 };
 
-const {
-  get: getLoadingState,
-  set: setLoadingState,
-} = prepareBridge(
+const { get: getLoadingState, set: setLoadingState } = prepareBridge(
   'loading-state',
   logger,
   () => loadingState,
-  (v) => { loadingState = v; },
-  { readonly: true },
+  (value) => {
+    loadingState = value;
+  },
+  { readonly: true }
 );
 
-export {
-  getLoadingState,
-  setLoadingState,
-};
+export { getLoadingState, setLoadingState };

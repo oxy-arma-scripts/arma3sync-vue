@@ -1,15 +1,11 @@
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
-import {
-  readFile,
-  writeFile,
-  mkdir,
-} from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 
 import { app } from 'electron';
 
 import { sendToRender } from '~/app/lib/window';
-import mainLogger from '~/app/lib/logger';
+import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
 import type { RepositoriesState, Repository } from './types';
@@ -31,16 +27,23 @@ let state: RepositoriesState = {
 /**
  * Save state as file
  */
-async function saveState() {
+async function saveState(): Promise<void> {
   await mkdir(dirname(configPath), { recursive: true });
 
   try {
-    await writeFile(configPath, JSON.stringify({
-      ...state,
-      // Remove runtime-only state
-      checkStatus: undefined,
-      syncStatus: undefined,
-    }, undefined, 2));
+    await writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          ...state,
+          // Remove runtime-only state
+          checkStatus: undefined,
+          syncStatus: undefined,
+        },
+        undefined,
+        2
+      )
+    );
     logger.info('Repositories saved', { configPath });
   } catch (error) {
     logger.error('Failed to save repositories', { configPath, error });
@@ -51,7 +54,7 @@ async function saveState() {
 /**
  * Load state from file
  */
-async function loadState() {
+async function loadState(): Promise<void> {
   if (!existsSync(configPath)) {
     await saveState();
     return;
@@ -74,17 +77,14 @@ async function loadState() {
 /**
  * Setup IPC bridge for state
  */
-const {
-  get: getState,
-  set: setState,
-} = prepareBridge(
+const { get: getState, set: setState } = prepareBridge(
   'repositories',
   logger,
   () => state,
-  (v) => {
-    state = v;
+  (value) => {
+    state = value;
     saveState();
-  },
+  }
 );
 
 export {
@@ -100,13 +100,15 @@ export {
  *
  * @param repository - The configuration
  */
-export async function addRepository(repository: Repository) {
-  state.repositories = [...new Map(
-    [
-      ...state.repositories,
-      repository,
-    ].map((r) => [r.destination, r]),
-  ).values()];
+export function addRepository(repository: Repository): void {
+  state.repositories = [
+    ...new Map(
+      [...state.repositories, repository].map((repo) => [
+        repo.destination,
+        repo,
+      ])
+    ).values(),
+  ];
 
   setState(state);
 }
@@ -118,9 +120,9 @@ export async function addRepository(repository: Repository) {
  *
  * @param repository - The configuration
  */
-export async function editRepository(repository: Repository) {
+export function editRepository(repository: Repository): void {
   const index = state.repositories.findIndex(
-    ({ destination }) => destination === repository.destination,
+    ({ destination }) => destination === repository.destination
   );
   if (index < 0) {
     return;
@@ -141,9 +143,9 @@ export async function editRepository(repository: Repository) {
  *
  * @param repository - The configuration
  */
-export async function removeRepository(repository: Repository) {
+export function removeRepository(repository: Repository): void {
   state.repositories = state.repositories.filter(
-    ({ destination }) => destination !== repository.destination,
+    ({ destination }) => destination !== repository.destination
   );
 
   setState(state);

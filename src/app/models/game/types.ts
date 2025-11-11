@@ -1,3 +1,3 @@
 export type GameState = {
-  isRunning: boolean,
+  isRunning: boolean;
 };

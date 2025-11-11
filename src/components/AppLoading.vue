@@ -23,10 +23,10 @@
 <script setup lang="ts">
 const loadingStore = useAppLoadingStore();
 
-const percent = computed(
-  () => loadingStore.progress.toLocaleString(undefined, {
+const percent = computed(() =>
+  loadingStore.progress.toLocaleString(undefined, {
     style: 'percent',
     maximumFractionDigits: 0,
-  }),
+  })
 );
 </script>

@@ -1,6 +1,10 @@
 import { join } from 'node:path';
 
-import { getClient, type SyncType, type AutoConfigType } from '~/app/lib/a3sync';
+import {
+  getClient,
+  type SyncType,
+  type AutoConfigType,
+} from '~/app/lib/a3sync';
 
 import type { Repository } from './types';
 
@@ -11,7 +15,9 @@ import type { Repository } from './types';
  *
  * @returns A configured Repository (without destination, user will need to provide it)
  */
-export function getRepositoryFromAutoConfig(autoConfig: AutoConfigType[number]): Omit<Repository, 'destination'> {
+export function getRepositoryFromAutoConfig(
+  autoConfig: AutoConfigType[number]
+): Omit<Repository, 'destination'> {
   const config = autoConfig.protocole;
 
   const url = new URL(`${config.protocolType}://${config.url}`);
@@ -39,19 +45,19 @@ export async function getA3SClientFromRepository(repository: Repository) {
   const url = new URL(repository.url);
   try {
     return await getClient(url);
-  } catch (e) {
-    throw new Error('Failed to connect to server', { cause: e });
+  } catch (err) {
+    throw new Error('Failed to connect to server', { cause: err });
   }
 }
 
 export type FlatSyncItem = {
-  path: string,
-  sha1: string,
-  size: number,
+  path: string;
+  sha1: string;
+  size: number;
   mod: {
-    name: string,
-    path: string,
-  }
+    name: string;
+    path: string;
+  };
 };
 
 /**
@@ -66,30 +72,30 @@ export type FlatSyncItem = {
 export function flattenSync(
   sync: SyncType,
   root = '.',
-  parent?: { name: string, path: string },
+  parent?: { name: string; path: string }
 ): FlatSyncItem[] {
-  return sync.flatMap(
-    (syncItem): FlatSyncItem[] => {
-      const path = join(root, syncItem.name === 'racine' ? '.' : syncItem.name);
+  return sync.flatMap((syncItem): FlatSyncItem[] => {
+    const path = join(root, syncItem.name === 'racine' ? '.' : syncItem.name);
 
-      // If sha1 is present, it's a file (leaf)
-      if ('sha1' in syncItem) {
-        return [{
+    // If sha1 is present, it's a file (leaf)
+    if ('sha1' in syncItem) {
+      return [
+        {
           path,
           sha1: syncItem.sha1,
           size: syncItem.size.high,
           mod: parent,
-        }];
-      }
+        },
+      ];
+    }
 
-      let mod = parent;
-      // If sync tells us to mark it as mod, we keep it as parent
-      if (syncItem.markAsAddon) {
-        mod = { name: syncItem.name, path };
-      }
+    let mod = parent;
+    // If sync tells us to mark it as mod, we keep it as parent
+    if (syncItem.markAsAddon) {
+      mod = { name: syncItem.name, path };
+    }
 
-      // Otherwise, go deeper in tree
-      return flattenSync(syncItem.list.list ?? [], path, mod);
-    },
-  );
+    // Otherwise, go deeper in tree
+    return flattenSync(syncItem.list.list ?? [], path, mod);
+  });
 }

@@ -10,7 +10,10 @@
               prepend-icon="mdi-toy-brick-outline"
             >
               <template #append>
-                <span v-if="activeMods.length > 0" class="text-caption text-disabled">
+                <span
+                  v-if="activeMods.length > 0"
+                  class="text-caption text-disabled"
+                >
                   {{ $t('mods.enabled.count', activeMods.length) }}
                 </span>
               </template>
@@ -41,10 +44,7 @@
       <v-col order="2">
         <v-row>
           <v-col>
-            <v-toolbar
-              :title="$t('mod-sources.title')"
-              color="transparent"
-            >
+            <v-toolbar :title="$t('mod-sources.title')" color="transparent">
               <template #prepend>
                 <v-icon icon="mdi-folder-outline" />
               </template>
@@ -94,7 +94,9 @@
                   <v-row no-gutters class="ga-3">
                     <div class="d-flex align-center">
                       <v-icon
-                        :icon="specialSources[source.name]?.icon || 'mdi-folder'"
+                        :icon="
+                          specialSources[source.name]?.icon || 'mdi-folder'
+                        "
                         start
                       />
 
@@ -103,7 +105,9 @@
 
                     <v-spacer />
 
-                    <div class="d-flex align-center justify-end text-caption text-disabled">
+                    <div
+                      class="d-flex align-center justify-end text-caption text-disabled"
+                    >
                       <template v-if="source.enabledCount > 0">
                         {{ $t('mods.enabled.count', source.enabledCount) }} -
                       </template>
@@ -153,18 +157,24 @@
                     :text="$t('mod-sources.errors.noMods.text')"
                     icon="mdi-toy-brick-remove"
                   />
-                  <v-list v-else style="max-height: 500px; overflow-y: auto;">
+                  <v-list v-else style="max-height: 500px; overflow-y: auto">
                     <v-list-item
                       v-for="mod in source.mods"
                       :key="mod.id"
                       :title="mod.name"
-                      :subtitle="mod.subpath !== mod.id ? mod.subpath : undefined"
+                      :subtitle="
+                        mod.subpath !== mod.id ? mod.subpath : undefined
+                      "
                       density="compact"
                       @click="modStore.setModActive(mod, !mod.active)"
                     >
                       <template #prepend>
                         <v-list-item-action start>
-                          <v-checkbox-btn :model-value="mod.active" density="compact" readonly />
+                          <v-checkbox-btn
+                            :model-value="mod.active"
+                            density="compact"
+                            readonly
+                          />
                         </v-list-item-action>
                       </template>
                     </v-list-item>
@@ -196,14 +206,11 @@ const modStore = useModsStore();
 const showForm = shallowRef(false);
 const editedSource = ref<ModSource | undefined>();
 
-const {
-  activeMods,
-  sources,
-  isSynced,
-  loading,
-} = storeToRefs(modStore);
+const { activeMods, sources, isSynced, loading } = storeToRefs(modStore);
 
-const specialSources = computed<Record<string, { title: string, icon: string }>>(() => ({
+const specialSources = computed<
+  Record<string, { title: string; icon: string }>
+>(() => ({
   '!cdlc': {
     title: t('mod-sources.specials.cdlc'),
     icon: 'mdi-puzzle',
@@ -214,22 +221,22 @@ const specialSources = computed<Record<string, { title: string, icon: string }>>
   },
 }));
 
-function openForm(source?: DisplayModSource) {
+function openForm(source?: DisplayModSource): void {
   const ignoreKeys = new Set<string>(['mods', 'enabledCount']);
 
   editedSource.value = Object.fromEntries(
-    Object.entries(source)
-      .filter(([key]) => !ignoreKeys.has(key)),
+    Object.entries(source).filter(([key]) => !ignoreKeys.has(key))
   ) as ModSource;
 
   showForm.value = true;
 }
 
-async function onSourceUpdate(source: ModSource) {
+async function onSourceUpdate(source: ModSource): Promise<void> {
   if (editedSource.value) {
     await modStore.updateModSource(source);
     return;
   }
+
   await modStore.createModSource(source);
 }
 </script>

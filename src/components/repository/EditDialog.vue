@@ -2,11 +2,11 @@
   <v-dialog
     :model-value="modelValue"
     width="800"
-    @update:model-value="$emit('update:model-value', $event)"
+    @update:model-value="modelValue = $event"
   >
     <v-card
       :title="$t('repositories.edit.title')"
-      :subtitle="props.repository.name"
+      :subtitle="repository.name"
       prepend-icon="mdi-cloud"
     >
       <template #append>
@@ -14,7 +14,7 @@
           icon="mdi-close"
           variant="flat"
           size="small"
-          @click="$emit('update:model-value', false)"
+          @click="modelValue = false"
         />
       </template>
 
@@ -52,27 +52,20 @@
 <script setup lang="ts">
 import type { Repository } from '~/app/models/repositories/types';
 
-const props = defineProps<{
-  modelValue: boolean,
-  repository: Repository,
-}>();
-
-const emit = defineEmits<{
-  (e: 'update:model-value', value: boolean): void
-  (e: 'update:repository', value: Repository): void
-}>();
+const modelValue = defineModel<boolean>({ required: true });
+const repository = defineModel<Repository>('repository', { required: true });
 
 const { openRepositoryFolder } = useRepositoriesStore();
 
 const isValid = shallowRef(false);
-const { cloned } = useCloned(props.repository, { immediate: true });
+const { cloned } = useCloned(repository, { immediate: true });
 
-async function openFolder() {
+async function openFolder(): Promise<void> {
   await openRepositoryFolder(cloned.value);
 }
 
-function editRepository() {
-  emit('update:repository', { ...cloned.value });
-  emit('update:model-value', false);
+function editRepository(): void {
+  repository.value = { ...cloned.value };
+  modelValue.value = false;
 }
 </script>

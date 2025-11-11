@@ -2,10 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <v-toolbar
-          :title="$t('repositories.title')"
-          color="transparent"
-        >
+        <v-toolbar :title="$t('repositories.title')" color="transparent">
           <template #prepend>
             <v-icon icon="mdi-cloud-outline" />
           </template>
@@ -54,10 +51,7 @@
             <template #title>
               <v-row no-gutters class="ga-3">
                 <div class="d-flex align-center">
-                  <v-icon
-                    icon="mdi-cloud"
-                    start
-                  />
+                  <v-icon icon="mdi-cloud" start />
 
                   {{ repo.name }}
                 </div>
@@ -127,21 +121,19 @@ import type { Repository } from '~/app/models/repositories/types';
 const repositoriesStore = useRepositoriesStore();
 const { createModSource } = useModsStore();
 
-const {
-  repositoriesState,
-  isSynced,
-  loading,
-} = storeToRefs(repositoriesStore);
+const { repositoriesState, isSynced, loading } = storeToRefs(repositoriesStore);
 
 const showForm = shallowRef(false);
 const editedRepository = ref<Repository | undefined>();
 
-function openForm(repository?: Repository) {
+function openForm(repository?: Repository): void {
   editedRepository.value = repository;
   showForm.value = true;
 }
 
-async function onRepositoryUpdate(repository: Repository & { source?: ModSource }) {
+async function onRepositoryUpdate(
+  repository: Repository & { source?: ModSource }
+): Promise<void> {
   if (editedRepository.value) {
     await repositoriesStore.updateRepository(repository);
   } else {

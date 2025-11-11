@@ -2,13 +2,21 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge } from 'electron';
 
-import { registerBridge, registerReadonlyBridge, registerIPCMethod } from '~/lib/bridge';
+import {
+  registerBridge,
+  registerReadonlyBridge,
+  registerIPCMethod,
+} from '~/lib/bridge';
 
 import type { Settings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
 import type { ModsState, ModSource } from '~/app/models/mods/types';
-import type { RepositoriesState, Repository, RepositorySyncItem } from '~/app/models/repositories/types';
+import type {
+  RepositoriesState,
+  Repository,
+  RepositorySyncItem,
+} from '~/app/models/repositories/types';
 
 const ipc = {
   bridges: {
@@ -24,27 +32,39 @@ const ipc = {
     openGameFolderPicker: registerIPCMethod('openGameFolderPicker'),
     openGameFolder: registerIPCMethod<string>('openGameFolder'),
     // Mod sources methods
-    openModSourceFolder: registerIPCMethod<string, [ModSource]>('openModSourceFolder'),
+    openModSourceFolder: registerIPCMethod<string, [ModSource]>(
+      'openModSourceFolder'
+    ),
     openModSourcePicker: registerIPCMethod<ModSource[]>('openModSourcePicker'),
     addModSources: registerIPCMethod<void, [ModSource[]]>('addModSources'),
     editModSource: registerIPCMethod<void, [ModSource]>('editModSource'),
     removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
     // Repositories methods
-    importRepository: registerIPCMethod<Omit<Repository, 'destination'>, [string]>('importRepository'),
+    importRepository: registerIPCMethod<
+      Omit<Repository, 'destination'>,
+      [string]
+    >('importRepository'),
     checkRepository: registerIPCMethod<void, [Repository]>('checkRepository'),
-    openRepositoryFolder: registerIPCMethod<string, [Repository]>('openRepositoryFolder'),
+    openRepositoryFolder: registerIPCMethod<string, [Repository]>(
+      'openRepositoryFolder'
+    ),
     addRepository: registerIPCMethod<void, [Repository]>('addRepository'),
     editRepository: registerIPCMethod<void, [Repository]>('editRepository'),
     removeRepository: registerIPCMethod<void, [Repository]>('removeRepository'),
-    fetchRepository: registerIPCMethod<RepositorySyncItem[], [Repository]>('fetchRepository'),
-    syncRepository: registerIPCMethod<unknown[], [Repository, RepositorySyncItem[]]>('syncRepository'),
+    fetchRepository: registerIPCMethod<RepositorySyncItem[], [Repository]>(
+      'fetchRepository'
+    ),
+    syncRepository: registerIPCMethod<
+      unknown[],
+      [Repository, RepositorySyncItem[]]
+    >('syncRepository'),
   },
 };
 
 declare global {
-  interface Window {
-    'ipc': typeof ipc;
-  }
+  type Window = {
+    ipc: typeof ipc;
+  };
 }
 
 contextBridge.exposeInMainWorld('ipc', ipc);

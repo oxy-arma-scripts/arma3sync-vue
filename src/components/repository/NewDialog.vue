@@ -2,7 +2,7 @@
   <v-dialog
     :model-value="modelValue"
     width="800"
-    @update:model-value="$emit('update:model-value', $event)"
+    @update:model-value="modelValue = $event"
   >
     <v-card :title="$t('repositories.new.title')" prepend-icon="mdi-cloud-plus">
       <template #append>
@@ -10,16 +10,20 @@
           icon="mdi-close"
           variant="flat"
           size="small"
-          @click="$emit('update:model-value', false)"
+          @click="modelValue = false"
         />
       </template>
 
       <template #text>
         <v-stepper v-model="currentStep" flat>
-          <v-stepper-header style="box-shadow: none;">
+          <v-stepper-header style="box-shadow: none">
             <v-stepper-item
               :title="$t('repositories.new.steps.autoImport.title')"
-              :icon="currentStep > 1 && !autoImportUrl ? 'mdi-dots-horizontal' : undefined"
+              :icon="
+                currentStep > 1 && !autoImportUrl
+                  ? 'mdi-dots-horizontal'
+                  : undefined
+              "
               :complete="currentStep > 1 && !!autoImportUrl"
               :error="!areStepsValid[0]"
               :value="1"
@@ -87,7 +91,6 @@
                   @click="currentStep += 1"
                 />
               </div>
-
             </v-stepper-window-item>
 
             <v-stepper-window-item :value="2">
@@ -165,13 +168,10 @@
 <script setup lang="ts">
 import type { Repository } from '~/app/models/repositories/types';
 
-defineProps<{
-  modelValue: boolean,
-}>();
+const modelValue = defineModel<boolean>({ required: true });
 
 const emit = defineEmits<{
-  (e: 'update:model-value', value: boolean): void
-  (e: 'update:repository', value: Repository): void
+  (ev: 'update:repository', value: Repository): void;
 }>();
 
 const { useRepositoryImport, useRepositoryCheck } = useRepositoriesStore();
@@ -202,21 +202,22 @@ const {
 const rules = computed(() => ({
   autoImport: {
     url: [
-      (v: string) => {
-        if (!v) {
+      (val: string): true | string => {
+        if (!val) {
           return true;
         }
+
         try {
-          return !!new URL(v);
-        } catch (e) {
-          return e.message;
+          return !!new URL(val) as true;
+        } catch (err) {
+          return err.message;
         }
       },
     ],
   },
 }));
 
-async function importFromURL() {
+async function importFromURL(): Promise<void> {
   const imported = await importRepo();
   if (imported) {
     repository.value = imported;
@@ -224,18 +225,18 @@ async function importFromURL() {
   }
 }
 
-async function testRepository() {
-  if (checkRepo()) {
+async function testRepository(): Promise<void> {
+  if (await checkRepo()) {
     currentStep.value += 1;
   }
 }
 
-function createRepository() {
+function createRepository(): void {
   emit('update:repository', { ...repository.value });
-  emit('update:model-value', false);
+  modelValue.value = false;
 }
 
-async function createSource() {
+async function createSource(): Promise<void> {
   const [source] = await createModSourceFromPicker();
   if (!source) {
     return;

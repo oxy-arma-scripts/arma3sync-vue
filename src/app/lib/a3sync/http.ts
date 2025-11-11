@@ -29,7 +29,9 @@ function getClient(baseURL: URL, timeout?: number): Promise<Client> {
   url.username = '';
   url.password = '';
 
-  const authorization = Buffer.from([baseURL.username, baseURL.password].join(':')).toString('base64');
+  const authorization = Buffer.from(
+    [baseURL.username, baseURL.password].join(':')
+  ).toString('base64');
 
   const client = ofetch.create({
     baseURL: url.toString(),
@@ -47,7 +49,10 @@ function getClient(baseURL: URL, timeout?: number): Promise<Client> {
   });
 }
 
-async function fetchA3SFile({ client }: Client, path: string): Promise<unknown> {
+async function fetchA3SFile(
+  { client }: Client,
+  path: string
+): Promise<unknown> {
   const response = await client(path, {
     method: 'GET',
     responseType: 'stream',
@@ -84,16 +89,17 @@ async function getSync(client: Client): Promise<SyncType> {
   return Sync.parseAsync(data);
 }
 
-async function downloadFile({ client }: Client, source: string, destination: string) {
+async function downloadFile(
+  { client }: Client,
+  source: string,
+  destination: string
+): Promise<void> {
   const data = await client(source, {
     method: 'GET',
     responseType: 'stream',
   });
 
-  await pipeline(
-    Readable.fromWeb(data),
-    createWriteStream(destination),
-  );
+  await pipeline(Readable.fromWeb(data), createWriteStream(destination));
 }
 
 export {

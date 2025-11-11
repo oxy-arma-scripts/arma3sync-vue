@@ -1,7 +1,48 @@
-import type { RepositoriesState, Repository } from '~/app/models/repositories/types';
+import type { ShallowRef, ComputedRef } from 'vue';
 
-import logger from '~/lib/logger';
+import type {
+  RepositoriesState,
+  Repository,
+} from '~/app/models/repositories/types';
+
 import toRawDeep from '~/utils/toRawDeep';
+
+import { renderLogger } from '~/lib/logger';
+
+type RepositoryImportComposable = {
+  url: ShallowRef<string, string>;
+  loading: ComputedRef<boolean>;
+  error: ComputedRef<string>;
+  changed: ComputedRef<boolean>;
+  importRepo: () => Promise<Repository | null>;
+};
+
+type RepositoryCheckComposable = {
+  loading: ComputedRef<boolean>;
+  error: ComputedRef<string>;
+  checkRepo: () => Promise<boolean>;
+};
+
+async function createRepository(repository: Repository): Promise<void> {
+  await window.ipc.methods.addRepository(toRawDeep(repository));
+}
+
+async function updateRepository(repository: Repository): Promise<void> {
+  await window.ipc.methods.editRepository(toRawDeep(repository));
+}
+
+async function deleteRepository(repository: Repository): Promise<void> {
+  await window.ipc.methods.removeRepository(toRawDeep(repository));
+}
+
+async function openRepositoryFolder(source: Repository): Promise<void> {
+  const error = await window.ipc.methods.openRepositoryFolder(
+    toRawDeep(source)
+  );
+  if (error) {
+    renderLogger.error('Failed to open repository folder', { error });
+  }
+}
 
 export const useRepositoriesStore = defineStore('repositories', () => {
   const {
@@ -10,7 +51,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
     loading,
   } = useIPCBridge<RepositoriesState>('repositories');
 
-  function useRepositoryImport() {
+  function useRepositoryImport(): RepositoryImportComposable {
     const ongoing = shallowRef(false);
     const changed = shallowRef(false);
     const error = shallowRef('');
@@ -44,7 +85,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
           changed.value = false;
           return { ...repo, destination: '' };
         } catch (err) {
-          logger.error('Failed to import repository', { err });
+          renderLogger.error('Failed to import repository', { err });
           error.value = err.message;
           return null;
         } finally {
@@ -54,7 +95,9 @@ export const useRepositoriesStore = defineStore('repositories', () => {
     };
   }
 
-  function useRepositoryCheck(repository: Ref<Repository>) {
+  function useRepositoryCheck(
+    repository: Ref<Repository>
+  ): RepositoryCheckComposable {
     const ongoing = shallowRef(false);
     const error = shallowRef('');
 
@@ -68,7 +111,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
           await window.ipc.methods.checkRepository(toRawDeep(repository.value));
           return true;
         } catch (err) {
-          logger.error('Failed to check repository', { err });
+          renderLogger.error('Failed to check repository', { err });
           error.value = err.message;
           return false;
         } finally {
@@ -76,25 +119,6 @@ export const useRepositoriesStore = defineStore('repositories', () => {
         }
       },
     };
-  }
-
-  async function createRepository(repository: Repository) {
-    await window.ipc.methods.addRepository(toRawDeep(repository));
-  }
-
-  async function updateRepository(repository: Repository) {
-    await window.ipc.methods.editRepository(toRawDeep(repository));
-  }
-
-  async function deleteRepository(repository: Repository) {
-    await window.ipc.methods.removeRepository(toRawDeep(repository));
-  }
-
-  async function openRepositoryFolder(source: Repository) {
-    const error = await window.ipc.methods.openRepositoryFolder(toRawDeep(source));
-    if (error) {
-      logger.error('Failed to open repository folder', { error });
-    }
   }
 
   return {

@@ -1,17 +1,18 @@
 import { xdgData } from 'xdg-basedir';
 
-import path from 'node:path';
+import { join } from 'node:path';
+import { resolve as resolveWin32 } from 'node:path/win32';
 import { existsSync } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { spawn, type ChildProcess } from 'node:child_process';
 
 import { APP_ID } from '~/app/lib/a3';
-import { isMacOs } from '~/app/lib/platforms/macos';
+// import { isMacOs } from '~/app/lib/platforms/macos';
 import { isWindows } from '~/app/lib/platforms/windows';
 import { isLinux } from '~/app/lib/platforms/linux';
 
 // TODO: Allow to not use steam
 
-function checkIsProton() {
+function checkIsProton(): boolean {
   if (isWindows) {
     return false;
   }
@@ -20,14 +21,17 @@ function checkIsProton() {
   return true;
 }
 
-function checkIsFlatpak() {
+function checkIsFlatpak(): boolean {
   if (!isLinux) {
     return false;
   }
 
   const searchPaths = ['/var/lib', xdgData];
-  return searchPaths.some((p) => {
-    const steamPathInFlatpak = path.join(p, 'flatpak/exports/bin/com.valvesoftware.Steam');
+  return searchPaths.some((path) => {
+    const steamPathInFlatpak = join(
+      path,
+      'flatpak/exports/bin/com.valvesoftware.Steam'
+    );
     return existsSync(steamPathInFlatpak);
   });
 }
@@ -40,17 +44,20 @@ function getModParam(mods: string[]): string {
   const isProton = checkIsProton();
 
   if (isProton) {
-    return mods.map((m) => path.win32.resolve('Z:\\', m))
-      .join(';');
+    return mods.map((mod) => resolveWin32('Z:\\', mod)).join(';');
   }
   // TODO: check if macos uses the same format
   return mods.join('\\;');
 }
 
-export default async function launchGame(
+export function launchGame(
   params: string[],
-  mods: string[],
-) {
+  mods: string[]
+): {
+  cmd: string;
+  args: string[];
+  process: ChildProcess;
+} {
   // TODO: locate steam, and what if no steam ?
 
   let steamCmd = 'steam.exe';

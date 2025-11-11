@@ -11,7 +11,12 @@
             </template>
 
             <template #author>
-              <a href="https://github.com/oxypomme" target="_blank" rel="noopener noreferrer">oxypomme</a>
+              <a
+                href="https://github.com/oxypomme"
+                target="_blank"
+                rel="noopener noreferrer"
+                >oxypomme</a
+              >
             </template>
           </i18n-t>
         </div>
@@ -30,8 +35,22 @@
 
           <ul class="ml-5">
             <li>S.o.E Team</li>
-            <li><a href="https://grecedecanards.fr/online/" target="_blank" rel="noopener noreferrer">Grèce de Canards</a></li>
-            <li><a href="https://flagpedia.net/download/api" target="_blank" rel="noopener noreferrer">Flagpedia</a></li>
+            <li>
+              <a
+                href="https://grecedecanards.fr/online/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Grèce de Canards</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://flagpedia.net/download/api"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Flagpedia</a
+              >
+            </li>
           </ul>
         </div>
 

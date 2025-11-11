@@ -12,9 +12,7 @@ const routes = [
   { path: '/about', component: AboutPage },
 ];
 
-const router = createRouter({
+export const router = createRouter({
   history: createMemoryHistory(),
   routes,
 });
-
-export default router;

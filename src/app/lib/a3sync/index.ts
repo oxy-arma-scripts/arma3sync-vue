@@ -1,5 +1,7 @@
+// oxlint-disable no-namespace
 import * as ftp from './ftp';
 import * as http from './http';
+// oxlint-enable no-namespace
 
 import type {
   AutoConfigType,
@@ -11,7 +13,7 @@ import type {
 
 type A3SClient = ftp.Client | http.Client;
 
-async function getClient(baseURL: URL, timeout?: number): Promise<A3SClient> {
+function getClient(baseURL: URL, timeout?: number): Promise<A3SClient> {
   const { protocol } = baseURL;
   if (protocol.startsWith('http')) {
     return http.getClient(baseURL, timeout);
@@ -22,7 +24,7 @@ async function getClient(baseURL: URL, timeout?: number): Promise<A3SClient> {
   throw new Error(`Protocol "${protocol}" is not supported`);
 }
 
-async function getAutoConfig(client: A3SClient): Promise<AutoConfigType> {
+function getAutoConfig(client: A3SClient): Promise<AutoConfigType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getAutoConfig(client);
@@ -34,7 +36,7 @@ async function getAutoConfig(client: A3SClient): Promise<AutoConfigType> {
   }
 }
 
-async function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
+function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getChangelogs(client);
@@ -46,7 +48,7 @@ async function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
   }
 }
 
-async function getModsets(client: A3SClient): Promise<ModsetsType> {
+function getModsets(client: A3SClient): Promise<ModsetsType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getModsets(client);
@@ -58,7 +60,7 @@ async function getModsets(client: A3SClient): Promise<ModsetsType> {
   }
 }
 
-async function getServerInfo(client: A3SClient): Promise<ServerInfoType> {
+function getServerInfo(client: A3SClient): Promise<ServerInfoType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getServerInfo(client);
@@ -70,7 +72,7 @@ async function getServerInfo(client: A3SClient): Promise<ServerInfoType> {
   }
 }
 
-async function getSync(client: A3SClient): Promise<SyncType> {
+function getSync(client: A3SClient): Promise<SyncType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getSync(client);
@@ -82,7 +84,11 @@ async function getSync(client: A3SClient): Promise<SyncType> {
   }
 }
 
-async function downloadFile(client: A3SClient, source: string, destination: string) {
+function downloadFile(
+  client: A3SClient,
+  source: string,
+  destination: string
+): Promise<void> {
   switch (client.type) {
     case 'ftp':
       return ftp.downloadFile(client, source, destination);
@@ -101,7 +107,6 @@ export {
   type ModsetsType,
   type ServerInfoType,
   type SyncType,
-
   getClient,
   getAutoConfig,
   getChangelogs,
