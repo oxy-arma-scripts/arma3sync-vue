@@ -9,7 +9,7 @@ import * as a3sync from '~/app/lib/a3sync';
 
 import type { Repository, RepositorySyncItem } from './types';
 
-import { getSync } from './state';
+import { getRepositories } from './state';
 import { addToFileCheckQueue, addToFileSyncQueue } from './queues';
 
 import {
@@ -115,7 +115,7 @@ export async function fetchRepository(
     const now = Date.now();
     // Notify every 2 seconds
     if (now - (lastNotification ?? 0) > 2 * 1000) {
-      sendToRender('bridge:repositories', getSync());
+      sendToRender('bridge:repositories', getRepositories());
       lastNotification = now;
     }
     return data;
@@ -175,7 +175,7 @@ export async function fetchRepository(
     operations: operations.length,
   });
 
-  sendToRender('bridge:repositories', getSync());
+  sendToRender('bridge:repositories', getRepositories());
 
   return operations;
 }
@@ -198,7 +198,7 @@ export async function syncRepository(
     const now = Date.now();
     // Notify every 2 seconds
     if (now - (lastNotification ?? 0) > 2 * 1000) {
-      sendToRender('bridge:repositories', getSync());
+      sendToRender('bridge:repositories', getRepositories());
       lastNotification = now;
     }
   };
@@ -237,5 +237,5 @@ export async function syncRepository(
 
   logger.info('Sync complete', { repository });
 
-  sendToRender('bridge:repositories', getSync());
+  sendToRender('bridge:repositories', getRepositories());
 }

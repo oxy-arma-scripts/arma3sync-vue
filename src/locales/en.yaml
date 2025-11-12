@@ -4,6 +4,7 @@ loading:
   mods: Loading mods
   repositories: Loading repositories
   settings: Loading settings
+  modsets: Loading modsets
 
 mods:
   title: Mods

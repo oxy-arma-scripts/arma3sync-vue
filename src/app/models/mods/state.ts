@@ -1,9 +1,6 @@
-import fsp from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 
-import { app } from 'electron';
-
+import { createFileDB } from '~/app/lib/lowdb';
 import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 import { sendToRender } from '~/app/lib/window';
@@ -11,7 +8,7 @@ import { APP_ID } from '~/app/lib/a3';
 
 import { getSettings } from '~/app/models/settings';
 
-import type { ModsState, Mod, ModSource } from './types';
+import type { ModsState, Mod, ModSource, ComputedModsState } from './types';
 
 import {
   listCDLCFromSource,
@@ -20,38 +17,25 @@ import {
 } from './utils';
 
 const logger = mainLogger.scope('app.models.mods');
-const activePath = join(app.getPath('userData'), 'mods.json');
+
+let globalModList: Record<string, Mod> = {};
 
 /**
  * Current state
  */
-let state: ModsState = {
-  list: {},
+const db = createFileDB<ModsState>('mods.json', {
   sources: [],
   active: [],
-};
-
+});
 /**
  * Save state as file
  */
 async function saveState(): Promise<void> {
-  await fsp.mkdir(dirname(activePath), { recursive: true });
-
   try {
-    await fsp.writeFile(
-      activePath,
-      JSON.stringify(
-        {
-          ...state,
-          list: undefined,
-        },
-        undefined,
-        2
-      )
-    );
-    logger.info('Mods saved', { activePath });
+    await db.write();
+    logger.info('Mods saved', { dbPath: db.path });
   } catch (error) {
-    logger.error('Failed to save mods', { activePath, error });
+    logger.error('Failed to save mods', { dbPath: db.path, error });
     throw error;
   }
 }
@@ -60,20 +44,11 @@ async function saveState(): Promise<void> {
  * Load state from file
  */
 async function loadState(): Promise<void> {
-  if (!existsSync(activePath)) {
-    await saveState();
-    return;
-  }
-
   try {
-    const data = await fsp.readFile(activePath, 'utf8');
-    state = {
-      ...state,
-      ...JSON.parse(data),
-    };
-    sendToRender('bridge:mods', state);
+    await db.read();
+    sendToRender('bridge:mods', db.data);
   } catch (error) {
-    logger.error('Failed to load mods', { activePath, error });
+    logger.error('Failed to load mods', { dbPath: db.path, error });
     throw error;
   }
 }
@@ -81,13 +56,15 @@ async function loadState(): Promise<void> {
 /**
  * Setup IPC bridge for state
  */
-const { get: getState, set: setState } = prepareBridge(
+const { get: getState, set: setState } = prepareBridge<ComputedModsState>(
   'mods',
   logger,
-  () => state,
-  ({ list: _, ...value }) => {
-    state = {
-      ...state,
+  () => ({
+    ...db.data,
+    list: globalModList,
+  }),
+  ({ list: _l, ...value }) => {
+    db.data = {
       ...value,
       active: [...new Set(value.active)],
     };
@@ -107,7 +84,7 @@ export async function loadMods(): Promise<void> {
   await loadState();
 
   const settings = getSettings();
-  const sources = [...state.sources];
+  const sources = [...db.data.sources];
   const modList: Mod[] = [];
 
   if (settings.game.path) {
@@ -152,7 +129,7 @@ export async function loadMods(): Promise<void> {
     }
   }
 
-  state.list = Object.fromEntries(
+  globalModList = Object.fromEntries(
     modList.map((mod): [string, Mod] => [mod.id, mod])
   );
 
@@ -167,6 +144,8 @@ export async function loadMods(): Promise<void> {
  * @param sources - The configuration of sources
  */
 export async function addModSources(sources: ModSource[]): Promise<void> {
+  const state = getState();
+
   // Updating sources
   state.sources = [
     ...new Map(
@@ -188,14 +167,15 @@ export async function addModSources(sources: ModSource[]): Promise<void> {
   }
 
   // Saving mod list
-  state.list = {
-    ...state.list,
+  globalModList = {
+    ...globalModList,
     ...Object.fromEntries(modList.map((mod): [string, Mod] => [mod.id, mod])),
   };
 
-  // Not using setState cause we changed the list
-  sendToRender('bridge:mods', state);
-  await saveState();
+  setState(state);
+  // // Not using setState cause we changed the list
+  // sendToRender('bridge:mods', getState());
+  // await saveState();
 }
 
 /**
@@ -206,6 +186,8 @@ export async function addModSources(sources: ModSource[]): Promise<void> {
  * @param source - The configuration
  */
 export function editModSource(source: ModSource): void {
+  const state = getState();
+
   const index = state.sources.findIndex(({ path }) => path === source.path);
   if (index < 0) {
     return;
@@ -226,7 +208,9 @@ export function editModSource(source: ModSource): void {
  *
  * @param source - The configuration
  */
-export async function removeModSource(source: ModSource): Promise<void> {
+export function removeModSource(source: ModSource): void {
+  const state = getState();
+
   // Updating sources
   state.sources = state.sources.filter(({ path }) => path !== source.path);
 
@@ -235,13 +219,14 @@ export async function removeModSource(source: ModSource): Promise<void> {
     ([, mod]) => mod.source.path !== source.path
   );
 
-  state.list = Object.fromEntries(modList);
+  globalModList = Object.fromEntries(modList);
   // Ensuring active mods exists
   state.active = state.active.filter((id) =>
     modList.some(([, mod]) => mod.id === id)
   );
 
-  // Not using setState cause we changed the list
-  sendToRender('bridge:mods', state);
-  await saveState();
+  setState(state);
+  // // Not using setState cause we changed the list
+  // sendToRender('bridge:mods', getState());
+  // await saveState();
 }

@@ -28,4 +28,4 @@ prepareMethod(checkRepository);
 prepareMethod(fetchRepository);
 prepareMethod(syncRepository);
 
-export { loadRepositories, getSync } from './state';
+export { loadRepositories, getRepositories as getSync } from './state';

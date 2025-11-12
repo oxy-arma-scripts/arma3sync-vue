@@ -1,5 +1,6 @@
 import find from 'find-process';
 
+import { createMemoryDB } from '~/app/lib/lowdb';
 import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
@@ -10,9 +11,9 @@ const logger = mainLogger.scope('app.models.game');
 /**
  * Current state
  */
-let state: GameState = {
+const db = createMemoryDB<GameState>({
   isRunning: false,
-};
+});
 
 /**
  * Setup IPC bridge for state
@@ -20,9 +21,10 @@ let state: GameState = {
 const { get: getState, set: setState } = prepareBridge(
   'game',
   logger,
-  () => state,
+  () => db.data,
   (val) => {
-    state = val;
+    db.data = val;
+    db.write();
   },
   { readonly: true }
 );
@@ -33,7 +35,9 @@ export { getState as getGameState, setState as setGameState };
  * Check if game is running and update state
  */
 async function updateIsRunning(): Promise<void> {
+  const state = getState();
   let { isRunning } = state;
+
   try {
     logger.debug('Checking if game is running');
     const list = await find('name', /Arma3(_x64)?\.exe/i);
@@ -47,7 +51,7 @@ async function updateIsRunning(): Promise<void> {
   }
 
   setState({
-    ...getState(),
+    ...state,
     isRunning,
   });
 }

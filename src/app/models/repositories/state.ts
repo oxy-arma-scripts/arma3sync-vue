@@ -1,52 +1,37 @@
-import { dirname, join } from 'node:path';
-import { existsSync } from 'node:fs';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-
-import { app } from 'electron';
-
+import { createFileDB } from '~/app/lib/lowdb';
 import { sendToRender } from '~/app/lib/window';
 import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
-import type { RepositoriesState, Repository } from './types';
+import type {
+  ComputedRepositoriesState,
+  RepositoriesState,
+  Repository,
+} from './types';
 
 import { checkStatus, syncStatus } from './queues';
 
-const logger = mainLogger.scope('app.models.sync');
-const configPath = join(app.getPath('userData'), 'repositories.json');
+const logger = mainLogger.scope('app.models.repositories');
 
 /**
  * Current state
  */
-let state: RepositoriesState = {
+const db = createFileDB<RepositoriesState>('repositories.json', {
   repositories: [],
-  checkStatus,
-  syncStatus,
-};
+});
 
 /**
  * Save state as file
  */
 async function saveState(): Promise<void> {
-  await mkdir(dirname(configPath), { recursive: true });
-
   try {
-    await writeFile(
-      configPath,
-      JSON.stringify(
-        {
-          ...state,
-          // Remove runtime-only state
-          checkStatus: undefined,
-          syncStatus: undefined,
-        },
-        undefined,
-        2
-      )
-    );
-    logger.info('Repositories saved', { configPath });
+    await db.write();
+    logger.info('Repositories saved', { dbPath: db.path });
   } catch (error) {
-    logger.error('Failed to save repositories', { configPath, error });
+    logger.error('Failed to save repositories', {
+      dbPath: db.path,
+      error,
+    });
     throw error;
   }
 }
@@ -55,21 +40,14 @@ async function saveState(): Promise<void> {
  * Load state from file
  */
 async function loadState(): Promise<void> {
-  if (!existsSync(configPath)) {
-    await saveState();
-    return;
-  }
-
   try {
-    const data = await readFile(configPath, 'utf8');
-    state = {
-      ...state,
-      ...JSON.parse(data),
-    };
-
-    sendToRender('bridge:repositories', state);
+    await db.read();
+    sendToRender('bridge:repositories', db.data);
   } catch (error) {
-    logger.error('Failed to load repositories', { configPath, error });
+    logger.error('Failed to load repositories', {
+      dbPath: db.path,
+      error,
+    });
     throw error;
   }
 }
@@ -77,19 +55,24 @@ async function loadState(): Promise<void> {
 /**
  * Setup IPC bridge for state
  */
-const { get: getState, set: setState } = prepareBridge(
-  'repositories',
-  logger,
-  () => state,
-  (value) => {
-    state = value;
-    saveState();
-  }
-);
+const { get: getState, set: setState } =
+  prepareBridge<ComputedRepositoriesState>(
+    'repositories',
+    logger,
+    () => ({
+      ...db.data,
+      checkStatus,
+      syncStatus,
+    }),
+    ({ checkStatus: _c, syncStatus: _s, ...value }) => {
+      db.data = value;
+      saveState();
+    }
+  );
 
 export {
-  getState as getSync,
-  setState as setSync,
+  getState as getRepositories,
+  setState as setRepositories,
   loadState as loadRepositories,
 };
 
@@ -101,6 +84,8 @@ export {
  * @param repository - The configuration
  */
 export function addRepository(repository: Repository): void {
+  const state = getState();
+
   state.repositories = [
     ...new Map(
       [...state.repositories, repository].map((repo) => [
@@ -121,6 +106,8 @@ export function addRepository(repository: Repository): void {
  * @param repository - The configuration
  */
 export function editRepository(repository: Repository): void {
+  const state = getState();
+
   const index = state.repositories.findIndex(
     ({ destination }) => destination === repository.destination
   );
@@ -144,6 +131,8 @@ export function editRepository(repository: Repository): void {
  * @param repository - The configuration
  */
 export function removeRepository(repository: Repository): void {
+  const state = getState();
+
   state.repositories = state.repositories.filter(
     ({ destination }) => destination !== repository.destination
   );

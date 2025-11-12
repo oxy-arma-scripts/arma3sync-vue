@@ -24,7 +24,13 @@ export type ModSource = {
  * Type of the state
  */
 export type ModsState = {
-  list: Record<string, Mod>;
   sources: ModSource[];
   active: string[];
+};
+
+/**
+ * Type of the state with computed properties
+ */
+export type ComputedModsState = ModsState & {
+  list: Record<string, Mod>;
 };

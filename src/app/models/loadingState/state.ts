@@ -1,3 +1,4 @@
+import { createMemoryDB } from '~/app/lib/lowdb';
 import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
@@ -8,11 +9,11 @@ const logger = mainLogger.scope('app.models.loading-state');
 /**
  * Current state
  */
-let loadingState: LoadingState = {
+const db = createMemoryDB<LoadingState>({
   settings: false,
   repositories: false,
   mods: false,
-};
+});
 
 /**
  * Setup IPC bridge for state
@@ -20,9 +21,10 @@ let loadingState: LoadingState = {
 const { get: getLoadingState, set: setLoadingState } = prepareBridge(
   'loading-state',
   logger,
-  () => loadingState,
+  () => db.data,
   (value) => {
-    loadingState = value;
+    db.data = value;
+    db.write();
   },
   { readonly: true }
 );

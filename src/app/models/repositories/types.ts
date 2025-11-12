@@ -46,6 +46,12 @@ export type SyncQueueStatus = {
  */
 export type RepositoriesState = {
   repositories: Repository[];
+};
+
+/**
+ * Type of the state with computed properties
+ */
+export type ComputedRepositoriesState = RepositoriesState & {
   checkStatus: Record<string, FetchQueueStatus>;
   syncStatus: Record<string, SyncQueueStatus>;
 };

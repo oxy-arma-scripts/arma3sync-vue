@@ -8,12 +8,12 @@ import {
   registerIPCMethod,
 } from '~/lib/bridge';
 
-import type { Settings } from '~/app/models/settings/types';
+import type { ComputedSettings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
-import type { ModsState, ModSource } from '~/app/models/mods/types';
+import type { ComputedModsState, ModSource } from '~/app/models/mods/types';
 import type {
-  RepositoriesState,
+  ComputedRepositoriesState,
   Repository,
   RepositorySyncItem,
 } from '~/app/models/repositories/types';
@@ -21,10 +21,10 @@ import type {
 const ipc = {
   bridges: {
     loadingState: registerReadonlyBridge<LoadingState>('loading-state'),
-    settings: registerBridge<Settings>('settings'),
+    settings: registerBridge<ComputedSettings>('settings'),
     game: registerReadonlyBridge<GameState>('game'),
-    mods: registerBridge<ModsState>('mods'),
-    repositories: registerBridge<RepositoriesState>('repositories'),
+    mods: registerBridge<ComputedModsState>('mods'),
+    repositories: registerBridge<ComputedRepositoriesState>('repositories'),
   },
   methods: {
     // Game methods

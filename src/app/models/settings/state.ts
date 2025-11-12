@@ -1,23 +1,19 @@
-import { dirname, join, sep } from 'node:path';
-import { existsSync } from 'node:fs';
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { sep as pathSeparator } from 'node:path';
 
-import { app } from 'electron';
-
+import { createFileDB } from '~/app/lib/lowdb';
 import { i18n } from '~/app/lib/i18n';
 import { sendToRender } from '~/app/lib/window';
 import { mainLogger } from '~/app/lib/logger';
 import { prepareBridge } from '~/app/lib/bridge';
 
-import type { Settings } from './types';
+import type { ComputedSettings, Settings } from './types';
 
 const logger = mainLogger.scope('app.models.settings');
-const configPath = join(app.getPath('userData'), 'settings.json');
 
 /**
  * Current state
  */
-let state: Settings = {
+const db = createFileDB<Settings>('settings.json', {
   game: {
     path: '',
     params: {},
@@ -27,21 +23,17 @@ let state: Settings = {
     theme: 'auto',
     language: null, // let browser decide
   },
-
-  pathSeparator: sep,
-};
+});
 
 /**
  * Save state as file
  */
 async function saveState(): Promise<void> {
-  await mkdir(dirname(configPath), { recursive: true });
-
   try {
-    await writeFile(configPath, JSON.stringify(state, undefined, 2));
-    logger.info('Settings saved', { configPath });
+    await db.write();
+    logger.info('Settings saved', { dbPath: db.path });
   } catch (error) {
-    logger.error('Failed to save settings', { configPath, error });
+    logger.error('Failed to save settings', { dbPath: db.path, error });
     throw error;
   }
 }
@@ -50,24 +42,14 @@ async function saveState(): Promise<void> {
  * Load state from file
  */
 async function loadState(): Promise<void> {
-  if (!existsSync(configPath)) {
-    await saveState();
-    return;
-  }
-
   try {
-    const data = await readFile(configPath, 'utf8');
-    state = {
-      ...state,
-      ...JSON.parse(data),
-      pathSeparator: sep,
-    };
-    if (state.display.language) {
-      i18n.setLocale(state.display.language);
+    await db.read();
+    if (db.data.display.language) {
+      i18n.setLocale(db.data.display.language);
     }
-    sendToRender('bridge:settings', state);
+    sendToRender('bridge:settings', db.data);
   } catch (error) {
-    logger.error('Failed to load settings', { configPath, error });
+    logger.error('Failed to load settings', { dbPath: db.path, error });
     throw error;
   }
 }
@@ -75,12 +57,15 @@ async function loadState(): Promise<void> {
 /**
  * Setup IPC bridge for state
  */
-const { get: getSettings, set: setSettings } = prepareBridge(
+const { get: getState, set: setState } = prepareBridge<ComputedSettings>(
   'settings',
   logger,
-  () => state,
-  (value) => {
-    state = value;
+  () => ({
+    ...db.data,
+    pathSeparator,
+  }),
+  ({ pathSeparator: _s, ...value }) => {
+    db.data = value;
     if (value.display.language) {
       i18n.setLocale(value.display.language);
     }
@@ -89,8 +74,7 @@ const { get: getSettings, set: setSettings } = prepareBridge(
 );
 
 export {
-  getSettings,
-  setSettings,
-  saveState as saveSettings,
+  getState as getSettings,
+  setState as setSettings,
   loadState as loadSettings,
 };

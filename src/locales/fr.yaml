@@ -4,6 +4,7 @@ loading:
   settings: Chargement des paramètres
   repositories: Chargement des entrepôts
   mods: Chargement des mods
+  modsets: Chargement des modsets
 
 mods:
   title: Mods

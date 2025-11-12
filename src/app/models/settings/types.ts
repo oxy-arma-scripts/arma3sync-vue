@@ -11,6 +11,11 @@ export type Settings = {
     theme: 'light' | 'dark' | 'auto';
     language: string | null;
   };
+};
 
+/**
+ * Type of the state with computed properties
+ */
+export type ComputedSettings = Settings & {
   pathSeparator: string;
 };
