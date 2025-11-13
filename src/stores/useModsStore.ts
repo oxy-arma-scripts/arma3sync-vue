@@ -1,4 +1,8 @@
-import type { Mod, ModSource, ModsState } from '~/app/models/mods/types';
+import type {
+  ComputedModsState,
+  Mod,
+  ModSource,
+} from '~/app/models/mods/types';
 
 import { renderLogger } from '~/lib/logger';
 import toRawDeep from '~/utils/toRawDeep';
@@ -35,7 +39,11 @@ async function openModSourceFolder(source: ModSource): Promise<void> {
 export const useModsStore = defineStore('mods', () => {
   const { locale } = useI18n();
 
-  const { value: mods, isSynced, loading } = useIPCBridge<ModsState>('mods');
+  const {
+    value: mods,
+    isSynced,
+    loading,
+  } = useIPCBridge<ComputedModsState>('mods');
 
   const sources = computed(() => {
     if (!mods.value) {

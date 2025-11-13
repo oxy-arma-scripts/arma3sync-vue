@@ -1,6 +1,6 @@
 import { useTheme } from 'vuetify';
 
-import type { Settings } from '~/app/models/settings/types';
+import type { ComputedSettings } from '~/app/models/settings/types';
 
 import { renderLogger } from '~/lib/logger';
 
@@ -25,7 +25,7 @@ export const useSettingsStore = defineStore('settings', () => {
     value: settings,
     isSynced,
     loading,
-  } = useIPCBridge<Settings>('settings');
+  } = useIPCBridge<ComputedSettings>('settings');
 
   const prefersDark = usePreferredDark();
   const prefersLanguage = usePreferredLanguages();

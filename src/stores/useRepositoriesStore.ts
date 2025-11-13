@@ -1,7 +1,7 @@
 import type { ShallowRef, ComputedRef } from 'vue';
 
 import type {
-  RepositoriesState,
+  ComputedRepositoriesState,
   Repository,
 } from '~/app/models/repositories/types';
 
@@ -49,7 +49,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
     value: repositoriesState,
     isSynced,
     loading,
-  } = useIPCBridge<RepositoriesState>('repositories');
+  } = useIPCBridge<ComputedRepositoriesState>('repositories');
 
   function useRepositoryImport(): RepositoryImportComposable {
     const ongoing = shallowRef(false);
