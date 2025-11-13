@@ -71,7 +71,6 @@
           item-title="text"
           select-strategy="classic"
           selectable
-          indent-lines
           hide-actions
         >
           <template #prepend="{ item, isOpen }">
@@ -80,6 +79,12 @@
               :icon="isOpen ? 'mdi-folder-open' : 'mdi-folder'"
               class="ml-1"
             />
+          </template>
+
+          <template #append="{ item, isOpen }">
+            <span v-if="!isOpen" class="text-grey-darken-2 mr-2">
+              {{ prettyBytes(item.size, { locale }) }}
+            </span>
           </template>
 
           <template #item="{ props, item }">
@@ -94,6 +99,10 @@
               </template>
 
               <template #append>
+                <span class="text-grey-darken-2 mr-4">
+                  {{ prettyBytes(item.size, { locale }) }}
+                </span>
+
                 <v-chip label class="mr-2" v-bind="typeChips[item.type]" />
               </template>
             </v-list-item>
@@ -123,6 +132,8 @@
 </template>
 
 <script setup lang="ts">
+import prettyBytes from 'pretty-bytes';
+
 import type {
   Repository,
   RepositorySyncItem,
