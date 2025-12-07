@@ -1,61 +1,114 @@
 import { ipcRenderer } from 'electron';
-import { LogFunctions } from 'electron-log';
+import type { LogFunctions } from 'electron-log';
 
-import renderLogger from '~/lib/logger';
+import { renderLogger } from '~/lib/logger';
 
 const invokeLogger = renderLogger.scope('renderer.methods');
 
-export const registerIPCMethod = <R = void, P extends unknown[] = []>(
-  name: string,
-) => (...args: P): Promise<R> => {
+/**
+ * Prepare a method to be used with IPC
+ *
+ * @param name - Name of the method
+ *
+ * @returns The method
+ */
+export const registerIPCMethod =
+  <Result = void, Params extends unknown[] = []>(name: string) =>
+  (...args: Params): Promise<Result> => {
     invokeLogger.debug('Invoking method', { name, args });
 
-    return ipcRenderer.invoke(`method:${name}`, ...args) as Promise<R>;
+    return ipcRenderer.invoke(`method:${name}`, ...args);
   };
 
-type BridgeCallback<T> = (value: T) => void;
+type BridgeCallback<Type> = (value: Type) => void;
 
-const createGetter = <T>(
-  key: string,
-  logger: LogFunctions,
-) => () => {
+/**
+ * Create a getter using IPC
+ *
+ * @param key - The key of bridge
+ * @param logger - A logger
+ *
+ * @returns The getter
+ */
+const createGetter =
+  <Type>(key: string, logger: LogFunctions) =>
+  (): Promise<Type> => {
     logger.debug('Requesting data');
-    return ipcRenderer.invoke(`bridge:${key}`) as Promise<T>;
+    return ipcRenderer.invoke(`bridge:${key}`);
   };
 
-const createSetter = <T>(
-  key: string,
-  logger: LogFunctions,
-) => (value: T) => {
+/**
+ * Create a setter using IPC
+ *
+ * @param key - The key of bridge
+ * @param logger - A logger
+ *
+ * @returns The setter
+ */
+const createSetter =
+  <Type>(key: string, logger: LogFunctions) =>
+  (value: Type): void => {
     logger.debug('Update sent', { value });
-    ipcRenderer.invoke(`bridge:${key}`, value) as Promise<T>;
+    ipcRenderer.invoke(`bridge:${key}`, value);
   };
 
-const createWatcher = <T>(
-  key: string,
-  logger: LogFunctions,
-) => (cb: BridgeCallback<T>) => ipcRenderer.on(
-    `bridge:${key}`,
-    (ev, data) => {
+/**
+ * Create a watcher using IPC
+ *
+ * @param key - The key of bridge
+ * @param logger - A logger
+ *
+ * @returns The watcher
+ */
+const createWatcher =
+  <Type>(key: string, logger: LogFunctions) =>
+  (listener: BridgeCallback<Type>): void => {
+    ipcRenderer.on(`bridge:${key}`, (ev, data) => {
       logger.debug('Data received', { value: data });
-      cb(data);
-    },
-  );
+      listener(data);
+    });
+  };
 
-export function registerBridge<T = unknown>(key: string) {
+/**
+ * Register a bridge using IPC
+ *
+ * @param key - The key of bridge
+ *
+ * @returns The bridge
+ */
+export function registerBridge<Type = unknown>(
+  key: string
+): {
+  get: () => Promise<Type>;
+  set: (val: Type) => void;
+  watch: (listener: BridgeCallback<Type>) => void;
+} {
   const logger = renderLogger.scope(`renderer.bridge.${key}`);
 
   return {
-    get: createGetter<T>(key, logger),
-    set: createSetter<T>(key, logger),
-    watch: createWatcher<T>(key, logger),
+    get: createGetter<Type>(key, logger),
+    set: createSetter<Type>(key, logger),
+    watch: createWatcher<Type>(key, logger),
   };
 }
-export function registerReadonlyBridge<T = unknown>(key: string) {
+
+/**
+ * Register a readonly bridge using IPC
+ *
+ * @param key - The key of bridge
+ *
+ * @returns The readonly bridge
+ */
+export function registerReadonlyBridge<Type = unknown>(
+  key: string
+): {
+  get: () => Promise<Type>;
+  watch: (listener: BridgeCallback<Type>) => void;
+} {
   const logger = renderLogger.scope(`renderer.bridge.${key}`);
 
   return {
-    get: createGetter<T>(key, logger),
-    watch: createWatcher<T>(key, logger),
+    get: createGetter<Type>(key, logger),
+    watch: createWatcher<Type>(key, logger),
   };
 }

@@ -1,0 +1,11 @@
+mod-sources:
+  folderPicker:
+    title: Sélectionnez le dossier des mods
+
+settings:
+  gameFolderPicker:
+    title: Sélectionnez le dossier du jeu
+
+modsets:
+  errors:
+    readonly: Ce modset provient d'un entrepôt, il est impossible de le modifier

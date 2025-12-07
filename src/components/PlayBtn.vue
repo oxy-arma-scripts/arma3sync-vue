@@ -17,8 +17,7 @@ const { settings, isSynced } = storeToRefs(useSettingsStore());
 const { gameState } = storeToRefs(gameStore);
 
 const disabled = computed(
-  () => !settings.value?.game.path
-        || gameState.value?.isRunning
-        || !isSynced.value,
+  () =>
+    !settings.value?.game.path || gameState.value?.isRunning || !isSynced.value
 );
 </script>

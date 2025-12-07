@@ -1,19 +1,31 @@
+import type { Ref, ShallowRef, ComputedRef } from 'vue';
+
 import hash from 'object-hash';
 
-const hashVueObject = (obj: hash.NotUndefined) => hash(toRaw(obj));
+import toRawDeep from '~/utils/toRawDeep';
 
-export default function useIPCBridge<T extends hash.NotUndefined>(
+const hashVueObject = (obj: hash.NotUndefined): string => hash(toRawDeep(obj));
+
+type IPCBridgeComposable<Type extends hash.NotUndefined> = {
+  value: Ref<Type | null>;
+  isSynced: ComputedRef<boolean>;
+  loading: ShallowRef<boolean>;
+};
+
+export default function useIPCBridge<Type extends hash.NotUndefined>(
   key: keyof typeof window.ipc.bridges,
-  onUpdate?: (value: T) => void,
-) {
-  const loading = ref(true);
-  const localValue = ref<T | null>(null);
-  const localHash = ref<string>('');
-  const remoteHash = ref<string>('');
+  onUpdate?: (value: Type) => void
+): IPCBridgeComposable<Type> {
+  const loading = shallowRef(true);
+  const localValue = ref<Type | null>(null);
+  const localHash = shallowRef<string>('');
+  const remoteHash = shallowRef<string>('');
 
-  const isSynced = computed(() => localHash.value === remoteHash.value);
+  const isSynced = computed<boolean>(
+    () => localHash.value === remoteHash.value
+  );
 
-  const updateLocalValue = (value: T) => {
+  const updateLocalValue = (value: Type): void => {
     localValue.value = value;
     remoteHash.value = hashVueObject(value);
     onUpdate?.(value);
@@ -22,28 +34,36 @@ export default function useIPCBridge<T extends hash.NotUndefined>(
   const bridge = window.ipc.bridges[key];
   // Listen to updates from backend
   bridge.watch((value) => {
-    updateLocalValue(value as T);
+    updateLocalValue(value as Type);
   });
   // Set the initial value
   onMounted(async () => {
     const value = await bridge.get();
-    updateLocalValue(value as T);
+    updateLocalValue(value as Type);
     loading.value = false;
   });
 
   // Notify updates if possible
   if ('set' in bridge) {
     // Calculate hash after updates
-    watch(localValue, (value) => {
-      localHash.value = hashVueObject(value);
-    }, { deep: true });
+    watch(
+      localValue,
+      (value) => {
+        localHash.value = hashVueObject(value);
+      },
+      { deep: true }
+    );
 
-    watchDebounced(localValue, (value) => {
-      if (isSynced.value) {
-        return;
-      }
-      bridge.set(toRaw(value));
-    }, { debounce: 500, deep: true });
+    watchDebounced(
+      localValue,
+      (value) => {
+        if (isSynced.value) {
+          return;
+        }
+        bridge.set(toRaw(value));
+      },
+      { debounce: 500, deep: true }
+    );
   }
 
   return {

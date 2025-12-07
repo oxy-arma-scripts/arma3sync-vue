@@ -1,5 +1,6 @@
-import type { ModSource } from '../mods/types';
-
+/**
+ * Type of the state
+ */
 export type Settings = {
   game: {
     path: string;
@@ -9,9 +10,12 @@ export type Settings = {
   display: {
     theme: 'light' | 'dark' | 'auto';
     language: string | null;
-  }
-
-  mods: {
-    sources: ModSource[];
   };
+};
+
+/**
+ * Type of the state with computed properties
+ */
+export type ComputedSettings = Settings & {
+  pathSeparator: string;
 };

@@ -1,0 +1,13 @@
+{
+  "file_types": {
+    "JSONC": ["**/.oxlintrc.json"]
+  },
+
+  "formatter": "prettier",
+  "format_on_save": "on",
+  "languages": {
+    "YAML": {
+      "format_on_save": "off"
+    }
+  }
+}

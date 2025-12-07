@@ -27,7 +27,8 @@ export type ModMeta = {
   logoSmall?: string;
 };
 
-const fieldRegex = /^.*?(?<key>[a-z]+).*=\s*(?<value>(?:\$?[a-z0-9_-]+)|(?:".*")|(?:\{.*\})|\d+);/i;
+const fieldRegex =
+  /^.*?(?<key>[a-z]+).*=\s*(?<value>(?:\$?[a-z0-9_-]+)|(?:".*")|(?:\{.*\})|\d+);/i;
 
 type ModMetaSingleValue = string | number;
 type ModMetaValue = ModMetaSingleValue | (string | number)[];
@@ -48,9 +49,9 @@ function parseModMetaSingleValue(value: string): ModMetaSingleValue {
 function parseModMetaValue(value: string): ModMetaValue {
   if (value[0] === '{') {
     const values = value.slice(1, -1);
-    return values.split(',').map((o) => {
-      const v = o.trim();
-      return parseModMetaSingleValue(v);
+    return values.split(',').map((output) => {
+      const val = output.trim();
+      return parseModMetaSingleValue(val);
     });
   }
   return parseModMetaSingleValue(value);
@@ -60,24 +61,22 @@ export function parseModMeta(cppContents: string): ModMeta {
   const lines = cppContents.split('\n');
 
   const meta: Record<string, unknown> = {};
-  // eslint-disable-next-line no-restricted-syntax
+
   for (const line of lines) {
-    const safeLine = line.trim().replaceAll('\x00', '');
+    const safeLine = line.trim().replaceAll('\u0000', '');
     const fieldMatches = fieldRegex.exec(safeLine);
 
     if (!fieldMatches?.groups) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
     const key = fieldMatches.groups.key?.trim();
     if (!key) {
-      // eslint-disable-next-line no-continue
       continue;
     }
 
     let value: ModMetaValue | boolean = parseModMetaValue(
-      fieldMatches.groups?.value?.trim() ?? '',
+      fieldMatches.groups?.value?.trim() ?? ''
     );
     if (['hideName', 'hidePicture'].includes(key)) {
       value = value === 1;

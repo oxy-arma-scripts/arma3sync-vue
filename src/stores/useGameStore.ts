@@ -1,14 +1,11 @@
 import type { GameState } from '~/app/models/game/types';
 
-export const useGameStore = defineStore('game', () => {
-  const {
-    value: gameState,
-    loading,
-  } = useIPCBridge<GameState>('game');
+async function startGame(): Promise<void> {
+  await window.ipc.methods.game.start();
+}
 
-  async function startGame() {
-    await window.ipc.methods.startGame();
-  }
+export const useGameStore = defineStore('game', () => {
+  const { value: gameState, loading } = useIPCBridge<GameState>('game');
 
   return {
     gameState,

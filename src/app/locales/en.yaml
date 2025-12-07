@@ -1,0 +1,11 @@
+mod-sources:
+  folderPicker:
+    title: Select mods folder
+
+settings:
+  gameFolderPicker:
+    title: Select game folder
+
+modsets:
+  errors:
+    readonly: This modset is from a repository, it cannot be edited

@@ -1,7 +1,10 @@
 loading:
   unknown: Chargement des derniers éléments...
+  db: Chargement de la base de donnée
   settings: Chargement des paramètres
+  repositories: Chargement des entrepôts
   mods: Chargement des mods
+  modsets: Chargement des modsets
 
 mods:
   title: Mods
@@ -16,6 +19,12 @@ mods:
         title: Aucun mod actif
         text: Parcourez les sources de mod sur la droite pour activer des mods !
 
+modsets:
+  title: Modsets
+  chip:
+    text: '{n} mod|{n} mods'
+    enabled: '{n} actif|{n} actifs'
+
 mod-sources:
   title: Sources de mods
 
@@ -27,12 +36,91 @@ mod-sources:
     noSources:
       title: Aucune source de mod
       text: Ajouter un dossier de mods avec le bouton {'"'}@:add{'"'} pour commencer à utiliser des mods !
+    noMods:
+      title: Aucun mod trouvé dans cette source
+      text: Vérifiez l'emplacement de cette source, et si des mods sont bien présent à cet emplacement.
+    noName: Le nom est requis
+    noPath: L'emplacement est requise
+
+  item:
+    name: Nom
+    path: Emplacement des mods
+
+  new:
+    title: Nouvelle source
+
+  edit:
+    title: Éditer une source
+
+repositories:
+  title: Entrepôts
+
+  errors:
+    noRepositories:
+      title: Aucun entrepôt trouvé
+      text: Ajouter un entrepôt avec le bouton {'"'}@:add{'"'} pour se synchroniser avec un entrepôt distant !
+    noName: Le nom est requis
+    noProtocol: Le protocole est requis
+    noHost: L'hôte est requis
+    noPort: Le port est requis
+    noUsername: Un nom d'utilisateur est requis pour se connecter, sinon cochez {'"'}@:repositories.item.anonymous{'"'}
+    noPassword: Un mot de passe est requis pour se connecter, sinon cochez {'"'}@:repositories.item.anonymous{'"'}
+
+  item:
+    name: Nom
+    protocol: Protocole
+    host: Hôte
+    port: Port
+    username: Nom d'utilisateur
+    password: Mot de passe
+    anonymous: Anonyme
+
+  new:
+    title: Nouvel entrepôt
+    steps:
+      autoImport:
+        title: Importation automatique
+        url: URL pour importer automatiquement un dépôt ditant
+      details:
+        title: Détails
+      source:
+        title: Source de mods
+
+  edit:
+    title: Éditer un entrepôt
+
+  sync:
+    tab: Mise à jour
+    title: État de mise à jour
+    mods: ({mods} mods)
+    fetch: Récupérer
+    pending: Aucune information de synchronisation est disponible, veuillez cliquer sur le bouton {'"'}@:repositories.sync.fetch{'"'} en haut à droite
+    syncAvailable: >
+      {mods} mods ne sont pas synchronisés, sélectionnez les puis cliquer sur le bouton {'"'}@:repositories.sync.sync{'"'} en bas à gauche
+    syncOk: Les mods sélectionnés ont bien été synchronisés
+    selectedMods: '{n} mods sélectionnés'
+    sync: Synchroniser
+    error: Une erreur est survenue
+    loadingTooltip:
+      value: '{done} fichiers effectués sur {total}'
+    types:
+      create: Nouveau
+      update: Mise à jour
+      delete: Supprimé
+      unchanged: À jour
+
+  modsets:
+    tab: Modsets
+    title: Modsets disponibles
+    chip: '{n} mod|{n} mods'
+    error: Une erreur est survenue
 
 settings:
   title: Paramètres
 
   errors:
     noSettings: Échec du chargement des paramètres
+    missingGamePath: Le chemin du jeu est requis
 
   game:
     path: Chemin du jeu
@@ -189,5 +277,8 @@ browse: Parcourir
 pick: Choisir
 add: Ajouter
 delete: Supprimer
-edit: Editer
+edit: Éditer
+create: Créer
 play: Jouer
+import: Importer
+selectAll: Tout sélectionner

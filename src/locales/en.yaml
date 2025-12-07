@@ -1,7 +1,10 @@
 loading:
-  unknown: Chargement des derniers éléments...
+  unknown: Loading last elements...
+  db: Loading database
   mods: Loading mods
+  repositories: Loading repositories
   settings: Loading settings
+  modsets: Loading modsets
 
 mods:
   title: Mods
@@ -27,12 +30,90 @@ mod-sources:
     noSources:
       title: No mod sources found
       text: Add a source folder with the {'"'}@:add{'"'} button to start using mods !
+    noMods:
+      title: No mods in source found
+      text: Check the location of the source, and if any mods is present int this location.
+    noName: Name is required
+    noPath: Location is required
+
+  item:
+    name: Name
+    path: Location of mods
+
+  new:
+    title: New source
+
+  edit:
+    title: Edit source
+
+repositories:
+  title: Repositories
+
+  errors:
+    noRepositories:
+      title: No repositories found
+      text: Add a repository with the {'"'}@:add{'"'} button to sync from a remote !
+    noName: Name is required
+    noProtocol: Protocol is required
+    noHost: Host is required
+    noPort: Port is required
+    noUsername: Username is required to connect, or check {'"'}@:repositories.item.anonymous{'"'}
+    noPassword: Password is required to connect, or check {'"'}@:repositories.item.anonymous{'"'}
+
+  item:
+    name: Name
+    protocol: Protocol
+    host: Host
+    port: Port
+    username: Username
+    password: Password
+    anonymous: Anonymous
+
+  new:
+    title: New repository
+    steps:
+      autoImport:
+        title: Auto import
+        url: URL to auto import repository
+      details:
+        title: Details
+      source:
+        title: Mod Source
+
+  edit:
+    title: Edit repository
+
+  sync:
+    title: Update state
+    mods: ({mods} mods)
+    fetch: Fetch
+    pending: No sync information is available, please click on the {'"'}@:repositories.sync.fetch{'"'} button
+    syncAvailable: >
+      {mods} mods aren't synced, select them before clicking on the {'"'}@:repositories.sync.sync{'"'} button
+    syncOk: Selected mods were sucessfully synced
+    selectedMods: '{n} mods selected'
+    sync: Sync
+    error: An error occured
+    loadingTooltip:
+      value: '{done} files done out of {total}'
+    types:
+      create: New
+      update: Update
+      delete: Deleted
+      unchanged: Up to date
+
+  modsets:
+    tab: Modsets
+    title: Available modsets
+    chip: '{n} mod|{n} mods'
+    error: An error occured
 
 settings:
   title: Settings
 
   errors:
     noSettings: Failed to load settings
+    missingGamePath: Game path is required
 
   game:
     path: Game path
@@ -189,5 +270,8 @@ browse: Browse
 pick: Pick
 add: Add
 delete: Delete
+create: Create
 edit: Edit
 play: Play
+import: Import
+selectAll: Select all

@@ -13,10 +13,11 @@
     "resolveJsonModule": true,
 
     "types": [
-      "@intlify/unplugin-vue-i18n/messages"
+      "@intlify/unplugin-vue-i18n/messages",
+      "@modyfi/vite-plugin-yaml/modules"
     ],
     "paths": {
-      "~/*": ["./src/*"],
-    },
+      "~/*": ["./src/*"]
+    }
   }
 }
