@@ -7,6 +7,12 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 
+const WAYLAND_FLAGS = [
+  '--enable-features=UseOzonePlatform',
+  '--ozone-platform-hint=auto',
+  '--enable-features=WaylandWindowDecorations',
+];
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
@@ -14,8 +20,13 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
+
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
+
+    new MakerRpm({
+      options: { execArguments: WAYLAND_FLAGS },
+    }),
+
     new MakerDeb({}),
   ],
   plugins: [

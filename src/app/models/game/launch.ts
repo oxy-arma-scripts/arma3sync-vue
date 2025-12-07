@@ -10,20 +10,13 @@ import { APP_ID } from '~/app/lib/a3';
 import { isWindows } from '~/app/lib/platforms/windows';
 import { isLinux } from '~/app/lib/platforms/linux';
 
-// TODO: Allow to not use steam
-
 /**
- * Check if should run game with Proton
+ * Check if should run game with Proton/Wine
  *
- * @returns Should run game with proton
+ * @returns Should run game with Proton/Wine
  */
 function checkIsProton(): boolean {
-  if (isWindows) {
-    return false;
-  }
-  // TODO: Do a proper check
-  // return executable === "arma3_x64.exe";
-  return true;
+  return !isWindows;
 }
 
 /**
@@ -63,7 +56,6 @@ function getModParam(mods: string[]): string {
   if (isProton) {
     return mods.map((mod) => resolveWin32('Z:\\', mod)).join(';');
   }
-  // TODO: check if macos uses the same format
   return mods.join('\\;');
 }
 
@@ -83,8 +75,6 @@ export function launchGame(
   args: string[];
   process: ChildProcess;
 } {
-  // TODO: locate steam, and what if no steam ?
-
   let steamCmd = 'steam.exe';
   if (!isWindows) {
     steamCmd = 'steam';

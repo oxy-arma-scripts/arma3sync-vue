@@ -68,7 +68,6 @@
         <template #text>
           <v-row>
             <v-col cols="12">
-              <!-- TODO: Folder picker -->
               <v-text-field
                 v-model="settings.game.params.profiles"
                 :label="
@@ -83,7 +82,6 @@
               />
             </v-col>
             <v-col cols="12">
-              <!-- TODO: Autocomplete -->
               <v-text-field
                 v-model="settings.game.params.name"
                 :label="$t('settings.game.arguments.profileOptions.name.label')"
@@ -265,7 +263,6 @@
               />
             </v-col>
             <v-col cols="12">
-              <!-- TODO: select -->
               <v-text-field
                 v-model="settings.game.params.language"
                 :label="

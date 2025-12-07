@@ -55,7 +55,6 @@ type NavItem = {
 
 const { t } = useI18n();
 const { smAndDown } = useDisplay();
-const { t } = useI18n();
 
 const [showNav, toggleNav] = useToggle(false);
 

@@ -15,13 +15,10 @@ if (require('electron-squirrel-startup')) {
 }
 
 if (isLinux && isWayland) {
-  // TODO: Still use XWayland
   mainLogger.info('Wayland detected, setting ozone platform');
+  app.commandLine.appendSwitch('enable-features', 'UseOzonePlatform');
   app.commandLine.appendSwitch('ozone-platform-hint', 'wayland');
-  app.commandLine.appendSwitch(
-    'enable-features',
-    'UseOzonePlatform,WaylandWindowDecorations'
-  );
+  app.commandLine.appendSwitch('enable-features', 'WaylandWindowDecorations');
 }
 
 const createWindow = (): void => {
@@ -29,7 +26,7 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    // autoHideMenuBar: true,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

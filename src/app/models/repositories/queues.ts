@@ -70,7 +70,7 @@ const fileCheckQueue = createQueue(
       mod: task.syncItem.mod,
     };
   },
-  4 // TODO: make it configurable
+  4
 );
 
 /**
@@ -99,7 +99,6 @@ export async function addToFileCheckQueue(
   queueState.total += 1;
 
   const data = await fileCheckQueue.push(task);
-  // TODO: current items processed
 
   queueState.done += 1;
   queueState.active = fileCheckQueue.length() > 0;
@@ -117,24 +116,18 @@ type FileSyncTask = {
 };
 
 // Queue used to apply changes between a local and remote file
-const fileSyncQueue = createQueue(
-  async (task: FileSyncTask): Promise<void> => {
-    const source = task.item.path;
-    const destination = resolvePath(
-      task.repository.destination,
-      task.item.path
-    );
+const fileSyncQueue = createQueue(async (task: FileSyncTask): Promise<void> => {
+  const source = task.item.path;
+  const destination = resolvePath(task.repository.destination, task.item.path);
 
-    if (task.item.type === 'DELETE') {
-      await unlink(destination);
-      return;
-    }
+  if (task.item.type === 'DELETE') {
+    await unlink(destination);
+    return;
+  }
 
-    await mkdir(dirname(destination), { recursive: true });
-    await downloadFile(task.client, source, destination);
-  },
-  4 // TODO: make it configurable
-);
+  await mkdir(dirname(destination), { recursive: true });
+  await downloadFile(task.client, source, destination);
+}, 4);
 
 /**
  * Apply changes between the local and the remote version of a file
@@ -156,7 +149,6 @@ export async function addToFileSyncQueue(task: FileSyncTask): Promise<void> {
   queueState.total += 1;
 
   const data = await fileSyncQueue.push(task);
-  // TODO: current items processed
 
   queueState.done += 1;
   queueState.active = fileSyncQueue.length() > 0;

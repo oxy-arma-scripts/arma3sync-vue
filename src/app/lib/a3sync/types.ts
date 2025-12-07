@@ -59,8 +59,8 @@ export const AutoConfig = z.array(
     protocole: z.looseObject({
       validateSSLCertificate: z.boolean(),
       connectionTimeOut: z.coerce.number(),
-      encryptionMode: z.unknown(), // TODO: find out what this is
-      protocolType: z.unknown(), // TODO: is a String object for some reason
+      encryptionMode: z.unknown(),
+      protocolType: z.unknown(),
       url: z.string(),
       login: z.string(),
       password: z.string(),
