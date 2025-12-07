@@ -7,139 +7,130 @@ export type BaseClient<Type extends string, Client> = {
   baseURL: URL;
 };
 
-const JavaLong = z.object({
-  low: z.number(),
-  high: z.number(),
-  unsigned: z.boolean(),
-});
+const JavaLong = z
+  .object({
+    low: z.number(),
+    high: z.number(),
+    unsigned: z.boolean(),
+  })
+  .pipe(z.preprocess((data) => data.low, z.number()));
 
-const JavaList = <Type extends z.ZodType>(items: Type) =>
-  z
-    .object({
+const JavaList = <Type extends z.ZodType>(items: Type) => {
+  const listType = z.array(items);
+  return z
+    .looseObject({
       size: z.number(),
-      list: z.array(items).optional(),
+      list: listType.optional(),
     })
-    .catchall(z.unknown());
+    .pipe(z.preprocess((data) => data.list ?? [], listType));
+};
 
-const JavaMap = <Key extends z.ZodType, Type extends z.ZodType>(
+const JavaMap = <
+  Key extends z.ZodString | z.ZodNumber | z.ZodSymbol,
+  Type extends z.ZodType,
+>(
   keys: Key,
   items: Type
-) =>
-  z
-    .object({
-      size: z.number(),
-      // oxlint-disable-next-line no-array-method-this-argument, no-array-callback-reference
-      map: z.map(keys, items),
-    })
-    .catchall(z.unknown());
+) => {
+  const mapType = z.record(keys, items);
+  return z.looseObject({
+    obj: mapType.optional(),
+  });
+  // BUG: pipe 2 times for some reason
+  // .pipe(z.preprocess((data) => data.obj, mapType));
+};
 
 /**
  * Validation for an usable autoconfig from A3S, might not be 100% accurate
  */
 export const AutoConfig = z.array(
-  z
-    .object({
-      favoriteServers: JavaList(
-        z.object({
-          name: z.string(),
-          repositoryName: z.string(),
-          modsetName: z.string(),
-          ipAddress: z.string(),
-          port: z.int(),
-          password: z.string(),
-        })
-      ).optional(),
+  z.looseObject({
+    favoriteServers: JavaList(
+      z.object({
+        name: z.string(),
+        repositoryName: z.string(),
+        modsetName: z.string(),
+        ipAddress: z.string(),
+        port: z.int(),
+        password: z.string(),
+      })
+    ).optional(),
 
-      protocole: z
-        .object({
-          validateSSLCertificate: z.boolean(),
-          connectionTimeOut: z.coerce.number(),
-          encryptionMode: z.unknown(), // TODO: find out what this is
-          protocolType: z.unknown(), // TODO: is a String object for some reason
-          url: z.string(),
-          login: z.string(),
-          password: z.string(),
-          port: z.coerce.number(),
-        })
-        .catchall(z.unknown()),
+    protocole: z.looseObject({
+      validateSSLCertificate: z.boolean(),
+      connectionTimeOut: z.coerce.number(),
+      encryptionMode: z.unknown(), // TODO: find out what this is
+      protocolType: z.unknown(), // TODO: is a String object for some reason
+      url: z.string(),
+      login: z.string(),
+      password: z.string(),
+      port: z.coerce.number(),
+    }),
 
-      repositoryName: z.string(),
-    })
-    .catchall(z.unknown())
+    repositoryName: z.string(),
+  })
 );
 
 export type AutoConfigType = z.infer<typeof AutoConfig>;
 
 export const Changelogs = z.array(
-  z
-    .object({
-      list: JavaList(
-        z
-          .object({
-            contentUpdated: z.boolean(),
-            revision: z.int(),
-            addons: JavaList(z.string()),
-            buildDate: z.object({ '@': z.unknown() }).catchall(z.unknown()), // Buffer
-            deletedAddons: JavaList(z.string()),
-            newAddons: JavaList(z.string()),
-            updatedAddons: JavaList(z.string()),
-          })
-          .catchall(z.unknown())
-      ),
-    })
-    .catchall(z.unknown())
+  z.looseObject({
+    list: JavaList(
+      z.looseObject({
+        contentUpdated: z.boolean(),
+        revision: z.int(),
+        addons: JavaList(z.string()),
+        buildDate: z.looseObject({}), // Buffer
+        deletedAddons: JavaList(z.string()),
+        newAddons: JavaList(z.string()),
+        updatedAddons: JavaList(z.string()),
+      })
+    ),
+  })
 );
 
 export type ChangelogsType = z.infer<typeof Changelogs>;
 
-export const Modsets = z.array(
-  z
-    .object({
-      list: JavaList(
-        z
-          .object({
-            addonNames: JavaMap(
-              z.string(),
-              z
-                .object({
-                  value: z.boolean(),
-                })
-                .catchall(z.unknown())
-            ),
-            description: z.string(),
-            name: z.string(),
-          })
-          .catchall(z.unknown())
-      ),
-    })
-    .catchall(z.unknown())
+export const Events = z.array(
+  z.looseObject({
+    list: JavaList(
+      z.looseObject({
+        addonNames: JavaMap(
+          z.string(),
+          z
+            .object({
+              value: z.boolean(),
+            })
+            .catchall(z.unknown())
+        ),
+        description: z.string(),
+        name: z.string(),
+      })
+    ),
+  })
 );
 
-export type ModsetsType = z.infer<typeof Modsets>;
+export type EventsType = z.infer<typeof Events>;
 
 export const ServerInfo = z.array(
-  z
-    .object({
-      compressedPboFilesOnly: z.boolean(),
-      noPartialFileTransfer: z.boolean(),
-      numberOfConnections: z.int(),
-      numberOfFiles: JavaLong,
-      repositoryContentUpdated: z.boolean(),
-      revision: z.int(),
-      totalFilesSize: JavaLong,
-    })
-    .catchall(z.unknown())
+  z.looseObject({
+    compressedPboFilesOnly: z.boolean(),
+    noPartialFileTransfer: z.boolean(),
+    numberOfConnections: z.int(),
+    numberOfFiles: JavaLong,
+    repositoryContentUpdated: z.boolean(),
+    revision: z.int(),
+    totalFilesSize: JavaLong,
+  })
 );
 
 export type ServerInfoType = z.infer<typeof ServerInfo>;
 
-const SyncFileItem = z
-  .object({
-    size: JavaLong,
-    name: z.string(),
-    sha1: z.string(),
-  })
-  .catchall(z.unknown());
+const SyncFileItem = z.looseObject({
+  size: JavaLong,
+  name: z.string(),
+  sha1: z.string(),
+});
 
 const SyncFileDirectory = z.object({
   name: z.string(),
@@ -150,13 +141,13 @@ const SyncFileDirectory = z.object({
 
   parent: z.unknown(), // Skip it
 
-  list: z.object({
+  list: z.looseObject({
     size: z.number(),
     get list() {
       return z.array(SyncFileItem.or(SyncFileDirectory)).optional();
     },
   }),
-}); // .catchall(z.unknown());
+});
 
 export const Sync = z.array(SyncFileItem.or(SyncFileDirectory));
 

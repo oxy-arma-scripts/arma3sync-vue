@@ -1,11 +1,12 @@
 import { join, relative } from 'node:path';
 import { glob } from 'node:fs/promises';
 
+// oxlint-disable-next-line no-namespace
+import * as a3sync from '~/app/lib/a3sync';
 import { sendToRender } from '~/app/lib/window';
 import { mainLogger } from '~/app/lib/logger';
 
-// oxlint-disable-next-line no-namespace
-import * as a3sync from '~/app/lib/a3sync';
+import type { Modset } from '~/app/models/modsets/types';
 
 import type { Repository, RepositorySyncItem } from './types';
 
@@ -238,4 +239,31 @@ export async function syncRepository(
   logger.info('Sync complete', { repository });
 
   sendToRender('bridge:repositories', getRepositories());
+}
+
+/**
+ * Fetch modsets of a remote
+ */
+export async function fetchRepositoryModsets(
+  repository: Repository
+): Promise<Modset[]> {
+  const client = await getA3SClientFromRepository(repository);
+
+  let events;
+  try {
+    events = await a3sync.getEvents(client);
+  } catch (err) {
+    throw new Error('Failed to get modsets info', { cause: err });
+  }
+
+  return events.flatMap((configs) =>
+    configs.list.map((event) => ({
+      name: event.name,
+      description: event.description,
+      repository: { name: repository.name },
+      mods: Object.keys(event.addonNames.obj).map((id) => ({
+        id,
+      })),
+    }))
+  );
 }

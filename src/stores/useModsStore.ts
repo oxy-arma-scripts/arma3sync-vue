@@ -8,29 +8,32 @@ import { renderLogger } from '~/lib/logger';
 import toRawDeep from '~/utils/toRawDeep';
 
 type DisplayMod = Omit<Mod & { active: boolean }, 'source'>;
+
 export type DisplayModSource = ModSource & {
   mods: DisplayMod[];
   enabledCount: number;
 };
 
 function createModSourceFromPicker(): Promise<ModSource[]> {
-  return window.ipc.methods.openModSourcePicker();
+  return window.ipc.methods.mods.openSourcePicker();
 }
 
 async function createModSource(source: ModSource): Promise<void> {
-  await window.ipc.methods.addModSources([toRawDeep(source)]);
+  await window.ipc.methods.mods.addSources([toRawDeep(source)]);
 }
 
 async function updateModSource(source: ModSource): Promise<void> {
-  await window.ipc.methods.editModSource(toRawDeep(source));
+  await window.ipc.methods.mods.editSource(toRawDeep(source));
 }
 
 async function removeModSource(source: ModSource): Promise<void> {
-  await window.ipc.methods.removeModSource(toRawDeep(source));
+  await window.ipc.methods.mods.removeSource(toRawDeep(source));
 }
 
 async function openModSourceFolder(source: ModSource): Promise<void> {
-  const error = await window.ipc.methods.openModSourceFolder(toRawDeep(source));
+  const error = await window.ipc.methods.mods.openSourceFolder(
+    toRawDeep(source)
+  );
   if (error) {
     renderLogger.error('Failed to open source folder', { error });
   }
@@ -61,7 +64,9 @@ export const useModsStore = defineStore('mods', () => {
       ]) ?? []
     );
 
-    const activeMods = new Set(mods.value.active);
+    const activeMods = new Map(
+      mods.value.active.map((entry) => [entry.id, entry])
+    );
 
     // Map mods to sources
 
@@ -102,7 +107,7 @@ export const useModsStore = defineStore('mods', () => {
     }
 
     return mods.value.active
-      .map((id) => mods.value.list[id])
+      .map(({ id }) => mods.value.list[id])
       .toSorted((modA, modB) =>
         modA.name.localeCompare(modB.name, locale.value)
       );
@@ -119,10 +124,10 @@ export const useModsStore = defineStore('mods', () => {
     mod.active = value;
 
     if (value) {
-      mods.value.active.push(mod.id);
+      mods.value.active.push({ id: mod.id });
       return;
     }
-    mods.value.active = mods.value.active.filter((id) => id !== mod.id);
+    mods.value.active = mods.value.active.filter(({ id }) => id !== mod.id);
   }
 
   return {

@@ -13,6 +13,7 @@ const db = createMemoryDB<LoadingState>({
   settings: false,
   repositories: false,
   mods: false,
+  modsets: false,
 });
 
 /**

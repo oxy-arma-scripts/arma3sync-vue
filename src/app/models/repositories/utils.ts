@@ -83,7 +83,7 @@ export function flattenSync(
         {
           path,
           sha1: syncItem.sha1,
-          size: syncItem.size.high,
+          size: syncItem.size,
           mod: parent,
         },
       ];

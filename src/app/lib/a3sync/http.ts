@@ -14,8 +14,8 @@ import {
   type AutoConfigType,
   Changelogs,
   type ChangelogsType,
-  Modsets,
-  type ModsetsType,
+  Events,
+  type EventsType,
   ServerInfo,
   type ServerInfoType,
   Sync,
@@ -74,9 +74,9 @@ async function getChangelogs(client: Client): Promise<ChangelogsType> {
   return Changelogs.parseAsync(data);
 }
 
-async function getModsets(client: Client): Promise<ModsetsType> {
-  const data = await fetchA3SFile(client, '/.a3s/modsModsets');
-  return Modsets.parseAsync(data);
+async function getEvents(client: Client): Promise<EventsType> {
+  const data = await fetchA3SFile(client, '/.a3s/events');
+  return Events.parseAsync(data);
 }
 
 async function getServerInfo(client: Client): Promise<ServerInfoType> {
@@ -106,7 +106,7 @@ export {
   getClient,
   getAutoConfig,
   getChangelogs,
-  getModsets,
+  getEvents as getModsets,
   getServerInfo,
   getSync,
   downloadFile,

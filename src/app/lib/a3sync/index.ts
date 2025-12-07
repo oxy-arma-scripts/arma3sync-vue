@@ -6,7 +6,7 @@ import * as http from './http';
 import type {
   AutoConfigType,
   ChangelogsType,
-  ModsetsType,
+  EventsType,
   ServerInfoType,
   SyncType,
 } from './types';
@@ -48,7 +48,7 @@ function getChangelogs(client: A3SClient): Promise<ChangelogsType> {
   }
 }
 
-function getModsets(client: A3SClient): Promise<ModsetsType> {
+function getEvents(client: A3SClient): Promise<EventsType> {
   switch (client.type) {
     case 'ftp':
       return ftp.getModsets(client);
@@ -104,13 +104,13 @@ export {
   type A3SClient,
   type AutoConfigType,
   type ChangelogsType,
-  type ModsetsType,
+  type EventsType as ModsetsType,
   type ServerInfoType,
   type SyncType,
   getClient,
   getAutoConfig,
   getChangelogs,
-  getModsets,
+  getEvents,
   getServerInfo,
   getSync,
   downloadFile,

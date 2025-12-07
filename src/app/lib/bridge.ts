@@ -64,7 +64,6 @@ const createSetter =
  *
  * @returns The bridge
  */
-// oxlint-disable-next-line max-params
 export function prepareBridge<Type = unknown>(
   key: string,
   logger: LogFunctions,

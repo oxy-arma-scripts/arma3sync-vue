@@ -12,6 +12,7 @@ import type { ComputedSettings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
 import type { GameState } from '~/app/models/game/types';
 import type { ComputedModsState, ModSource } from '~/app/models/mods/types';
+import type { ModsetsState, Modset } from '~/app/models/modsets/types';
 import type {
   ComputedRepositoriesState,
   Repository,
@@ -24,47 +25,65 @@ const ipc = {
     settings: registerBridge<ComputedSettings>('settings'),
     game: registerReadonlyBridge<GameState>('game'),
     mods: registerBridge<ComputedModsState>('mods'),
+    modsets: registerBridge<ModsetsState>('modsets'),
     repositories: registerBridge<ComputedRepositoriesState>('repositories'),
   },
   methods: {
-    // Game methods
-    startGame: registerIPCMethod('startGame'),
-    openGameFolderPicker: registerIPCMethod('openGameFolderPicker'),
-    openGameFolder: registerIPCMethod<string>('openGameFolder'),
-    // Mod sources methods
-    openModSourceFolder: registerIPCMethod<string, [ModSource]>(
-      'openModSourceFolder'
-    ),
-    openModSourcePicker: registerIPCMethod<ModSource[]>('openModSourcePicker'),
-    addModSources: registerIPCMethod<void, [ModSource[]]>('addModSources'),
-    editModSource: registerIPCMethod<void, [ModSource]>('editModSource'),
-    removeModSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
-    // Repositories methods
-    importRepository: registerIPCMethod<
-      Omit<Repository, 'destination'>,
-      [string]
-    >('importRepository'),
-    checkRepository: registerIPCMethod<void, [Repository]>('checkRepository'),
-    openRepositoryFolder: registerIPCMethod<string, [Repository]>(
-      'openRepositoryFolder'
-    ),
-    addRepository: registerIPCMethod<void, [Repository]>('addRepository'),
-    editRepository: registerIPCMethod<void, [Repository]>('editRepository'),
-    removeRepository: registerIPCMethod<void, [Repository]>('removeRepository'),
-    fetchRepository: registerIPCMethod<RepositorySyncItem[], [Repository]>(
-      'fetchRepository'
-    ),
-    syncRepository: registerIPCMethod<
-      unknown[],
-      [Repository, RepositorySyncItem[]]
-    >('syncRepository'),
+    game: {
+      start: registerIPCMethod('startGame'),
+      openFolderPicker: registerIPCMethod('openGameFolderPicker'),
+      openFolder: registerIPCMethod<string>('openGameFolder'),
+    },
+    mods: {
+      addSources: registerIPCMethod<void, [ModSource[]]>('addModSources'),
+      editSource: registerIPCMethod<void, [ModSource]>('editModSource'),
+      removeSource: registerIPCMethod<void, [ModSource]>('removeModSource'),
+
+      openSourcePicker: registerIPCMethod<ModSource[]>('openModSourcePicker'),
+      openSourceFolder: registerIPCMethod<string, [ModSource]>(
+        'openModSourceFolder'
+      ),
+    },
+    repositories: {
+      add: registerIPCMethod<void, [Repository]>('addRepository'),
+      edit: registerIPCMethod<void, [Repository]>('editRepository'),
+      remove: registerIPCMethod<void, [Repository]>('removeRepository'),
+
+      openFolder: registerIPCMethod<string, [Repository]>(
+        'openRepositoryFolder'
+      ),
+
+      import: registerIPCMethod<Omit<Repository, 'destination'>, [string]>(
+        'importRepository'
+      ),
+      check: registerIPCMethod<void, [Repository]>('checkRepository'),
+      fetch: registerIPCMethod<RepositorySyncItem[], [Repository]>(
+        'fetchRepository'
+      ),
+      sync: registerIPCMethod<unknown[], [Repository, RepositorySyncItem[]]>(
+        'syncRepository'
+      ),
+
+      fetchModsets: registerIPCMethod<Modset[], [Repository]>(
+        'fetchRepositoryModsets'
+      ),
+    },
+    modsets: {
+      add: registerIPCMethod<void, [Modset]>('addModset'),
+      edit: registerIPCMethod<void, [Modset]>('editModset'),
+      remove: registerIPCMethod<void, [Modset]>('removeModset'),
+
+      apply: registerIPCMethod<void, [Modset]>('applyModset'),
+      unapply: registerIPCMethod<void, [Modset]>('unapplyModset'),
+    },
   },
 };
 
 declare global {
-  type Window = {
+  // oxlint-disable-next-line consistent-type-definitions
+  interface Window {
     ipc: typeof ipc;
-  };
+  }
 }
 
 contextBridge.exposeInMainWorld('ipc', ipc);

@@ -161,7 +161,8 @@ const { repository } = defineProps<{
 
 const { t, locale } = useI18n();
 const { settings } = storeToRefs(useSettingsStore());
-const { repositoriesState } = storeToRefs(useRepositoriesStore());
+const repositoriesStore = useRepositoriesStore();
+const { repositoriesState } = storeToRefs(repositoriesStore);
 
 // const actionStartedAt = ref<Date | undefined>();
 const isFetching = shallowRef(false);
@@ -443,9 +444,7 @@ async function fetchDiff(): Promise<void> {
   isFetching.value = true;
 
   try {
-    const data = await window.ipc.methods.fetchRepository(
-      toRawDeep(repository)
-    );
+    const data = await repositoriesStore.fetchRepositorySync(repository);
 
     diff.value = data.toSorted((itemA, itemB) =>
       itemA.path.localeCompare(itemB.path, locale.value)
@@ -471,10 +470,7 @@ async function syncRepo(): Promise<void> {
   const selectedDiff = selectedMods.flatMap(({ items }) => items);
 
   try {
-    await window.ipc.methods.syncRepository(
-      toRawDeep(repository),
-      toRawDeep(selectedDiff)
-    );
+    await repositoriesStore.syncRepository(repository, selectedDiff);
     isSyncComplete.value = true;
   } catch (err) {
     syncError.value = err.message;

@@ -45,7 +45,7 @@ export function startGame(): void {
   // Resolving active mods
   const { list, active } = getMods();
   const activeMods = active
-    .map((id): string => {
+    .map(({ id }): string => {
       const mod = list[id];
       if (!mod) {
         return '';

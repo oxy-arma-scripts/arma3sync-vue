@@ -1,6 +1,15 @@
 export type ModFeatures = 'addons' | 'keys' | 'meta' | 'main';
 
 /**
+ * Source that contains mods in filesystem
+ */
+export type ModSource = {
+  name: string;
+  path: string;
+  native?: true;
+};
+
+/**
  * Mod that can be added to game
  */
 export type Mod = {
@@ -12,20 +21,11 @@ export type Mod = {
 };
 
 /**
- * Source that contains mods in filesystem
- */
-export type ModSource = {
-  name: string;
-  path: string;
-  native?: true;
-};
-
-/**
  * Type of the state
  */
 export type ModsState = {
   sources: ModSource[];
-  active: string[];
+  active: { id: string }[];
 };
 
 /**

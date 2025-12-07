@@ -6,7 +6,7 @@ import { renderLogger } from '~/lib/logger';
 
 async function openGameFolderPicker(): Promise<void> {
   try {
-    await window.ipc.methods.openGameFolderPicker();
+    await window.ipc.methods.game.openFolderPicker();
   } catch (err) {
     renderLogger.error('Failed to pick game folder', { err });
   }
@@ -14,7 +14,7 @@ async function openGameFolderPicker(): Promise<void> {
 
 async function openGameFolder(): Promise<void> {
   try {
-    await window.ipc.methods.openGameFolder();
+    await window.ipc.methods.game.openFolder();
   } catch (err) {
     renderLogger.error('Failed to open game folder', { err });
   }

@@ -93,6 +93,7 @@ repositories:
     syncOk: Selected mods were sucessfully synced
     selectedMods: '{n} mods selected'
     sync: Sync
+    error: An error occured
     loadingTooltip:
       value: '{done} files done out of {total}'
     types:
@@ -100,6 +101,12 @@ repositories:
       update: Update
       delete: Deleted
       unchanged: Up to date
+
+  modsets:
+    tab: Modsets
+    title: Available modsets
+    chip: '{n} mod|{n} mods'
+    error: An error occured
 
 settings:
   title: Settings

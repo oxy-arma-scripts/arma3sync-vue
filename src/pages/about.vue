@@ -15,8 +15,9 @@
                 href="https://github.com/oxypomme"
                 target="_blank"
                 rel="noopener noreferrer"
-                >oxypomme</a
               >
+                oxypomme
+              </a>
             </template>
           </i18n-t>
         </div>
@@ -40,16 +41,18 @@
                 href="https://grecedecanards.fr/online/"
                 target="_blank"
                 rel="noopener noreferrer"
-                >Grèce de Canards</a
               >
+                Grèce de Canards
+              </a>
             </li>
             <li>
               <a
                 href="https://flagpedia.net/download/api"
                 target="_blank"
                 rel="noopener noreferrer"
-                >Flagpedia</a
               >
+                Flagpedia
+              </a>
             </li>
           </ul>
         </div>

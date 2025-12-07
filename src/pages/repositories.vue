@@ -93,7 +93,28 @@
             </template>
 
             <template #text>
-              <RepositorySyncPanel :repository="repo" />
+              <v-tabs :items="tabs" grow>
+                <template #tab="{ item }">
+                  <v-tab
+                    :prepend-icon="item.icon"
+                    :text="item.text"
+                    :value="item.value"
+                  />
+                </template>
+
+                <template #item="{ item }">
+                  <v-tabs-window-item :value="item.value">
+                    <RepositorySyncPanel
+                      v-if="item.value === 'sync'"
+                      :repository="repo"
+                    />
+                    <RepositoryModsetsPanel
+                      v-if="item.value === 'modsets'"
+                      :repository="repo"
+                    />
+                  </v-tabs-window-item>
+                </template>
+              </v-tabs>
             </template>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -118,6 +139,7 @@
 import type { ModSource } from '~/app/models/mods/types';
 import type { Repository } from '~/app/models/repositories/types';
 
+const { t } = useI18n();
 const repositoriesStore = useRepositoriesStore();
 const { createModSource } = useModsStore();
 
@@ -125,6 +147,19 @@ const { repositoriesState, isSynced, loading } = storeToRefs(repositoriesStore);
 
 const showForm = shallowRef(false);
 const editedRepository = ref<Repository | undefined>();
+
+const tabs = computed(() => [
+  {
+    value: 'sync',
+    icon: 'mdi-sync',
+    text: t('repositories.sync.tab'),
+  },
+  {
+    value: 'modsets',
+    icon: 'mdi-group',
+    text: t('repositories.modsets.tab'),
+  },
+]);
 
 function openForm(repository?: Repository): void {
   editedRepository.value = repository;

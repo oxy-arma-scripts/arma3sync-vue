@@ -19,6 +19,12 @@ mods:
         title: Aucun mod actif
         text: Parcourez les sources de mod sur la droite pour activer des mods !
 
+modsets:
+  title: Modsets
+  chip:
+    text: '{n} mod|{n} mods'
+    enabled: '{n} actif|{n} actifs'
+
 mod-sources:
   title: Sources de mods
 
@@ -84,6 +90,7 @@ repositories:
     title: Éditer un entrepôt
 
   sync:
+    tab: Mise à jour
     title: État de mise à jour
     mods: ({mods} mods)
     fetch: Récupérer
@@ -101,6 +108,12 @@ repositories:
       update: Mise à jour
       delete: Supprimé
       unchanged: À jour
+
+  modsets:
+    tab: Modsets
+    title: Modsets disponibles
+    chip: '{n} mod|{n} mods'
+    error: Une erreur est survenue
 
 settings:
   title: Paramètres

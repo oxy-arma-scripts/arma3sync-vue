@@ -3,7 +3,9 @@ import type { ShallowRef, ComputedRef } from 'vue';
 import type {
   ComputedRepositoriesState,
   Repository,
+  RepositorySyncItem,
 } from '~/app/models/repositories/types';
+import type { Modset } from '~/app/models/modsets/types';
 
 import toRawDeep from '~/utils/toRawDeep';
 
@@ -24,24 +26,44 @@ type RepositoryCheckComposable = {
 };
 
 async function createRepository(repository: Repository): Promise<void> {
-  await window.ipc.methods.addRepository(toRawDeep(repository));
+  await window.ipc.methods.repositories.add(toRawDeep(repository));
 }
 
 async function updateRepository(repository: Repository): Promise<void> {
-  await window.ipc.methods.editRepository(toRawDeep(repository));
+  await window.ipc.methods.repositories.edit(toRawDeep(repository));
 }
 
 async function deleteRepository(repository: Repository): Promise<void> {
-  await window.ipc.methods.removeRepository(toRawDeep(repository));
+  await window.ipc.methods.repositories.remove(toRawDeep(repository));
 }
 
 async function openRepositoryFolder(source: Repository): Promise<void> {
-  const error = await window.ipc.methods.openRepositoryFolder(
+  const error = await window.ipc.methods.repositories.openFolder(
     toRawDeep(source)
   );
   if (error) {
     renderLogger.error('Failed to open repository folder', { error });
   }
+}
+
+function fetchRepositorySync(
+  repository: Repository
+): Promise<RepositorySyncItem[]> {
+  return window.ipc.methods.repositories.fetch(toRawDeep(repository));
+}
+
+async function syncRepository(
+  repository: Repository,
+  diff: RepositorySyncItem[]
+): Promise<void> {
+  await window.ipc.methods.repositories.sync(
+    toRawDeep(repository),
+    toRawDeep(diff)
+  );
+}
+
+function fetchRepositoryModsets(repository: Repository): Promise<Modset[]> {
+  return window.ipc.methods.repositories.fetchModsets(toRawDeep(repository));
 }
 
 export const useRepositoriesStore = defineStore('repositories', () => {
@@ -81,7 +103,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
         ongoing.value = true;
         error.value = '';
         try {
-          const repo = await window.ipc.methods.importRepository(url.value);
+          const repo = await window.ipc.methods.repositories.import(url.value);
           changed.value = false;
           return { ...repo, destination: '' };
         } catch (err) {
@@ -108,7 +130,9 @@ export const useRepositoriesStore = defineStore('repositories', () => {
         ongoing.value = true;
         error.value = '';
         try {
-          await window.ipc.methods.checkRepository(toRawDeep(repository.value));
+          await window.ipc.methods.repositories.check(
+            toRawDeep(repository.value)
+          );
           return true;
         } catch (err) {
           renderLogger.error('Failed to check repository', { err });
@@ -131,5 +155,8 @@ export const useRepositoriesStore = defineStore('repositories', () => {
     createRepository,
     updateRepository,
     deleteRepository,
+    fetchRepositorySync,
+    syncRepository,
+    fetchRepositoryModsets,
   };
 });

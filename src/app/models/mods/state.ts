@@ -66,7 +66,9 @@ const { get: getState, set: setState } = prepareBridge<ComputedModsState>(
   ({ list: _l, ...value }) => {
     db.data = {
       ...value,
-      active: [...new Set(value.active)],
+      active: [
+        ...new Map(value.active.map((entry) => [entry.id, entry])).values(),
+      ],
     };
     saveState();
   }
@@ -173,9 +175,6 @@ export async function addModSources(sources: ModSource[]): Promise<void> {
   };
 
   setState(state);
-  // // Not using setState cause we changed the list
-  // sendToRender('bridge:mods', getState());
-  // await saveState();
 }
 
 /**
@@ -221,12 +220,9 @@ export function removeModSource(source: ModSource): void {
 
   globalModList = Object.fromEntries(modList);
   // Ensuring active mods exists
-  state.active = state.active.filter((id) =>
+  state.active = state.active.filter(({ id }) =>
     modList.some(([, mod]) => mod.id === id)
   );
 
   setState(state);
-  // // Not using setState cause we changed the list
-  // sendToRender('bridge:mods', getState());
-  // await saveState();
 }
