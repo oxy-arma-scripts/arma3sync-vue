@@ -8,10 +8,11 @@ import { addRepository, editRepository, removeRepository } from './state';
 
 import {
   importRepository,
-  checkRepository,
-  fetchRepository,
-  syncRepository,
+  checkRepositoryInfo,
+  fetchRepositoryDiff,
+  syncRepositoryDiff,
   fetchRepositoryModsets,
+  fetchRepositoryGameServers,
 } from './actions';
 
 // Prepare methods for IPC
@@ -25,9 +26,10 @@ prepareMethod(editRepository);
 prepareMethod(removeRepository);
 
 prepareMethod(importRepository);
-prepareMethod(checkRepository);
-prepareMethod(fetchRepository);
-prepareMethod(syncRepository);
+prepareMethod(checkRepositoryInfo);
+prepareMethod(fetchRepositoryDiff);
+prepareMethod(syncRepositoryDiff);
 prepareMethod(fetchRepositoryModsets);
+prepareMethod(fetchRepositoryGameServers);
 
 export { loadRepositories, getRepositories } from './state';

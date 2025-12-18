@@ -49,14 +49,14 @@ async function openRepositoryFolder(source: Repository): Promise<void> {
 function fetchRepositorySync(
   repository: Repository
 ): Promise<RepositorySyncItem[]> {
-  return window.ipc.methods.repositories.fetch(toRawDeep(repository));
+  return window.ipc.methods.repositories.fetchDiff(toRawDeep(repository));
 }
 
 async function syncRepository(
   repository: Repository,
   diff: RepositorySyncItem[]
 ): Promise<void> {
-  await window.ipc.methods.repositories.sync(
+  await window.ipc.methods.repositories.syncDiff(
     toRawDeep(repository),
     toRawDeep(diff)
   );
@@ -130,7 +130,7 @@ export const useRepositoriesStore = defineStore('repositories', () => {
         ongoing.value = true;
         error.value = '';
         try {
-          await window.ipc.methods.repositories.check(
+          await window.ipc.methods.repositories.checkInfo(
             toRawDeep(repository.value)
           );
           return true;

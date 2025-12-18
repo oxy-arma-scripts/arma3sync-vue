@@ -14,6 +14,10 @@ import type { GameState } from '~/app/models/game/types';
 import type { ComputedModsState, ModSource } from '~/app/models/mods/types';
 import type { ModsetsState, Modset } from '~/app/models/modsets/types';
 import type {
+  GameServersState,
+  GameServer,
+} from '~/app/models/gameServers/types';
+import type {
   ComputedRepositoriesState,
   Repository,
   RepositorySyncItem,
@@ -25,8 +29,9 @@ const ipc = {
     settings: registerBridge<ComputedSettings>('settings'),
     game: registerReadonlyBridge<GameState>('game'),
     mods: registerBridge<ComputedModsState>('mods'),
-    modsets: registerBridge<ModsetsState>('modsets'),
     repositories: registerBridge<ComputedRepositoriesState>('repositories'),
+    modsets: registerBridge<ModsetsState>('modsets'),
+    gameServers: registerBridge<GameServersState>('game-servers'),
   },
   methods: {
     game: {
@@ -56,16 +61,22 @@ const ipc = {
       import: registerIPCMethod<Omit<Repository, 'destination'>, [string]>(
         'importRepository'
       ),
-      check: registerIPCMethod<void, [Repository]>('checkRepository'),
-      fetch: registerIPCMethod<RepositorySyncItem[], [Repository]>(
-        'fetchRepository'
+      checkInfo: registerIPCMethod<boolean, [Repository]>(
+        'checkRepositoryInfo'
       ),
-      sync: registerIPCMethod<unknown[], [Repository, RepositorySyncItem[]]>(
-        'syncRepository'
+      fetchDiff: registerIPCMethod<RepositorySyncItem[], [Repository]>(
+        'fetchRepositoryDiff'
       ),
+      syncDiff: registerIPCMethod<
+        unknown[],
+        [Repository, RepositorySyncItem[]]
+      >('syncRepositoryDiff'),
 
       fetchModsets: registerIPCMethod<Modset[], [Repository]>(
         'fetchRepositoryModsets'
+      ),
+      fetchGameServers: registerIPCMethod<GameServer[], [Repository]>(
+        'fetchRepositoryGameServers'
       ),
     },
     modsets: {
@@ -75,6 +86,11 @@ const ipc = {
 
       apply: registerIPCMethod<void, [Modset]>('applyModset'),
       unapply: registerIPCMethod<void, [Modset]>('unapplyModset'),
+    },
+    gameServers: {
+      add: registerIPCMethod<void, [GameServer]>('addGameServer'),
+      edit: registerIPCMethod<void, [GameServer]>('editGameServer'),
+      remove: registerIPCMethod<void, [GameServer]>('removeGameServer'),
     },
   },
 };

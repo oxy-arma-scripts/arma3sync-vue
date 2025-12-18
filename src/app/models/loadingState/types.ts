@@ -6,4 +6,5 @@ export type LoadingState = {
   repositories: boolean;
   mods: boolean;
   modsets: boolean;
+  gameServers: boolean;
 };

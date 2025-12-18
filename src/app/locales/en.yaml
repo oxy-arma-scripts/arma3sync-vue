@@ -9,3 +9,7 @@ settings:
 modsets:
   errors:
     readonly: This modset is from a repository, it cannot be edited
+
+gameServers:
+  errors:
+    readonly: This server is from a repository, it cannot be edited

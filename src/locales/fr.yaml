@@ -5,6 +5,7 @@ loading:
   repositories: Chargement des entrepôts
   mods: Chargement des mods
   modsets: Chargement des modsets
+  gameServers: Chargement des serveurs de jeu
 
 mods:
   title: Mods
@@ -282,3 +283,4 @@ create: Créer
 play: Jouer
 import: Importer
 selectAll: Tout sélectionner
+invalidURL: Cette URL n'est pas valide

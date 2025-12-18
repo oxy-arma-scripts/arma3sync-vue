@@ -73,6 +73,9 @@ export const AutoConfig = z.array(
 
 export type AutoConfigType = z.infer<typeof AutoConfig>;
 
+/**
+ * Validation for usable changelogs from A3S, might not be 100% accurate
+ */
 export const Changelogs = z.array(
   z.looseObject({
     list: JavaList(
@@ -91,6 +94,9 @@ export const Changelogs = z.array(
 
 export type ChangelogsType = z.infer<typeof Changelogs>;
 
+/**
+ * Validation for usable events from A3S, might not be 100% accurate
+ */
 export const Events = z.array(
   z.looseObject({
     list: JavaList(
@@ -112,6 +118,9 @@ export const Events = z.array(
 
 export type EventsType = z.infer<typeof Events>;
 
+/**
+ * Validation for an usable info about A3S server, might not be 100% accurate
+ */
 export const ServerInfo = z.array(
   z.looseObject({
     compressedPboFilesOnly: z.boolean(),
@@ -149,6 +158,9 @@ const SyncFileDirectory = z.object({
   }),
 });
 
+/**
+ * Validation for an usable sync file from A3S, might not be 100% accurate
+ */
 export const Sync = z.array(SyncFileItem.or(SyncFileDirectory));
 
 export type SyncType = z.infer<typeof Sync>;

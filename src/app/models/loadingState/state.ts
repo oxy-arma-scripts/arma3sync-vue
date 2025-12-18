@@ -14,6 +14,7 @@ const db = createMemoryDB<LoadingState>({
   repositories: false,
   mods: false,
   modsets: false,
+  gameServers: false,
 });
 
 /**

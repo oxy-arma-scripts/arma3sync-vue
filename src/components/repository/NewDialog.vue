@@ -174,6 +174,8 @@ const emit = defineEmits<{
   (ev: 'update:repository', value: Repository): void;
 }>();
 
+const { t } = useI18n();
+
 const { useRepositoryImport, useRepositoryCheck } = useRepositoriesStore();
 const { createModSourceFromPicker, updateModSource } = useModsStore();
 
@@ -207,11 +209,7 @@ const rules = computed(() => ({
           return true;
         }
 
-        try {
-          return !!new URL(val) as true;
-        } catch (err) {
-          return err.message;
-        }
+        return URL.canParse(val) || t('invalidURL');
       },
     ],
   },

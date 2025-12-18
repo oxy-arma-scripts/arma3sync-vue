@@ -7,6 +7,7 @@ import { sendToRender } from '~/app/lib/window';
 import { mainLogger } from '~/app/lib/logger';
 
 import type { Modset } from '~/app/models/modsets/types';
+import type { GameServer } from '~/app/models/gameServers/types';
 
 import type { Repository, RepositorySyncItem } from './types';
 
@@ -62,7 +63,7 @@ export async function importRepository(
  *
  * @returns If configuration is valid
  */
-export async function checkRepository(
+export async function checkRepositoryInfo(
   repository: Repository
 ): Promise<boolean> {
   const client = await getA3SClientFromRepository(repository);
@@ -84,7 +85,7 @@ export async function checkRepository(
  * @returns The difference
  */
 // oxlint-disable-next-line max-lines-per-function
-export async function fetchRepository(
+export async function fetchRepositoryDiff(
   repository: Repository
 ): Promise<RepositorySyncItem[]> {
   const client = await getA3SClientFromRepository(repository);
@@ -188,7 +189,7 @@ export async function fetchRepository(
  * @param diff - The items we need to do (`UNCHANGED` items will be ignoreed)
  */
 // oxlint-disable-next-line max-lines-per-function
-export async function syncRepository(
+export async function syncRepositoryDiff(
   repository: Repository,
   diff: RepositorySyncItem[]
 ): Promise<void> {
@@ -265,5 +266,36 @@ export async function fetchRepositoryModsets(
         id,
       })),
     }))
+  );
+}
+
+/**
+ * Fetch game servers available on a remote
+ */
+export async function fetchRepositoryGameServers(
+  repository: Repository
+): Promise<GameServer[]> {
+  const client = await getA3SClientFromRepository(repository);
+
+  let remotes;
+  try {
+    remotes = await a3sync.getAutoConfig(client);
+  } catch (err) {
+    throw new Error('Failed to get modsets info', { cause: err });
+  }
+
+  return remotes.flatMap((configs) =>
+    configs.favoriteServers.map((srv) => {
+      const url = new URL(`a3://${srv.ipAddress}`);
+      url.password = srv.password;
+      url.port = `${srv.port}`;
+
+      return {
+        name: srv.name,
+        url: url.toString(),
+        modset: srv.modsetName ? { name: srv.modsetName } : undefined,
+        repository: { name: repository.name },
+      };
+    })
   );
 }

@@ -9,3 +9,7 @@ settings:
 modsets:
   errors:
     readonly: Ce modset provient d'un entrepôt, il est impossible de le modifier
+
+gameServers:
+  errors:
+    readonly: Ce serveur provient d'un entrepôt, il est impossible de le modifier

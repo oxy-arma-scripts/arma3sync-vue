@@ -7,6 +7,7 @@ import { loadSettings } from '~/app/models/settings';
 import { loadMods } from '~/app/models/mods';
 import { loadRepositories } from '~/app/models/repositories';
 import { loadModsets } from '~/app/models/modsets';
+import { loadGameServers } from '~/app/models/gameServers';
 // oxlint-disable-next-line no-unassigned-import
 import '~/app/models/game/index';
 
@@ -24,6 +25,9 @@ async function loadApp(): Promise<void> {
 
   await loadModsets();
   setStep('modsets', true);
+
+  await loadGameServers();
+  setStep('gameServers', true);
 }
 
 export function init(browser: BrowserWindow): void {

@@ -5,6 +5,7 @@ loading:
   repositories: Loading repositories
   settings: Loading settings
   modsets: Loading modsets
+  gameServers: Loading game servers
 
 mods:
   title: Mods
@@ -18,6 +19,12 @@ mods:
       noMods:
         title: No mods enabled
         text: Browse mod sources on the right to enable some mods !
+
+modsets:
+  title: Modsets
+  chip:
+    text: '{n} mod|{n} mods'
+    enabled: '{n} active'
 
 mod-sources:
   title: Mods sources
@@ -275,3 +282,4 @@ edit: Edit
 play: Play
 import: Import
 selectAll: Select all
+invalidURL: This URL isn't valid

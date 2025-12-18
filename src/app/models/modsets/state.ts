@@ -79,7 +79,6 @@ export async function loadModsets(): Promise<void> {
   );
 
   const perRepo = Map.groupBy(db.data.modsets, (item) => item.repository?.name);
-  db.data.modsets.filter((set) => !set.repository);
 
   const promises = [...perRepo.keys()].map(async (repoName) => {
     const repository = repositories.get(repoName);
