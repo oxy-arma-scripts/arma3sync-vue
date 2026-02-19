@@ -90,7 +90,7 @@ export async function loadGameServers(): Promise<void> {
     try {
       remoteServers = await fetchRepositoryGameServers(repository);
     } catch (error) {
-      logger.error('Failed to list modsets from repository', {
+      logger.error('Failed to list gameServers from repository', {
         repository,
         error,
       });
@@ -107,11 +107,11 @@ export async function loadGameServers(): Promise<void> {
     );
   });
 
-  const modsetsToAdd = await Promise.all(promises);
+  const gameServersToAdd = await Promise.all(promises);
 
   db.data.servers = [
     ...db.data.servers.filter((srv) => !srv.repository),
-    ...modsetsToAdd.flat(),
+    ...gameServersToAdd.flat(),
   ];
 
   logger.info('Game servers refreshed');
@@ -125,7 +125,7 @@ export async function loadGameServers(): Promise<void> {
  *
  * @param server - The configuration
  */
-export function addModset(server: GameServer): void {
+export function addGameServer(server: GameServer): void {
   const state = getState();
 
   const serverMap = new Map(state.servers.map((srv) => [srv.name, srv]));
@@ -159,7 +159,7 @@ export function addModset(server: GameServer): void {
  *
  * @param server - The configuration
  */
-export function editModset(server: GameServer): void {
+export function editGameServer(server: GameServer): void {
   const state = getState();
 
   const serverMap = new Map(state.servers.map((srv) => [srv.name, srv]));
@@ -169,11 +169,11 @@ export function editModset(server: GameServer): void {
   if (!existingServer) {
     return;
   }
-  // If new modset doesn't have a source and the found one have it, reject
+  // If new gameServer doesn't have a source and the found one have it, reject
   if (!server.repository?.name && existingServer.repository?.name) {
     throw new Error(t('gameServers.errors.readonly'));
   }
-  // If new modset have a source but doesn't match, do nothing
+  // If new gameServer have a source but doesn't match, do nothing
   if (
     server.repository.name &&
     server.repository.name !== existingServer.repository?.name
@@ -194,7 +194,7 @@ export function editModset(server: GameServer): void {
  *
  * @param server - The configuration
  */
-export function removeModset(server: GameServer): void {
+export function removeGameServer(server: GameServer): void {
   const state = getState();
 
   state.servers = state.servers.filter(({ name }) => name !== server.name);

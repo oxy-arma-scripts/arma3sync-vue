@@ -1,14 +1,10 @@
 import { prepareMethod } from '~/app/lib/bridge';
 
-import { addModset, editModset, removeModset } from './state';
-import { applyModset, unapplyModset } from './actions';
+import { addGameServer, editGameServer, removeGameServer } from './state';
 
 // Prepare methods for IPC
-prepareMethod(addModset);
-prepareMethod(editModset);
-prepareMethod(removeModset);
-
-prepareMethod(applyModset);
-prepareMethod(unapplyModset);
+prepareMethod(addGameServer);
+prepareMethod(editGameServer);
+prepareMethod(removeGameServer);
 
 export { loadGameServers, getGameServers } from './state';

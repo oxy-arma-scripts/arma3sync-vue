@@ -10,7 +10,7 @@ import {
 
 import type { ComputedSettings } from '~/app/models/settings/types';
 import type { LoadingState } from '~/app/models/loadingState/types';
-import type { GameState } from '~/app/models/game/types';
+import type { GameState, StartGameOptions } from '~/app/models/game/types';
 import type { ComputedModsState, ModSource } from '~/app/models/mods/types';
 import type { ModsetsState, Modset } from '~/app/models/modsets/types';
 import type {
@@ -35,7 +35,9 @@ const ipc = {
   },
   methods: {
     game: {
-      start: registerIPCMethod('startGame'),
+      start: registerIPCMethod<void, [StartGameOptions | undefined]>(
+        'startGame'
+      ),
       openFolderPicker: registerIPCMethod('openGameFolderPicker'),
       openFolder: registerIPCMethod<string>('openGameFolder'),
     },

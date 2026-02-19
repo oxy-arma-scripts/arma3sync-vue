@@ -6,24 +6,17 @@ import { getSettings } from '~/app/models/settings';
 import { getMods } from '~/app/models/mods';
 
 // import { isLinux } from '~/app/lib/platforms/linux';
+import type { StartGameOptions } from './types';
 import { launchGame } from './launch';
 
 import { setGameState, getGameState } from './state';
 
 const logger = mainLogger.scope('app.models.game');
 
-// oxlint-disable-next-line max-lines-per-function
-export function startGame(): void {
-  const settings = getSettings();
+function prepareParams(input: Record<string, string | boolean>): string[] {
+  const params: string[] = [];
 
-  // Default params
-  // We're using -noLauncher to disable the launcher, since we don't need it
-  const params: string[] = ['-noLauncher'];
-
-  // Set params from settings
-  // https://community.bistudio.com/wiki/Arma_3:_Startup_Parameters
-
-  for (const [key, value] of Object.entries(settings.game.params)) {
+  for (const [key, value] of Object.entries(input)) {
     if (!value) {
       continue;
     }
@@ -41,6 +34,33 @@ export function startGame(): void {
       params.push(`-${key}=${value}`);
     }
   }
+
+  return params;
+}
+
+// oxlint-disable-next-line max-lines-per-function
+export function startGame(options: StartGameOptions = {}): void {
+  const settings = getSettings();
+
+  const gameParams = { ...settings.game.params };
+
+  // Add parameters if server is provided
+  if (options.gameServer) {
+    const serverUrl = new URL(options.gameServer.url);
+
+    gameParams.connect = serverUrl.hostname;
+    gameParams.port = serverUrl.port || '2302';
+    gameParams.password = serverUrl.password;
+  }
+
+  // https://community.bistudio.com/wiki/Arma_3:_Startup_Parameters
+  const params: string[] = [
+    // Default params
+    // We're using -noLauncher to disable the launcher, since we don't need it
+    '-noLauncher',
+    // Set params from settings
+    ...prepareParams(gameParams),
+  ];
 
   // Resolving active mods
   const { list, active } = getMods();

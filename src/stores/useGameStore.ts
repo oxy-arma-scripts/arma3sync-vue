@@ -1,7 +1,7 @@
-import type { GameState } from '~/app/models/game/types';
+import type { GameState, StartGameOptions } from '~/app/models/game/types';
 
-async function startGame(): Promise<void> {
-  await window.ipc.methods.game.start();
+async function startGame(options?: StartGameOptions): Promise<void> {
+  await window.ipc.methods.game.start(toRawDeep(options));
 }
 
 export const useGameStore = defineStore('game', () => {

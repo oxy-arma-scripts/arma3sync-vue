@@ -6,6 +6,7 @@ import type {
   RepositorySyncItem,
 } from '~/app/models/repositories/types';
 import type { Modset } from '~/app/models/modsets/types';
+import type { GameServer } from '~/app/models/gameServers/types';
 
 import toRawDeep from '~/utils/toRawDeep';
 
@@ -64,6 +65,14 @@ async function syncRepository(
 
 function fetchRepositoryModsets(repository: Repository): Promise<Modset[]> {
   return window.ipc.methods.repositories.fetchModsets(toRawDeep(repository));
+}
+
+function fetchRepositoryGameServers(
+  repository: Repository
+): Promise<GameServer[]> {
+  return window.ipc.methods.repositories.fetchGameServers(
+    toRawDeep(repository)
+  );
 }
 
 export const useRepositoriesStore = defineStore('repositories', () => {
@@ -158,5 +167,6 @@ export const useRepositoriesStore = defineStore('repositories', () => {
     fetchRepositorySync,
     syncRepository,
     fetchRepositoryModsets,
+    fetchRepositoryGameServers,
   };
 });

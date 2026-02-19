@@ -19,12 +19,12 @@
           :value="set.name"
           :title="set.name"
           :subtitle="set.description"
-          :active="watchedModsets.has(set.name)"
+          :active="registeredModsets.has(set.name)"
           @click="toggleModset(set)"
         >
           <template #prepend>
             <v-list-item-action start>
-              <v-checkbox-btn :model-value="watchedModsets.has(set.name)" />
+              <v-checkbox-btn :model-value="registeredModsets.has(set.name)" />
             </v-list-item-action>
           </template>
 
@@ -61,7 +61,7 @@ const { repository } = defineProps<{
   repository: Repository;
 }>();
 
-const { t, locale } = useI18n();
+const { locale } = useI18n();
 const repositoriesStore = useRepositoriesStore();
 const modsetsStore = useModsetsStore();
 
@@ -71,7 +71,7 @@ const modsets = ref<Modset[]>([]);
 const isFetching = shallowRef(false);
 const fetchError = shallowRef('');
 
-const watchedModsets = computed(() => {
+const registeredModsets = computed(() => {
   const watchedNames = modsetsState.value.modsets
     .filter((set) => set.repository?.name === repository.name)
     .map((set) => set.name.replace(` (${repository.name})`, ''));
@@ -97,7 +97,7 @@ async function fetchModsets() {
 }
 
 async function toggleModset(modset: Modset) {
-  if (watchedModsets.value.has(modset.name)) {
+  if (registeredModsets.value.has(modset.name)) {
     await modsetsStore.deleteModset(modset);
     return;
   }

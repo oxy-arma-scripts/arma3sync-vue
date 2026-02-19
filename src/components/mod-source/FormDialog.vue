@@ -1,9 +1,5 @@
 <template>
-  <v-dialog
-    :model-value="modelValue"
-    width="600"
-    @update:model-value="modelValue = $event"
-  >
+  <v-dialog v-model="modelValue" width="600">
     <v-card
       :title="$t(`mod-sources.${source ? 'edit' : 'new'}.title`)"
       :subtitle="source?.name"

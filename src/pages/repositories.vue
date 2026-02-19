@@ -112,6 +112,10 @@
                       v-if="item.value === 'modsets'"
                       :repository="repo"
                     />
+                    <RepositoryGameServersPanel
+                      v-if="item.value === 'game-servers'"
+                      :repository="repo"
+                    />
                   </v-tabs-window-item>
                 </template>
               </v-tabs>
@@ -158,6 +162,11 @@ const tabs = computed(() => [
     value: 'modsets',
     icon: 'mdi-group',
     text: t('repositories.modsets.tab'),
+  },
+  {
+    value: 'game-servers',
+    icon: 'mdi-server-network',
+    text: t('repositories.game-servers.tab'),
   },
 ]);
 

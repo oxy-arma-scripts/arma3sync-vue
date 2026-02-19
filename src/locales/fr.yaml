@@ -116,6 +116,35 @@ repositories:
     chip: '{n} mod|{n} mods'
     error: Une erreur est survenue
 
+  game-servers:
+    title: Serveurs disponibles
+    error: Une erreur est survenue
+
+game-servers:
+  select:
+    title: Se connecter à un serveur
+    buttons:
+      add: Ajouter un serveur
+      edit: Éditer un serveur
+      delete: '@:delete'
+
+  edit:
+    title: '@:game-servers.select.buttons.edit'
+  new:
+    title: '@:game-servers.select.buttons.add'
+
+  item:
+    name: Nom du serveur
+    host: Adresse du serveur
+    port: Port du serveur
+    password: Mot de passe du serveur
+    modset: Modset à activer avec le serveur
+
+  errors:
+    noName: Aucun nom n'est défini
+    noHost: Aucune adressse n'est définie
+    noPort: Aucun port n'est défini
+
 settings:
   title: Paramètres
 

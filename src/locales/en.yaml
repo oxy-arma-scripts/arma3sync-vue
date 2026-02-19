@@ -115,6 +115,35 @@ repositories:
     chip: '{n} mod|{n} mods'
     error: An error occured
 
+  game-servers:
+    title: Available servers
+    error: An error occured
+
+game-servers:
+  select:
+    title: Connect to a server
+    buttons:
+      add: Add a server
+      edit: '@:edit'
+      delete: '@:delete'
+
+  edit:
+    title: '@:game-servers.select.buttons.edit'
+  new:
+    title: '@:game-servers.select.buttons.add'
+
+  item:
+    name: Server name
+    host: Server address
+    port: Server port
+    password: Server password
+    modset: Modset to enable with server
+
+  errors:
+    noName: No name is defined
+    noHost: No addresss is defined
+    noPort: No port is defined
+
 settings:
   title: Settings
 
