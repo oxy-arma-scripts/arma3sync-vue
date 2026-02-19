@@ -16,18 +16,28 @@ const WAYLAND_FLAGS = [
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
+    icon: 'images/icon',
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      setupIcon: 'images/icon.ico',
+    }),
 
     new MakerZIP({}, ['darwin']),
 
     new MakerRpm({
-      options: { execArguments: WAYLAND_FLAGS },
+      options: {
+        execArguments: WAYLAND_FLAGS,
+        icon: 'images/icon.png',
+      },
     }),
 
-    new MakerDeb({}),
+    new MakerDeb({
+      options: {
+        icon: 'images/icon.png',
+      },
+    }),
   ],
   plugins: [
     new VitePlugin({
